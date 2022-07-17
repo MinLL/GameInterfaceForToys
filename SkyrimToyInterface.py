@@ -44,13 +44,36 @@ def beep():
     print("\a")
 
 class ChasterInterface(object):
-    def __init__(self, lock_name, developer_token, wheel_hooks = {}):
+    def __init__(self, lock_name, developer_token, toys):
+        self.toys = toys
         self.lock_name = lock_name
         self.token = developer_token
         self.api_root = "https://api.chaster.app/"
         self.extensions = {}
         self.enabled = True
-        self.wheel_hooks = wheel_hooks
+        self.wheel_hooks = {
+            'slsi_shock1': self.slsi_shock1,
+            'slsi_shock2': self.slsi_shock2,
+            'slsi_dice': lambda: "Dice Game: {}".format(self.roll_dice()),
+            'slsi_gear': lambda: "Gear Task: {}".format(self.assign_task("Match your characters bondage outfit for two hours.")),
+            'slsi_plug': lambda: "Plug Task: {}".format(self.assign_task("Insert a plug and keep it there for at least an hour.")),
+            'slsi_clamps': lambda: "Clamp Task: {}".format(self.assign_task("Wear your clamps for at lehast 20 minutes.") ),
+            'slsi_overstimulate': self.overstimulate,
+            'slsi_tease': self.tease,
+        }
+
+    def slsi_shock1(self):
+        return self.toys.vibrate(5, 80)
+
+    def slsi_shock2(self):
+        return self.toys.vibrate(10, 100)
+    
+    def overstimulate(self):
+        return self.toys.vibrate(random.randint(300, 600) , 100)
+
+    def tease(self):
+        return self.toys.vibrate(240, 5)
+        
 
     def setup(self):
         try:
@@ -71,9 +94,9 @@ class ChasterInterface(object):
             "User-Agent": "SkyrimToyInterface {}".format(VERSION)
         }
         if method == "GET":
-            return requests.get(self.api_root + endpoint, headers=headers, timeout=5)
+            return requests.get(self.api_root + endpoint, headers=headers, timeout=10)
         elif method == "POST":
-            return requests.post(self.api_root + endpoint, headers=headers, json=data, timeout=5)
+            return requests.post(self.api_root + endpoint, headers=headers, json=data, timeout=10)
         else:
             raise FatalException("Unsupported method type to ChasterInterface")
 
@@ -131,7 +154,7 @@ class ChasterInterface(object):
             if r.status_code == 201:
                 success("  Extension executed successfully.")
             else:
-                fail("  Failed to execute extension: " + str(r))
+                fail("  Failed to execute extension ({}): {}".format(r.status_code, r.text))
             return r
         except KeyError:
             fail("  Extension {} not enabled for lock {}".format(extension, self.lock['title']))
@@ -167,7 +190,7 @@ class ChasterInterface(object):
         if response in self.wheel_hooks.keys():
             response = self.wheel_hooks[response]()
         success("    Outcome: {}".format(response))
-        return r
+        return response
 
 
 class LovenseInterface(object):
@@ -298,6 +321,9 @@ class SkyrimScriptInterface(object):
         self.token = token
         self.toys = ToyInterface(toy_type)
 
+    def _chaster_spin_wheel(self, match):
+        return self.chaster.spin_wheel()
+    
     def setup(self):
         sexlab_hooks = {
             # Sexlab Support
@@ -309,11 +335,11 @@ class SkyrimScriptInterface(object):
         if self.chaster_enabled:
             chaster_hooks = {
                 # Defeat integration
-                re.compile(".+Defeat: SetFollowers / Scenario.+$"): lambda m: self.chaster.spin_wheel(), # Player was knocked down.
+                re.compile(".+Defeat: SetFollowers / Scenario.+$"): self._chaster_spin_wheel, # Player was knocked down.
                 re.compile(".+Defeat: PostAssault Marker Found.+$"): lambda m: self.chaster.update_time(random.randint(CHASTER_DEFEAT_MIN, CHASTER_DEFEAT_MAX)), # Party was defeated.
-                re.compile(".+Defeat: Player victim - End scene, Restored.+$"): lambda m: self.chaster.spin_wheel(), #  Player actually died.
+                re.compile(".+Defeat: Player victim - End scene, Restored.+$"): self._chaster_spin_wheel, #  Player actually died.
                 # Naked Defeat integration
-                re.compile(".+NAKED DEFEAT playeraliasquest: OnEnterBleedout\(\).+"): lambda m: self.chaster.spin_wheel(), # Player was knocked down.
+                re.compile(".+NAKED DEFEAT playeraliasquest: OnEnterBleedout\(\).+"): self._chaster_spin_wheel, # Player was knocked down.
                 re.compile(".+NAKED DEFEAT playeraliasquest: \(#msg\) All is lost.+"): lambda m: self.chaster.update_time(random.randint(CHASTER_DEFEAT_MIN, CHASTER_DEFEAT_MAX)) # Party was defeated.
             }
         devious_hooks = {
@@ -333,28 +359,12 @@ class SkyrimScriptInterface(object):
         self.hooks = {**sexlab_hooks, **chaster_hooks, **devious_hooks, **toys_hooks, **misc_hooks}
 
         if self.chaster_enabled:
-            self.chaster = ChasterInterface(LOCK_NAME, self.token, { 
-
-                'slsi_shock1': lambda: "Shock Task: {}".format(self.toys.vibrate(5, 80)),
-                'slsi_shock2': lambda: "Shock Task 2: {}".format(self.toys.vibrate(10, 100)),
-                'slsi_dice': lambda: "Dice Game: {}".format(self.chaster.roll_dice()),
-                'slsi_gear': lambda: "Gear Task: {}".format(self.chaster.assign_task("Match your characters bondage outfit for two hours.")),
-                'slsi_plug': lambda: "Plug Task: {}".format(self.chaster.assign_task("Insert a plug and keep it there for at least an hour.")),
-                'slsi_clamps': lambda: "Clamp Task: {}".format(self.chaster.assign_task("Wear your clamps for at lehast 20 minutes.") ),
-                'slsi_overstimulate': lambda: "Overstimulation: {}".format(self.overstimulate()),
-                'slsi_tease': lambda: "Teasing: {}".format(self.tease())
-            })
+            self.chaster = ChasterInterface(LOCK_NAME, self.token, self.toys)
             self.chaster.setup()
             
     def dd_event(self, match):
         # Processing [Nipple Piercings]
         return self.toys.vibrate(random.randint(2, 30), 10)
-        
-    def overstimulate(self):
-        return self.toys.vibrate(random.randint(300, 600) , 100)
-
-    def tease(self):
-        return self.toys.vibrate(240, 5)
         
     def stack_overflow(self, match):
         if not WARN_ON_STACK_DUMP:

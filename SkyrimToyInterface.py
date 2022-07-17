@@ -23,12 +23,12 @@ LOG_PATH = '../Documents/My Games/Skyrim VR/Logs/Script/Papyrus.0.log' # Full pa
 CHARACTER_NAME = "Min"  # The name of your character. 
 
 # Toy configuration
-TOY_TYPE = [TOY_LOVENSE, TOY_COYOTE]
+TOY_TYPE = [TOY_COYOTE, TOY_LOVENSE]
 DD_VIB_MULT = 2  # Duration of vibration event is multiplied by this value. 
 WARN_ON_STACK_DUMP = True  # Loop short vibrations to notify user of Stack Dumps. Set to False to disable.
 
 # Configuration if using Chaster:
-CHASTER_TOKEN = ""
+CHASTER_TOKEN = ""#3IL8CJtJDfElKQEyh1Djgf4by3qevXPJ"
 LOCK_NAME = "Self-lock"  # The name of the lock to manipulate. Must be unique.
 # LOCK_NAME = "Keyholder lock"  # The name of the lock to manipulate. Must be unique.
 # Chaster + Sexlab Defeat Configuration
@@ -274,7 +274,7 @@ class ToyInterface(object):
                 self.interface += [ButtplugInterface()]
             elif toy == TOY_COYOTE:
                 self.interface += [CoyoteInterface(device_uid="C1:A9:D8:0C:CB:1D",
-                                                 power_multiplier=1.28,
+                                                 power_multiplier=7.68,
                                                  default_channel="a",
                                                  safe_mode=True)]  # See implementation for parameter details
             else:
@@ -362,7 +362,7 @@ class SkyrimScriptInterface(object):
                 'slsi_dice': lambda: "Dice Game: {}".format(self.chaster.roll_dice()),
                 'slsi_gear': lambda: "Gear Task: {}".format(self.chaster.assign_task("Match your characters bondage outfit for two hours.")),
                 'slsi_plug': lambda: "Plug Task: {}".format(self.chaster.assign_task("Insert a plug and keep it there for at least an hour.")),
-                'slsi_clamps': lambda: "Clamp Task: {}".format(self.chaster.assign_task("Wear your clamps for at least 20 minutes.") ),
+                'slsi_clamps': lambda: "Clamp Task: {}".format(self.chaster.assign_task("Wear your clamps for at lehast 20 minutes.") ),
                 'slsi_overstimulate': lambda: "Overstimulation: {}".format(self.overstimulate()),
                 'slsi_tease': lambda: "Teasing: {}".format(self.tease())
             })
@@ -370,13 +370,13 @@ class SkyrimScriptInterface(object):
             
     def dd_event(self, match):
         # Processing [Nipple Piercings]
-        self.toys.vibrate(random.randint(2, 30), 10)
+        return self.toys.vibrate(random.randint(2, 30), 10)
         
     def overstimulate(self):
-        self.toys.vibrate(random.randint(300, 600) , 100)
+        return self.toys.vibrate(random.randint(300, 600) , 100)
 
     def tease(self):
-        self.toys.vibrate(240, 5)
+        return self.toys.vibrate(240, 5)
         
     def stack_overflow(self, match):
         if not WARN_ON_STACK_DUMP:
@@ -391,18 +391,18 @@ class SkyrimScriptInterface(object):
         self.file_pointer = fd.tell()
         
     def vibrate(self, match):
-        self.toys.vibrate(int(match.group(2)) * DD_VIB_MULT, 20 * int(match.group(1)))
+        return self.toys.vibrate(int(match.group(2)) * DD_VIB_MULT, 20 * int(match.group(1)))
 
     def toys_vibrate(self, match):
         orientation = match.group(1) # left/right, unused for now
-        self.toys.vibrate(int(match.group(3)), int(match.group(2)))
+        return self.toys.vibrate(int(match.group(3)), int(match.group(2)))
 
     def sex_start(self, match):
         info("Sex_start")
-        self.toys.vibrate(300, random.randint(60,100))
+        return self.toys.vibrate(300, random.randint(60,100))
 
     def sex_end(self, match):
-        self.toys.stop()
+        return self.toys.stop()
 
     def parse_log(self):
         stamp = os.stat(self.filename).st_mtime
@@ -448,12 +448,13 @@ async def run_task(foo, run_async=False):
     else:
         # No need to do anything if the task was not async.
         return
-    
+
+
 async def main():
     ssi = SkyrimScriptInterface(toy_type=TOY_TYPE, token=CHASTER_TOKEN)
     ssi.setup()
     await run_task(ssi.toys.connect())
-    await run_task(ssi.toys.vibrate(5, 300), run_async=True)
+    await run_task(ssi.toys.vibrate(5, 10), run_async=True)
     await asyncio.sleep(5)
     await run_task(ssi.toys.stop())
     while True:

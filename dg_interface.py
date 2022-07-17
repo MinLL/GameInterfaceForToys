@@ -71,7 +71,7 @@ class CoyoteInterface:
                             what you are doing! See self._set_pwm() for implementation details.
     """
 
-    def __init__(self, device_uid="C1:A9:D8:0C:CB:1D", power_multiplier=1.28, default_channel="a", safe_mode=True):
+    def __init__(self, device_uid="C1:A9:D8:0C:CB:1D", power_multiplier=7.68, default_channel="a", safe_mode=True):
         """
         The constructor for the CoyoteInterface class.
 
@@ -384,8 +384,18 @@ class CoyoteInterface:
                 # fixme: Might work worse than a flat time.sleep(0.1)?
                 time.sleep(time_delta / 1000)  # Convert from milliseconds to seconds
         else:
+            last_power_check = int(time.time())
             for _ in range(repeats):  # repeat pattern a number of times
                 for state in pattern:
+                    now = int(time.time())
+                    # Check to see if we've stopped once per second.
+                    if now - last_power_check > 1:
+                        print("power check")
+                        output = await self.device.read_gatt_char(self._pwm_ab2)
+                        # If power is 0, stop() has been called outside this function.
+                        if output == bytearray(b'\x00\x00\x00'):
+                            return
+                        last_power_check = int(time.time())
 
                     # unpack pattern values
                     ax, ay, az = state
@@ -403,16 +413,20 @@ class CoyoteInterface:
                     #fixme: Might work worse than a flat time.sleep(0.1)?
                     time.sleep(time_delta / 1000)  # Convert from milliseconds to seconds
 
+    def convert_power(self, strength: int):
+        min_power = 300
+        vibrateRange = (100 - 0)  
+        stimRange = (768 - min_power)  
+        return int((((strength - 0) * stimRange) / vibrateRange) + min_power)
+
     async def vibrate(self, duration: int, strength: int):  #
         """
         Method for compatibility with SkyrimToyInterface. Send a "vibration" signal of given duration and strength.
 
         :param duration: Vibration duration in milliseconds (ms).
-        :param strength: Vibration strength (0 <= x <= 600).
-        TODO: This code assumes an incoming vibration strength range of 0 <= x <= 600. Is this a true assumption?
+        :param strength: Vibration strength (0 <= x <= 100).
         """
-
-        await self.signal(power=int(strength * self.power_multiplier),  # cast float to integer for compatibility with func.
+        await self.signal(power=self.convert_power(strength),  # cast float to integer for compatibility with func.
                           pattern=self.patterns[0],  # todo: Different patterns corresponding to in-game events.
                           duration=(duration * 1000),
                           channel=self.default_channel)

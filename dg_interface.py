@@ -450,7 +450,7 @@ class CoyoteInterface:
                 asyncio.sleep(0.1)
                 timeout += 1
         await self.signal(power=self.convert_power(strength),  # cast float to integer for compatibility with func.
-                          pattern=self.patterns[0],  # todo: Different patterns corresponding to in-game events.
+                          pattern=self.patterns[1],  # todo: Different patterns corresponding to in-game events.
                           duration=(duration * 1000),
                           channel=self.default_channel)
 

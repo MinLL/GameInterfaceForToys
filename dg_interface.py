@@ -390,7 +390,6 @@ class CoyoteInterface:
                     now = int(time.time())
                     # Check to see if we've stopped once per second.
                     if now - last_power_check > 1:
-                        print("power check")
                         output = await self.device.read_gatt_char(self._pwm_ab2)
                         # If power is 0, stop() has been called outside this function.
                         if output == bytearray(b'\x00\x00\x00'):

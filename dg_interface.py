@@ -349,6 +349,9 @@ class CoyoteInterface:
         # Set channel target (a/b)
         characteristic = self._pwm_b34 if channel == "b" else self._pwm_a34
 
+        # Set killswitch
+        self.stop_signal = False
+        
         # Set power
         await self._set_pwm(power, power)  # todo: independent power strength for each individual channel. Perhaps thru
         # self.get_pwm()?
@@ -387,12 +390,12 @@ class CoyoteInterface:
             last_power_check = int(time.time())
             for _ in range(repeats):  # repeat pattern a number of times
                 for state in pattern:
+                    if self.stop_signal:
+                        return
                     now = int(time.time())
-                    # Check to see if we've stopped once per second.
+                    # Check to see if power output has been reduced to zero once per second
                     if now - last_power_check > 1:
-                        output = await self.device.read_gatt_char(self._pwm_ab2)
-                        # If power is 0, stop() has been called outside this function.
-                        if output == bytearray(b'\x00\x00\x00'):
+                        if not await self.is_running():
                             return
                         last_power_check = int(time.time())
 
@@ -412,6 +415,13 @@ class CoyoteInterface:
                     #fixme: Might work worse than a flat time.sleep(0.1)?
                     time.sleep(time_delta / 1000)  # Convert from milliseconds to seconds
 
+    async def is_running(self):
+        output = await self.device.read_gatt_char(self._pwm_ab2)
+        # If power is 0, stop() has been called outside this function.
+        if output == bytearray(b'\x00\x00\x00'):
+            return False
+        return True
+    
     def convert_power(self, strength: int):
         min_power = 300
         vibrateRange = (100 - 0)  
@@ -425,6 +435,13 @@ class CoyoteInterface:
         :param duration: Vibration duration in milliseconds (ms).
         :param strength: Vibration strength (0 <= x <= 100).
         """
+        # Vibration already in progress
+        if await self.is_running():
+            await self.stop()
+            timeout = 0
+            while await self.is_running() and timeout < 30:
+                asyncio.sleep(0.1)
+                timeout += 1
         await self.signal(power=self.convert_power(strength),  # cast float to integer for compatibility with func.
                           pattern=self.patterns[0],  # todo: Different patterns corresponding to in-game events.
                           duration=(duration * 1000),
@@ -436,7 +453,7 @@ class CoyoteInterface:
 
         todo: Interrupt-based stop command.
         """
-
+        self.stop_signal = True
         await self._set_pwm(0, 0)
 
     def check_in(self):

@@ -335,8 +335,8 @@ class SkyrimScriptInterface(object):
         if self.chaster_enabled:
             self.chaster = ChasterInterface(LOCK_NAME, self.token, { 
 
-                'slsi_shock1': lambda: "Shock Task: {}".format(await self.toys.vibrate(5, 80)),
-                'slsi_shock2': lambda: "Shock Task 2: {}".format(await self.toys.vibrate(10, 100)),
+                'slsi_shock1': lambda: "Shock Task: {}".format(self.toys.vibrate(5, 80)),
+                'slsi_shock2': lambda: "Shock Task 2: {}".format(self.toys.vibrate(10, 100)),
                 'slsi_dice': lambda: "Dice Game: {}".format(self.chaster.roll_dice()),
                 'slsi_gear': lambda: "Gear Task: {}".format(self.chaster.assign_task("Match your characters bondage outfit for two hours.")),
                 'slsi_plug': lambda: "Plug Task: {}".format(self.chaster.assign_task("Insert a plug and keep it there for at least an hour.")),

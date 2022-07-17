@@ -366,11 +366,19 @@ class CoyoteInterface:
         pattern_duration = self._calculate_pattern_duration(pattern)
 
         repeats = duration // pattern_duration  # Identical to math.floor(duration / pattern_duration)
+        last_power_check = int(time.time())
 
         # Iterate over the pattern and send each value (ax, ay, az) to the device in succession
         if not repeats:  # run pattern once only
             for state in pattern:
-
+                if self.stop_signal:
+                    return
+                now = int(time.time())
+                # Check to see if power output has been reduced to zero once per second
+                if now - last_power_check > 1:
+                    if not await self.is_running():
+                        return
+                    last_power_check = int(time.time())                
                 # unpack pattern values
                 ax, ay, az = state
 
@@ -387,7 +395,6 @@ class CoyoteInterface:
                 # fixme: Might work worse than a flat time.sleep(0.1)?
                 time.sleep(time_delta / 1000)  # Convert from milliseconds to seconds
         else:
-            last_power_check = int(time.time())
             for _ in range(repeats):  # repeat pattern a number of times
                 for state in pattern:
                     if self.stop_signal:

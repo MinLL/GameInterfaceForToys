@@ -396,24 +396,29 @@ class SkyrimScriptInterface(object):
         stamp = os.stat(self.filename).st_mtime
         ret = None
         if stamp != self._cached_stamp:
-            self._cached_stamp = stamp
-            fd = open(self.filename, 'r')
-            fd.seek(self.file_pointer, 0)
-            while True:
-                line = fd.readline()
-                if not line:
-                    break
-                line = line.strip('\n')
-                print(line)
-                # Process hooks
-                try:
-                    for reg in self.hooks.keys():
-                        match = reg.match(line)
-                        if match:
-                            ret = self.hooks[reg](match)
-                            time.sleep(0.5) # Avoid dos'ing our peripherals if the log gets spammy
-                except Exception as e:
-                    fail("Encountered exception while executing hooks: {}".format(str(e)))
+            try:
+                self._cached_stamp = stamp
+                fd = open(self.filename, 'r')
+                fd.seek(self.file_pointer, 0)
+                while True:
+                    line = fd.readline()
+                    if not line:
+                        break
+                    line = line.strip('\n')
+                    print(line)
+                    # Process hooks
+                    try:
+                        for reg in self.hooks.keys():
+                            match = reg.match(line)
+                            if match:
+                                ret = self.hooks[reg](match)
+                                time.sleep(0.5) # Avoid dos'ing our peripherals if the log gets spammy
+                    except Exception as e:
+                        fail("Encountered exception while executing hooks: {}".format(str(e)))
+            except Exception as e:
+                self._set_eof(fd)
+                fd.close()
+                raise e
             self._set_eof(fd)
             fd.close()
         return ret
@@ -445,10 +450,14 @@ async def main():
     await run_task(ssi.toys.vibrate(5, 10), run_async=True)
     await asyncio.sleep(5)
     await run_task(ssi.toys.stop())
+    skip = 0
     while True:
+        skip += 1
         await asyncio.sleep(0.1)
         try:
-            await run_task(ssi.toys.check_in())
+            if skip >= 9:
+                await run_task(ssi.toys.check_in())
+                skip = 0
             await run_task(ssi.parse_log(), run_async=True)
         except FatalException as e:
             fail("Caught an unrecoverable error: " + str(e))

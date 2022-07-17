@@ -232,7 +232,7 @@ class CoyoteInterface:
                     self.is_connected = await self.device.connect()
                     print("Connected!")
                     break
-                except (asyncio.TimeoutError, asyncio.CancelledError) as e:
+                except (asyncio.TimeoutError, asyncio.CancelledError, bleak.exc.BleakError) as e:
                     # Overwrite generic ConnectionError with actual exception
                     saved_exception = e
                     logging.error(f"Caught TimeoutError or CancelledError exception. Retrying... {e}")
@@ -423,16 +423,22 @@ class CoyoteInterface:
                     time.sleep(time_delta / 1000)  # Convert from milliseconds to seconds
 
     async def is_running(self):
-        output = await self.device.read_gatt_char(self._pwm_ab2)
+        try:
+            output = await self.device.read_gatt_char(self._pwm_ab2)
+        except Exception as e:
+            print(e)
+            return False
         # If power is 0, stop() has been called outside this function.
         if output == bytearray(b'\x00\x00\x00'):
             return False
         return True
     
-    def convert_power(self, strength: int):
-        min_power = 300
+    def convert_power_vibrate(self, strength: int):
+        min_power = 220
+        max_power = 510
         vibrateRange = (100 - 0)  
-        stimRange = (768 - min_power)  
+        stimRange = (max_power - min_power)
+        # cast float to integer for compatibility with func.
         return int((((strength - 0) * stimRange) / vibrateRange) + min_power)
 
     async def vibrate(self, duration: int, strength: int):  #
@@ -449,7 +455,7 @@ class CoyoteInterface:
             while await self.is_running() and timeout < 30:
                 asyncio.sleep(0.1)
                 timeout += 1
-        await self.signal(power=self.convert_power(strength),  # cast float to integer for compatibility with func.
+        await self.signal(power=self.convert_power_vibrate(strength),
                           pattern=self.patterns[1],  # todo: Different patterns corresponding to in-game events.
                           duration=(duration * 1000),
                           channel=self.default_channel)
@@ -463,8 +469,8 @@ class CoyoteInterface:
         self.stop_signal = True
         await self._set_pwm(0, 0)
 
-    def check_in(self):
-        pass
+    async def check_in(self):
+        return await self.is_running()
 
 
 if __name__ == "__main__":

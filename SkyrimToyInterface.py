@@ -345,6 +345,10 @@ class SkyrimScriptInterface(object):
         devious_hooks = {
             # Devious Devices Support
             re.compile(".+VibrateEffect.([0-9]+) for ([0-9]+).+"): self.vibrate,
+            re.compile(".*\[SkyrimToyInterface\]: OnVibrateStop().*"): self.stop_vibrate,
+            re.compile(".*\[SkyrimToyInterface\]: OnDeviceActorOrgasm().*"): self.player_orgasmed,
+            re.compile(".*\[SkyrimToyInterface\]: OnDeviceEdgedActor().*"): self.player_edged,
+            re.compile(".*\[SkyrimToyInterface\]: OnSitDevious().*"): self.player_sit,
             re.compile(".*Processing \[(.+)\].*"): self.dd_event
         }
         toys_hooks = {
@@ -354,7 +358,8 @@ class SkyrimScriptInterface(object):
         }
         misc_hooks = {
             # Stack Dump Monitoring Support
-            re.compile("^.+[tT]hreshold.+"): self.stack_overflow,
+            re.compile(".*\[SkyrimToyInterface\]: OnHit\(akProjectile='.*?', abPowerAttack='(TRUE|False)', abBashAttack='(TRUE|False)', abSneakAttack='(TRUE|False)', abHitBlocked='(TRUE|False)'\): \[health='([0-9.]+)\/([0-9.]+)', magicka='([0-9.]+)\/([0-9.]+)', stamina='([0-9.]+)\/([0-9.]+)'\].*"): self.on_hit,
+            re.compile("^.+[tT]hreshold.+"): self.stack_overflow
         }
         self.hooks = {**sexlab_hooks, **chaster_hooks, **devious_hooks, **toys_hooks, **misc_hooks}
 
@@ -381,6 +386,39 @@ class SkyrimScriptInterface(object):
     def vibrate(self, match):
         return self.toys.vibrate(int(match.group(2)) * DD_VIB_MULT, 20 * int(match.group(1)))
 
+    def player_orgasmed(self, match):
+        return self.toys.vibrate(60, 100)
+
+    def player_edged(self, match):
+        return self.toys.vibrate(60, 10)
+
+    def player_sit(self, match):
+        return self.toys.vibrate(5, 10)
+
+    def on_hit(self, match):
+        (power_attack, bash_attack, sneak_attack, hit_blocked, health, health_max, magicka, magicka_max, stamina, stamina_max) = match.groups()
+        # Booleans are either 'TRUE' or 'False'.
+        # AV's are a float
+        
+        # Start with an initial strength of 0.
+        # Being hit sets strength 6. 47 of the potential strength is from being power attacked, the other 47 is from remaining health.
+        strength = 6
+
+        # If we got hit by a power attack, minimum strength is 50
+        if power_attack == 'TRUE':
+            strength = 47
+        
+        strength += 47 -(47 * (float(health) / float(health_max)))
+
+        # If we blocked an attack, reduce strength by 10%
+        if hit_blocked == 'TRUE':
+            strength = 5
+
+        return self.toys.vibrate(1, int(strength))
+        
+    def stop_vibrate(self, match):
+        return self.toys.stop()
+    
     def toys_vibrate(self, match):
         orientation = match.group(1) # left/right, unused for now
         return self.toys.vibrate(int(match.group(3)), int(match.group(2)))
@@ -447,8 +485,8 @@ async def main():
     ssi = SkyrimScriptInterface(toy_type=TOY_TYPE, token=CHASTER_TOKEN)
     ssi.setup()
     await run_task(ssi.toys.connect())
-    await run_task(ssi.toys.vibrate(5, 10), run_async=True)
-    await asyncio.sleep(5)
+    await run_task(ssi.toys.vibrate(2, 10), run_async=True)
+    await asyncio.sleep(2)
     await run_task(ssi.toys.stop())
     skip = 0
     while True:

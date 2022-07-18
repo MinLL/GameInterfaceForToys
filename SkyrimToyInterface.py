@@ -466,7 +466,7 @@ class SkyrimScriptInterface(object):
                             match = reg.match(line)
                             if match:
                                 ret = self.hooks[reg](match)
-                                time.sleep(0.5) # Avoid dos'ing our peripherals if the log gets spammy
+                                break
                     except Exception as e:
                         fail("Encountered exception while executing hooks: {}".format(str(e)))
             except Exception as e:
@@ -482,10 +482,7 @@ class SkyrimScriptInterface(object):
 async def run_task(foo, run_async=False):
     if isinstance(foo, list):
         for item in foo:
-            if run_async:
-                asyncio.create_task(run_task(item))
-            else:
-                await run_task(item)
+            await run_task(item, run_async)
         return
     if isinstance(foo, types.CoroutineType):
         if run_async:
@@ -509,15 +506,15 @@ async def main():
         while True:
             await asyncio.sleep(0.1)
             try:
-                if throttle >= 5:
+                if throttle >= 10:
                     throttle = 0
                     await run_task(ssi.toys.check_in())
-                await run_task(ssi.parse_log())
+                await run_task(ssi.parse_log(), run_async=True)
             except FatalException as e:
                 fail("Caught an unrecoverable error: " + str(e))
                 raise e
             except Exception as e:
-                fail("Unhandled Exception: " + str(e))
+                fail("Unhandled Exception ({}): {}".format(type(e), str(e)))
             throttle += 1
     # Make sure toys shutdown cleanly incase anything fatal happens.
     except Exception as e:

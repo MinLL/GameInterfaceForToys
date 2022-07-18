@@ -332,6 +332,7 @@ class CoyoteInterface:
         """Disconnect device."""
 
         print("Disconnecting...")
+        self.stop_signal = True
         self.is_connected = False
         output = await self.device.disconnect()
 
@@ -430,10 +431,11 @@ class CoyoteInterface:
             return False        
         try:
             output = await self.device.read_gatt_char(self._pwm_ab2)
+            pass
         except Exception as e:
             print(e)
             print("Reconnecting...")
-            await self.device.connect()
+            await self.connect()
             return False
         # If power is 0, stop() has been called outside this function.
         if output == bytearray(b'\x00\x00\x00'):
@@ -460,12 +462,14 @@ class CoyoteInterface:
             await self.stop()
             timeout = 0
             while await self.is_running() and timeout < 30:
-                asyncio.sleep(0.1)
+                await asyncio.sleep(0.1)
                 timeout += 1
         await self.signal(power=self.convert_power_vibrate(strength),
                           pattern=self.patterns[1],  # todo: Different patterns corresponding to in-game events.
                           duration=(duration * 1000),
                           channel=self.default_channel)
+        # Set power back to zero after event is done.
+        await self.stop()
 
     async def stop(self):
         """

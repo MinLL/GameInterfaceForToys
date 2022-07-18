@@ -369,7 +369,7 @@ class SkyrimScriptInterface(object):
         }
         toys_hooks = {
             # Toys support
-            re.compile(".+\[*TOYS\] ControllerShake ([Left|Right]), ([0-9\.]+), ([0-9\.]).+"): self.toys_vibrate
+            re.compile(".+\[TOYS\] ControllerShake (Left|Right), ([0-9.]+), ([0-9]+.?[0-9]|.[0-9]+)+"): self.toys_vibrate
 
         }
         misc_hooks = {

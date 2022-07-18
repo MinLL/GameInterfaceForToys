@@ -325,15 +325,18 @@ class CoyoteInterface:
         else:
             logging.error("Device read/write functionality could not be confirmed.")
 
+    async def shutdown(self):
+        await self.disconnect()
+        
     async def disconnect(self):
         """Disconnect device."""
 
         print("Disconnecting...")
+        self.is_connected = False
         output = await self.device.disconnect()
 
         if not self.device.is_connected:
             print("Disconnected!")
-            self.is_connected = False
 
     async def signal(self, power: int, pattern: list, duration: int, channel: str = "a"):
         """
@@ -423,10 +426,14 @@ class CoyoteInterface:
                     time.sleep(time_delta / 1000)  # Convert from milliseconds to seconds
 
     async def is_running(self):
+        if not self.is_connected: # Process is shutting down.
+            return False        
         try:
             output = await self.device.read_gatt_char(self._pwm_ab2)
         except Exception as e:
             print(e)
+            print("Reconnecting...")
+            await self.device.connect()
             return False
         # If power is 0, stop() has been called outside this function.
         if output == bytearray(b'\x00\x00\x00'):

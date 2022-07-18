@@ -195,6 +195,10 @@ class ChasterInterface(object):
 
 class LovenseInterface(object):
     COMMAND_URL = "http://127.0.0.1:20010/command"
+
+    def shutdown(self):
+        pass
+    
     def _command(self, command, duration):
         params = {
             'command':"Function",
@@ -228,6 +232,9 @@ class LovenseInterface(object):
 class ButtplugInterface(object):
     BUTTPLUG_SERVER_URI = "ws://127.0.0.1:12345"
     CLIENT_NAME = "SkyrimToyInterface" 
+
+    def shutdown(self):
+        pass
     
     def __init__(self):
         self.stop_time = -1
@@ -266,6 +273,12 @@ class ButtplugInterface(object):
 
 
 class ToyInterface(object):
+    def shutdown(self):
+        ret = []
+        for toy in self.interface:
+            ret += [toy.shutdown()]
+        return ret
+    
     def __init__(self, toy_type):
         self.interface = []
         for toy in toy_type:
@@ -310,6 +323,9 @@ class ToyInterface(object):
 
 
 class SkyrimScriptInterface(object):
+    def shutdown(self):
+        return self.toys.shutdown()
+        
     def __init__(self, toy_type=TOY_LOVENSE, token=False):
         self._cached_stamp = 0
         self.filename = LOG_PATH
@@ -404,11 +420,11 @@ class SkyrimScriptInterface(object):
         # Being hit sets strength 6. 47 of the potential strength is from being power attacked, the other 47 is from remaining health.
         strength = 6
 
-        # If we got hit by a power attack, minimum strength is 50
+        # If we got hit by a power attack, minimum strength is 25
         if power_attack == 'TRUE':
-            strength = 47
+            strength = 25
         
-        strength += 47 -(47 * (float(health) / float(health_max)))
+        strength += 69 -(69 * (float(health) / float(health_max)))
 
         # If we blocked an attack, reduce strength by 10%
         if hit_blocked == 'TRUE':
@@ -480,27 +496,43 @@ async def run_task(foo, run_async=False):
         # No need to do anything if the task was not async.
         return
 
+ssi = SkyrimScriptInterface(toy_type=TOY_TYPE, token=CHASTER_TOKEN)
 
 async def main():
-    ssi = SkyrimScriptInterface(toy_type=TOY_TYPE, token=CHASTER_TOKEN)
-    ssi.setup()
-    await run_task(ssi.toys.connect())
-    await run_task(ssi.toys.vibrate(2, 10), run_async=True)
-    await asyncio.sleep(2)
-    await run_task(ssi.toys.stop())
-    skip = 0
-    while True:
-        skip += 1
-        await asyncio.sleep(0.1)
-        try:
-            if skip >= 9:
-                await run_task(ssi.toys.check_in())
-                skip = 0
-            await run_task(ssi.parse_log(), run_async=True)
-        except FatalException as e:
-            fail("Caught an unrecoverable error: " + str(e))
-            break
-        except Exception as e:
-            fail("Unhandled Exception: " + str(e))
+    try:
+        ssi.setup()
+        await run_task(ssi.toys.connect())
+        await run_task(ssi.toys.vibrate(2, 10))
+        time.sleep(2)
+        await run_task(ssi.toys.stop())
+        throttle = 0
+        while True:
+            await asyncio.sleep(0.1)
+            try:
+                if throttle >= 5:
+                    throttle = 0
+                    await run_task(ssi.toys.check_in())
+                await run_task(ssi.parse_log())
+            except FatalException as e:
+                fail("Caught an unrecoverable error: " + str(e))
+                raise e
+            except Exception as e:
+                fail("Unhandled Exception: " + str(e))
+            throttle += 1
+    # Make sure toys shutdown cleanly incase anything fatal happens.
+    except Exception as e:
+        info("Shutting down...")
+        await run_task(ssi.shutdown())
+        success("Goodbye!")
+        raise e
 
-asyncio.run(main())
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(main())
+    except KeyboardInterrupt as e:
+        info("Shutting down...")
+        loop.run_until_complete(run_task(ssi.shutdown()))
+        success("Goodbye!")
+    
+

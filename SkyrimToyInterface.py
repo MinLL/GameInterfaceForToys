@@ -57,7 +57,7 @@ class ChasterInterface(object):
             'slsi_dice': lambda: "Dice Game: {}".format(self.roll_dice()),
             'slsi_gear': lambda: "Gear Task: {}".format(self.assign_task("Match your characters bondage outfit for two hours.")),
             'slsi_plug': lambda: "Plug Task: {}".format(self.assign_task("Insert a plug and keep it there for at least an hour.")),
-            'slsi_clamps': lambda: "Clamp Task: {}".format(self.assign_task("Wear your clamps for at lehast 20 minutes.") ),
+            'slsi_clamps': lambda: "Clamp Task: {}".format(self.assign_task("Wear your clamps for at least 20 minutes.") ),
             'slsi_overstimulate': self.overstimulate,
             'slsi_tease': self.tease,
         }
@@ -160,8 +160,6 @@ class ChasterInterface(object):
             fail("  Extension {} not enabled for lock {}".format(extension, self.lock['title']))
     
     def assign_task(self, task, points=0):
-        beep()
-        time.sleep(0.2)
         beep()
         return self._run_extension(extension="tasks", foo=lambda: {
             'action': 'assignTask',
@@ -500,7 +498,7 @@ async def main():
         ssi.setup()
         await run_task(ssi.toys.connect())
         await run_task(ssi.toys.vibrate(2, 10))
-        time.sleep(2)
+        await asyncio.sleep(2)
         await run_task(ssi.toys.stop())
         throttle = 0
         while True:

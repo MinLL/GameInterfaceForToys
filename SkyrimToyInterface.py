@@ -128,7 +128,6 @@ class ChasterInterface(object):
             raise FatalException("Failed to find lock matching name: " + str(lock_name))
         self.lock = lock_found
         success("  Found lock: " + lock_name)
-        success("  Current End Date: " + lock['endDate'])
         success("  Status: " + lock['status'])
         success("  Role: " + lock['role'])
         info("Processing extensions...")

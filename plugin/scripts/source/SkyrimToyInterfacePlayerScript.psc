@@ -12,6 +12,7 @@ function RegisterEvents()
     RegisterForModEvent("DeviceVibrateEffectStop", "OnVibrateStop")
     RegisterForModEvent("DeviceActorOrgasm", "OnDeviceActorOrgasm")
     RegisterForModEvent("DeviceEdgedActor", "OnDeviceEdgedActor")
+    Log("Registered for mod events.")
 EndFunction
 
 
@@ -37,7 +38,8 @@ EndEvent
 
 ; Called when game loads.
 Event OnPlayerLoadGame()
-    Log("OnPlayerLoadGame()")
+    OnHitCooldown = Utility.GetCurrentRealTime()
+    Log("OnPlayerLoadGame(): " + OnHitCooldown as string)
     RegisterEvents()
 EndEvent
 

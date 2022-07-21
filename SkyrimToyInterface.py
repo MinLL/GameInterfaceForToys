@@ -285,7 +285,7 @@ class KizunaInterface(object):
         pass 
     
     def connect(self):
-        self.com_port = self._open_serial_port()
+        self._open_serial_port()
 
     def check_in(self):
         now = datetime.datetime.utcnow()
@@ -297,7 +297,7 @@ class KizunaInterface(object):
         now = datetime.datetime.utcnow()
         # Delay to avoid overwhelming the motor with sudden changes
         if (now - self.last_updated >= self.UPDATE_DELAY):
-            self._write_speed(strength // 10)
+            self._write_speed(min(9, strength // 10))
             self.stop_time = now + datetime.timedelta(seconds = duration)
             # Fresh time to ensure the delay isn't shortened by scheduler delays
             self.last_updated = datetime.datetime.utcnow()
@@ -305,7 +305,7 @@ class KizunaInterface(object):
     def stop(self):
         self._write_speed(0)
 
-    def _open_serial_port():
+    def _open_serial_port(self):
         nearby_devices = bluetooth.discover_devices(lookup_names = True, flush_cache = True, duration = 1)
         kizuna_info = [i for i in nearby_devices if i[1] == "KIZUNA SMART"]
         if len(kizuna_info) == 1:
@@ -318,9 +318,9 @@ class KizunaInterface(object):
             if len(kizuna_comport) == 1:
                 kizuna_serial = serial.Serial(kizuna_comport[0].device)
                 info("Connected to Kizuna Smart Controller on port {}".format(kizuna_comport[0].name))
-                return kizuna_serial
+                self.kizuna_serial_port = kizuna_serial
+                return 
         fail("Failed to find Kizuna Smart Controller")
-        return None
 
     def _write_speed(self, speed):
         if (speed >= 0 and speed <= 9):

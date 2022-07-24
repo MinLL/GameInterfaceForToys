@@ -382,6 +382,8 @@ class ToyInterface(object):
 
 
 class SkyrimScriptInterface(object):
+    SEX_STAGE_STRENGTH_MULTIPLIER = 20
+
     def shutdown(self):
         return self.toys.shutdown()
         
@@ -395,6 +397,7 @@ class SkyrimScriptInterface(object):
         self.chaster_enabled = (token and token != "")
         self.token = token
         self.toys = ToyInterface(toy_type)
+        self.sex_stage = None
 
     def _chaster_spin_wheel(self, match):
         return self.chaster.spin_wheel()
@@ -404,7 +407,9 @@ class SkyrimScriptInterface(object):
             # Sexlab Support
             #SEXLAB - ActorAlias[min] SetActor
             re.compile(".+SEXLAB - ActorAlias\[{}\] SetActor.+".format(CHARACTER_NAME.lower()), re.I): self.sex_start,
-            re.compile(".+SEXLAB - ActorAlias\[{}\]  - Resetting!+".format(CHARACTER_NAME.lower()), re.I): self.sex_end
+            re.compile(".+SEXLAB - ActorAlias\[{}\]  - Resetting!+".format(CHARACTER_NAME.lower()), re.I): self.sex_end,
+            re.compile(".+SEXLAB - Thread[(0-9)+] Event Hook - StageStart$", re.I): self.sex_stage_start
+            
         }
         chaster_hooks = {}
         if self.chaster_enabled:
@@ -452,7 +457,7 @@ class SkyrimScriptInterface(object):
         while(True):
             self.toys.vibrate(1, 100)
             beep()
-            time.sleep(2)
+            asyncio.sleep(2)
             
     def _set_eof(self, fd):
         fd.seek(0, io.SEEK_END)
@@ -500,9 +505,21 @@ class SkyrimScriptInterface(object):
 
     def sex_start(self, match):
         info("Sex_start")
-        return self.toys.vibrate(300, random.randint(60,100))
+        self.sex_stage = 0
+        return 
+    
+    def sex_stage_start(self, match):
+        # In case sex_start gets missed somehow
+        if self.sex_stage == None:
+            self.sex_stage = 0
+
+        self.sex_stage += 1
+        info("Sex_stage_start: {}".format(str(self.sex_stage)))
+        return self.toys.vibrate(300, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER)
 
     def sex_end(self, match):
+        info("Sex_end")
+        self.sex_stage = None
         return self.toys.stop()
 
     def parse_log(self):

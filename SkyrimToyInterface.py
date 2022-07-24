@@ -30,6 +30,8 @@ class colors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+MAX_VIBRATE_STRENGTH = 100
+
 class FatalException(Exception):
     pass
 
@@ -516,7 +518,8 @@ class SkyrimScriptInterface(object):
 
         self.sex_stage += 1
         info("Sex_stage_start: {}".format(str(self.sex_stage)))
-        return self.toys.vibrate(300, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER)
+        # For stages 1-5, go from strength 20-100. Consider it a process of warming up or sensitization ;)
+        return self.toys.vibrate(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER))
 
     def sex_end(self, match):
         info("Sex_end")

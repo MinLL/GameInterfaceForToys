@@ -282,7 +282,7 @@ class KizunaInterface(object):
         self.stop_time = None
 
     def shutdown(self):
-        pass 
+        self.kizuna_serial_port.close()
     
     def connect(self):
         self._open_serial_port()

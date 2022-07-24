@@ -524,14 +524,13 @@ class SkyrimScriptInterface(object):
         return 
     
     def sex_stage_start(self, match):
-        # In case sex_start gets missed somehow
-        if self.sex_stage == None:
-            self.sex_stage = 0
-
-        self.sex_stage += 1
-        info("Sex_stage_start: {}".format(str(self.sex_stage)))
-        # For stages 1-5, go from strength 20-100. Consider it a process of warming up or sensitization ;)
-        return self.toys.vibrate(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER))
+        # This could go up too fast if there are multiple scenes happening, but shouldn't move if
+        # the player is involved in none of them.
+        if self.sex_stage is not None:
+            self.sex_stage += 1
+            info("Sex_stage_start: {}".format(str(self.sex_stage)))
+            # For stages 1-5, go from strength 20-100. Consider it a process of warming up or sensitization ;)
+            return self.toys.vibrate(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER))
 
     def sex_end(self, match):
         info("Sex_end")

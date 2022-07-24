@@ -234,7 +234,10 @@ class LovenseInterface(object):
 class ButtplugInterface(object):
     BUTTPLUG_SERVER_URI = "ws://127.0.0.1:12345"
     CLIENT_NAME = "SkyrimToyInterface" 
+    # Full strength:
     VIBRATE_STRENGTH_COEFFICIENT = 0.01
+    # Or half strength:
+    #VIBRATE_STRENGTH_COEFFICIENT = 0.005
 
     def shutdown(self):
         pass
@@ -285,7 +288,8 @@ class KizunaInterface(object):
         self.stop_time = None
 
     def shutdown(self):
-        self.kizuna_serial_port.close()
+        if self._is_connected():
+            self.kizuna_serial_port.close()
     
     def connect(self):
         self._open_serial_port()
@@ -319,17 +323,26 @@ class KizunaInterface(object):
             kizuna_comport = [p for p in com_ports if addr_short in p.hwid]
 
             if len(kizuna_comport) == 1:
-                kizuna_serial = serial.Serial(kizuna_comport[0].device)
-                info("Connected to Kizuna Smart Controller on port {}".format(kizuna_comport[0].name))
-                self.kizuna_serial_port = kizuna_serial
+                try:
+                    kizuna_serial = serial.Serial(kizuna_comport[0].device)
+                    info("Connected to Kizuna Smart Controller on port {}".format(kizuna_comport[0].name))
+                    self.kizuna_serial_port = kizuna_serial
+                except Exception as err:
+                    fail(err)
                 return 
         fail("Failed to find Kizuna Smart Controller")
 
     def _write_speed(self, speed):
-        if (speed >= 0 and speed <= 9):
+        if not self._is_connected():
+            pass
+        elif (speed >= 0 and speed <= 9):
             self.kizuna_serial_port.write(bytes(str(speed) + "\r\n", "ASCII"))
         else:
             fail("Bad speed: " + speed)
+
+    def _is_connected(self):
+        return self.kizuna_serial_port is not None
+        
 
 
 class ToyInterface(object):

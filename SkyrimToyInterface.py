@@ -424,8 +424,7 @@ class SkyrimScriptInterface(object):
             #SEXLAB - ActorAlias[min] SetActor
             re.compile(".+SEXLAB - ActorAlias\[{}\] SetActor.+".format(CHARACTER_NAME.lower()), re.I): self.sex_start,
             re.compile(".+SEXLAB - ActorAlias\[{}\]  - Resetting!+".format(CHARACTER_NAME.lower()), re.I): self.sex_end,
-            re.compile(".+SEXLAB - Thread[(0-9)+] Event Hook - StageStart$", re.I): self.sex_stage_start
-            
+            re.compile(".+SEXLAB - Thread\[[0-9]+\] Event Hook - StageStart$", re.I): self.sex_stage_start
         }
         chaster_hooks = {}
         if self.chaster_enabled:

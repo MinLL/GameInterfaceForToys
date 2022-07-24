@@ -232,6 +232,7 @@ class LovenseInterface(object):
 class ButtplugInterface(object):
     BUTTPLUG_SERVER_URI = "ws://127.0.0.1:12345"
     CLIENT_NAME = "SkyrimToyInterface" 
+    VIBRATE_STRENGTH_COEFFICIENT = 0.01
 
     def shutdown(self):
         pass
@@ -264,7 +265,7 @@ class ButtplugInterface(object):
     async def vibrate(self, duration, strength):
         for device in self.client.devices.values():
             if "VibrateCmd" in device.allowed_messages.keys():
-                await device.send_vibrate_cmd(strength / 100.0)
+                await device.send_vibrate_cmd(strength * self.VIBRATE_STRENGTH_COEFFICIENT)
         self.stop_time = time.time() + duration
 
     async def stop(self):

@@ -234,15 +234,16 @@ class LovenseInterface(object):
 class ButtplugInterface(object):
     BUTTPLUG_SERVER_URI = "ws://127.0.0.1:12345"
     CLIENT_NAME = "SkyrimToyInterface" 
-    # Full strength:
-    VIBRATE_STRENGTH_COEFFICIENT = 0.01
-    # Or half strength:
-    #VIBRATE_STRENGTH_COEFFICIENT = 0.005
+    _BASE_VIBRATE_STRENGTH_COEFFICIENT = 0.01
+    _MAX_STRENGTH = 100
+    VIBRATE_STRENGTH_COEFFICIENT = _BASE_VIBRATE_STRENGTH_COEFFICIENT * \
+        (min(_MAX_STRENGTH, BUTTPLUG_STRENGTH_MAX) / _MAX_STRENGTH)
 
     def shutdown(self):
         pass
     
     def __init__(self):
+        info("Buttplug.io vibrate strength coefficient: {}".format(self.VIBRATE_STRENGTH_COEFFICIENT))
         self.stop_time = -1
         self.client = ButtplugClient(self.CLIENT_NAME)
 

@@ -9,6 +9,7 @@ CHARACTER_NAME = "Min"  # The name of your character.
 TOY_TYPE = [TOY_COYOTE, TOY_LOVENSE]
 DD_VIB_MULT = 2  # Duration of vibration event is multiplied by this value. 
 WARN_ON_STACK_DUMP = True  # Loop short vibrations to notify user of Stack Dumps. Set to False to disable.
+BUTTPLUG_STRENGTH_MAX = 100 # Set to a value between 1 - 100 to cap the strength at a % of your toy's maximum
 
 # Configuration if using Chaster:
 CHASTER_TOKEN = ""

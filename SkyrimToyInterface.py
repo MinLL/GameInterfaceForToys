@@ -30,6 +30,8 @@ class colors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+MAX_VIBRATE_STRENGTH = 100
+
 class FatalException(Exception):
     pass
 
@@ -238,11 +240,16 @@ class LovenseInterface(object):
 class ButtplugInterface(object):
     BUTTPLUG_SERVER_URI = "ws://127.0.0.1:12345"
     CLIENT_NAME = "SkyrimToyInterface" 
+    _BASE_VIBRATE_STRENGTH_COEFFICIENT = 0.01
+    _MAX_STRENGTH = 100
+    VIBRATE_STRENGTH_COEFFICIENT = _BASE_VIBRATE_STRENGTH_COEFFICIENT * \
+        (min(_MAX_STRENGTH, BUTTPLUG_STRENGTH_MAX) / _MAX_STRENGTH)
 
     def shutdown(self):
         pass
     
     def __init__(self):
+        info("Buttplug.io vibrate strength coefficient: {}".format(self.VIBRATE_STRENGTH_COEFFICIENT))
         self.stop_time = -1
         self.client = ButtplugClient(self.CLIENT_NAME)
 
@@ -270,7 +277,7 @@ class ButtplugInterface(object):
     async def vibrate(self, duration, strength):
         for device in self.client.devices.values():
             if "VibrateCmd" in device.allowed_messages.keys():
-                await device.send_vibrate_cmd(strength / 100.0)
+                await device.send_vibrate_cmd(strength * self.VIBRATE_STRENGTH_COEFFICIENT)
         self.stop_time = time.time() + duration
 
     async def stop(self):
@@ -288,7 +295,8 @@ class KizunaInterface(object):
         self.stop_time = None
 
     def shutdown(self):
-        pass 
+        if self._is_connected():
+            self.kizuna_serial_port.close()
     
     def connect(self):
         self._open_serial_port()
@@ -322,17 +330,26 @@ class KizunaInterface(object):
             kizuna_comport = [p for p in com_ports if addr_short in p.hwid]
 
             if len(kizuna_comport) == 1:
-                kizuna_serial = serial.Serial(kizuna_comport[0].device)
-                info("Connected to Kizuna Smart Controller on port {}".format(kizuna_comport[0].name))
-                self.kizuna_serial_port = kizuna_serial
+                try:
+                    kizuna_serial = serial.Serial(kizuna_comport[0].device)
+                    info("Connected to Kizuna Smart Controller on port {}".format(kizuna_comport[0].name))
+                    self.kizuna_serial_port = kizuna_serial
+                except Exception as err:
+                    fail(err)
                 return 
         fail("Failed to find Kizuna Smart Controller")
 
     def _write_speed(self, speed):
-        if (speed >= 0 and speed <= 9):
+        if not self._is_connected():
+            pass
+        elif (speed >= 0 and speed <= 9):
             self.kizuna_serial_port.write(bytes(str(speed) + "\r\n", "ASCII"))
         else:
             fail("Bad speed: " + speed)
+
+    def _is_connected(self):
+        return self.kizuna_serial_port is not None
+        
 
 
 class ToyInterface(object):
@@ -390,6 +407,8 @@ class ToyInterface(object):
 
 
 class SkyrimScriptInterface(object):
+    SEX_STAGE_STRENGTH_MULTIPLIER = 20
+
     def shutdown(self):
         return self.toys.shutdown()
         
@@ -403,6 +422,7 @@ class SkyrimScriptInterface(object):
         self.chaster_enabled = (token and token != "")
         self.token = token
         self.toys = ToyInterface(toy_type)
+        self.sex_stage = None
 
     def _chaster_spin_wheel(self, match):
         return self.chaster.spin_wheel()
@@ -412,7 +432,8 @@ class SkyrimScriptInterface(object):
             # Sexlab Support
             #SEXLAB - ActorAlias[min] SetActor
             re.compile(".+SEXLAB - ActorAlias\[{}\] SetActor.+".format(CHARACTER_NAME.lower()), re.I): self.sex_start,
-            re.compile(".+SEXLAB - ActorAlias\[{}\]  - Resetting!+".format(CHARACTER_NAME.lower()), re.I): self.sex_end
+            re.compile(".+SEXLAB - ActorAlias\[{}\]  - Resetting!+".format(CHARACTER_NAME.lower()), re.I): self.sex_end,
+            re.compile(".+SEXLAB - Thread\[[0-9]+\] Event Hook - StageStart$", re.I): self.sex_stage_start
         }
         chaster_hooks = {}
         if self.chaster_enabled:
@@ -460,7 +481,7 @@ class SkyrimScriptInterface(object):
         while(True):
             self.toys.vibrate(1, 100)
             beep()
-            time.sleep(2)
+            asyncio.sleep(2)
             
     def _set_eof(self, fd):
         fd.seek(0, io.SEEK_END)
@@ -508,9 +529,21 @@ class SkyrimScriptInterface(object):
 
     def sex_start(self, match):
         info("Sex_start")
-        return self.toys.vibrate(300, random.randint(60,100))
+        self.sex_stage = 0
+        return 
+    
+    def sex_stage_start(self, match):
+        # This could go up too fast if there are multiple scenes happening, but shouldn't move if
+        # the player is involved in none of them.
+        if self.sex_stage is not None:
+            self.sex_stage += 1
+            info("Sex_stage_start: {}".format(str(self.sex_stage)))
+            # For stages 1-5, go from strength 20-100. Consider it a process of warming up or sensitization ;)
+            return self.toys.vibrate(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER))
 
     def sex_end(self, match):
+        info("Sex_end")
+        self.sex_stage = None
         return self.toys.stop()
 
     def parse_log(self):

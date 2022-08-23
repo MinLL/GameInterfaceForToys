@@ -1,4 +1,5 @@
 import asyncio
+import time
 from buttplug.client import (ButtplugClientWebsocketConnector, ButtplugClient,
                              ButtplugClientConnectorError)
 from settings import *

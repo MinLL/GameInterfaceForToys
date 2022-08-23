@@ -4,8 +4,8 @@ class Vibrator(Toy):
     def __init__(self, name):
         super().__init__("Lovense", [FEATURE_VIBRATOR])
 
-    async def action(self, params):
-        await self.vibrate(params['duration'], params['strength'])
+    def action(self, params):
+        return self.vibrate(params['duration'], params['strength'])
 
     def vibrate(self, duration, strength):
         pass

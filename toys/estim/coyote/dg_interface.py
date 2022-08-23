@@ -50,14 +50,15 @@ Licensed under the MIT License, (c) 2022 S. F. S.
 """
 
 import bleak  # bluetooth functionality
-import dg_encoding  # custom functionality for encoding communication to the bluetooth device
+import toys.estim.coyote.dg_encoding as dg_encoding  # custom functionality for encoding communication to the bluetooth device
 
 import logging
 import time
 import asyncio
+from toys.base import FEATURE_ESTIM
+from toys.estim.estim import Estim
 
-
-class CoyoteInterface:
+class CoyoteInterface(Estim):
     """
     DG-LAB Coyote interface for SkyrimToyInterface integration.
 
@@ -79,7 +80,7 @@ class CoyoteInterface:
         :param power_multiplier:
         :param safe_mode:
         """
-
+        super().__init__("coyote")
         # Set bluetooth device uid and device reference
         self.device_uid = device_uid
         self.device = bleak.BleakClient(self.device_uid)
@@ -348,6 +349,7 @@ class CoyoteInterface:
         :param duration: Set duration in milliseconds.
         :param channel: Set output channel a|b.
         """
+        print("signal()")
         # todo: Enable multi-channel output, i.e. different patterns/power/durations on channels a & b simultaneously.
 
         # Set channel target (a/b)
@@ -450,7 +452,7 @@ class CoyoteInterface:
         # cast float to integer for compatibility with func.
         return int((((strength - 0) * stimRange) / vibrateRange) + min_power)
 
-    async def vibrate(self, duration: int, strength: int):  #
+    async def shock(self, duration: int, strength: int):  #
         """
         Method for compatibility with SkyrimToyInterface. Send a "vibration" signal of given duration and strength.
 
@@ -458,6 +460,7 @@ class CoyoteInterface:
         :param strength: Vibration strength (0 <= x <= 100).
         """
         # Vibration already in progress
+        print("shock()")
         if await self.is_running():
             await self.stop()
             timeout = 0

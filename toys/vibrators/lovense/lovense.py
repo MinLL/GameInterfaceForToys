@@ -27,7 +27,8 @@ class LovenseInterface(Vibrator):
         return
         
     def vibrate(self, duration, strength):
-        r = self._command("Action:"+str(strength), duration)
+        
+        r = self._command("Vibrate:"+str(strength), duration)
         if r.json()['code'] == 200:
             success("  " + str(r.json()))
         else:

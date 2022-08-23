@@ -5,7 +5,7 @@ class Vibrator(Toy):
         super().__init__("Lovense", [FEATURE_VIBRATOR])
 
     def action(self, params):
-        self.vibrate(params['duration'], params['strength'])
+        return self.vibrate(params['duration'], params['strength'])
 
     def vibrate(self, duration, strength):
         pass

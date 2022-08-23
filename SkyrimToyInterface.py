@@ -66,7 +66,7 @@ class ToyInterface(object):
         info("Toy Vibrate - start(duration={}, strength={})".format(duration, strength))
         if strength > 100:
             strength = 100
-        return self._do_action(self.estim, {"duration": duration, "strength": strength})
+        return self._do_action(self.vibrators, {"duration": duration, "strength": strength})
 
     def shock(self, duration, strength):
         if strength > 100:

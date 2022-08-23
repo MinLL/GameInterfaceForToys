@@ -1,4 +1,4 @@
-from constants import *
+from common.constants import *
 ## Edit the following variables to configure this script
 
 # Important variables to configure for all users:

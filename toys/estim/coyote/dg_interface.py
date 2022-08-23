@@ -443,8 +443,8 @@ class CoyoteInterface:
         return True
     
     def convert_power_vibrate(self, strength: int):
-        min_power = 220
-        max_power = 510
+        min_power = 320
+        max_power = 768
         vibrateRange = (100 - 0)  
         stimRange = (max_power - min_power)
         # cast float to integer for compatibility with func.
@@ -465,7 +465,7 @@ class CoyoteInterface:
                 await asyncio.sleep(0.1)
                 timeout += 1
         await self.signal(power=self.convert_power_vibrate(strength),
-                          pattern=self.patterns[1],  # todo: Different patterns corresponding to in-game events.
+                          pattern=self.patterns[0],  # todo: Different patterns corresponding to in-game events.
                           duration=(duration * 1000),
                           channel=self.default_channel)
         # Set power back to zero after event is done.

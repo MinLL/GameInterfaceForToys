@@ -1,7 +1,6 @@
 import requests
 from common.util import *
 from common.constants import *
-import random
 
 class ChasterInterface(object):
     def __init__(self, lock_name, developer_token, toys):

@@ -1,10 +1,9 @@
 import requests
 from common.util import *
 from toys.vibrators.vibrator import Vibrator
-from settings import LOVENSE_HOST
 
 class LovenseInterface(Vibrator):
-    COMMAND_URL = "http://{}:20010/command".format(LOVENSE_HOST)
+    COMMAND_URL = "http://127.0.0.1:20010/command"
 
     def __init__(self):
         super().__init__("Lovense")

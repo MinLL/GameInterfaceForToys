@@ -117,6 +117,18 @@ class SkyrimScriptInterface(object):
             re.compile(".+SEXLAB - ActorAlias\[{}\]  - Resetting!+".format(CHARACTER_NAME.lower()), re.I): self.sex_end,
             re.compile(".+SEXLAB - Thread\[[0-9]+\] Event Hook - StageStart$", re.I): self.sex_stage_start
         }
+        fallout_hooks = {
+            # Fallout 4 AAF Support
+            # AAF does not verbosely log, so we must depend on other mods that write log events on these hooks.
+            # DD writes a specific log event when an animation involving the player starts, bostion devious helper writes one when it ends.
+            # Use the two of these to capture a sex scene.
+            # TODO: Write my own plugin that watches for these events.
+            re.compile(".+DD: Player in AAF animation.*"): self.sex_start_simple,
+            re.compile(".+BDH-INFO - OnAnimationStop.*"): self.sex_end,
+            re.compile(".+ AFV report: FindRapistFor {}.*".format(CHARACTER_NAME.lower()), re.I): lambda m: self.chaster.update_time(random.randint(CHASTER_DEFEAT_MIN, CHASTER_DEFEAT_MAX)), # player was defeated.
+            re.compile(".+AFV Report: Player is bleeding out in surrender.*"): self._chaster_spin_wheel # Player was knocked down.
+            
+        }
         chaster_hooks = {}
         if self.chaster_enabled:
             from toys.chastity.chaster.chaster import ChasterInterface
@@ -148,7 +160,7 @@ class SkyrimScriptInterface(object):
             re.compile(".*\[SkyrimToyInterface\]: OnHit\(akProjectile='.*?', abPowerAttack='(TRUE|False)', abBashAttack='(TRUE|False)', abSneakAttack='(TRUE|False)', abHitBlocked='(TRUE|False)'\): \[health='([0-9.]+)\/([0-9.]+)', magicka='([0-9.]+)\/([0-9.]+)', stamina='([0-9.]+)\/([0-9.]+)'\].*"): self.on_hit,
             re.compile("^.+Suspended stack count is over our warning threshold.+"): self.stack_overflow
         }
-        self.hooks = {**sexlab_hooks, **chaster_hooks, **devious_hooks, **toys_hooks, **misc_hooks}
+        self.hooks = {**sexlab_hooks, **chaster_hooks, **devious_hooks, **toys_hooks, **misc_hooks, **fallout_hooks}
 
         if self.chaster_enabled:
             self.chaster = ChasterInterface(LOCK_NAME, self.token, self.toys)
@@ -211,6 +223,9 @@ class SkyrimScriptInterface(object):
         orientation = match.group(1) # left/right, unused for now
         return self.toys.vibrate(int(match.group(3)), int(match.group(2)))
 
+    def sex_start_simple(self, match):
+        return self.toys.vibrate(300, MAX_VIBRATE_STRENGTH)
+    
     def sex_start(self, match):
         info("Sex_start")
         self.sex_stage = 0

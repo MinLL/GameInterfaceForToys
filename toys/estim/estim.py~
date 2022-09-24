@@ -1,0 +1,11 @@
+from toys.base import Toy
+
+class Estim(Toy):
+    def __init__(self, name):
+        super().__init__("Default Estim", [FEATURE_VIBRATOR])
+
+    def action(self, params):
+        return self.shock(params['duration'], params['strength'])
+
+    def shock(self, duration, strength):
+        pass

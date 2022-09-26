@@ -109,6 +109,11 @@ class SkyrimScriptInterface(object):
     def _chaster_spin_wheel(self, match):
         return self.chaster.spin_wheel()
     
+
+    def player_defeated(self, match):
+        self.chaster.spin_wheel()
+        self.chaster.update_time(random.randint(CHASTER_DEFEAT_MIN, CHASTER_DEFEAT_MAX))
+
     def setup(self):
         sexlab_hooks = {
             # Sexlab Support
@@ -125,9 +130,16 @@ class SkyrimScriptInterface(object):
             # TODO: Write my own plugin that watches for these events.
             re.compile(".+DD: Player in AAF animation.*"): self.sex_start_simple,
             re.compile(".+BDH-INFO - OnAnimationStop.*"): self.sex_end,
-            re.compile(".+ AFV report: FindRapistFor {}.*".format(CHARACTER_NAME.lower()), re.I): lambda m: self.chaster.update_time(random.randint(CHASTER_DEFEAT_MIN, CHASTER_DEFEAT_MAX)), # player was defeated.
-            re.compile(".+AFV Report: Player is bleeding out in surrender.*"): self._chaster_spin_wheel # Player was knocked down.
-            
+            re.compile(".+AFV Report: Player is bleeding out in surrender.*"): self.player_defeated,
+            re.compile(".+Your plug gives a painfull shock.+"): lambda m: self.toys.shock(random.randint(1, 5), random.randint(50,65)),
+            re.compile(".+Your plug gives multiple painfull shocks.*"): lambda m: self.toys.shock(random.randint(5, 10), random.randint(75,85)),
+            re.compile(".+You acidentally bump your .+ plug pumpbulb and it inflates.*"): lambda m: self.toys.vibrate(random.randint(5, 10), 20),
+            re.compile(".+You hear your .+ plug pump whirr and inflating.*"): lambda m: self.toys.vibrate(random.randint(10, 20), 40),
+            re.compile(".+Your .+ plug moves, sending pleasure trough your body.*"): lambda m: self.toys.vibrate(random.randint(5, 10), 10),
+            re.compile(".+Your plugs stops vibrating.*"): lambda m: self.toys.stop(),
+            re.compile(".+Your plug sends you into an uncontrollable orgasm.*"): self.player_orgasmed,
+            re.compile(".+Your plug stops vibrating just before you can orgasm.*"): self.player_edged,
+            re.compile(".+Your .+ plug.* start.* to vibrate ?(.*)"): self.fallout_dd_vibrate,
         }
         chaster_hooks = {}
         if self.chaster_enabled:
@@ -184,6 +196,19 @@ class SkyrimScriptInterface(object):
         
     def vibrate(self, match):
         return self.toys.vibrate(int(match.group(2)) * DD_VIB_MULT, 20 * int(match.group(1)))
+
+    def fallout_dd_vibrate(self, match):
+        strength = 50
+        strText = match.group(1)
+        if strText == "very weak":
+            strength = 10
+        elif strText == "weak":
+            strength = 30
+        elif strText == "strong":
+            strength = 70
+        elif strText == "very strong":
+            strength = 100
+        return self.toys.vibrate(120, strength)
 
     def player_orgasmed(self, match):
         return self.toys.vibrate(60, 100)

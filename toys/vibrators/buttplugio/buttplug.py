@@ -7,7 +7,6 @@ from common.util import *
 from toys.vibrators.vibrator import Vibrator
 
 class ButtplugInterface(Vibrator):
-    BUTTPLUG_SERVER_URI = "ws://127.0.0.1:12345"
     CLIENT_NAME = "SkyrimToyInterface" 
     _BASE_VIBRATE_STRENGTH_COEFFICIENT = 0.01
     _MAX_STRENGTH = 100
@@ -24,7 +23,7 @@ class ButtplugInterface(Vibrator):
         self.client = ButtplugClient(self.CLIENT_NAME)
 
     async def connect(self):
-        connector = ButtplugClientWebsocketConnector(self.BUTTPLUG_SERVER_URI)
+        connector = ButtplugClientWebsocketConnector(self.BUTTPLUG_SERVER_ADDRESS)
         try:
             await self.client.connect(connector)
         except ButtplugClientConnectorError as e:

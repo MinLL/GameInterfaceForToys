@@ -7,7 +7,7 @@ from common.util import *
 from toys.vibrators.vibrator import Vibrator
 
 class ButtplugInterface(Vibrator):
-    CLIENT_NAME = "SkyrimToyInterface" 
+    CLIENT_NAME = "GameInterfaceForToys"
     _BASE_VIBRATE_STRENGTH_COEFFICIENT = 0.01
     _MAX_STRENGTH = 100
     VIBRATE_STRENGTH_COEFFICIENT = _BASE_VIBRATE_STRENGTH_COEFFICIENT * \

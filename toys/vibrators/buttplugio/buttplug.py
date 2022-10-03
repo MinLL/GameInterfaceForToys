@@ -33,6 +33,7 @@ class ButtplugInterface(Vibrator):
 
         # Immediately scan for devices and just connect whatever we find
         await self.client.start_scanning()
+        await asyncio.sleep(3)
         while (len(self.client.devices) == 0):
             print("Searching for devices...")
             await asyncio.sleep(2)

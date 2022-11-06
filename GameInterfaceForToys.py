@@ -37,10 +37,10 @@ class ToyInterface(object):
                 tmp += [ButtplugInterface()]
             elif toy == TOY_COYOTE:
                 from toys.estim.coyote.dg_interface import CoyoteInterface
-                tmp += [CoyoteInterface(device_uid="C1:A9:D8:0C:CB:1D",
-                                                 power_multiplier=7.68,
-                                                 default_channel="a",
-                                                 safe_mode=True)]  # See implementation for parameter details
+                tmp += [CoyoteInterface(device_uid=COYOTE_UID,
+                                                 power_multiplier=COYOTE_MULTIPLIER,
+                                                 default_channel=COYOTE_DEFAULT_CHANNEL,
+                                                 safe_mode=COYOTE_SAFE_MODE)]  # See implementation for parameter details
             elif toy == TOY_KIZUNA:
                 from toys.vibrators.kizuna.kizuna import KizunaInterface
                 tmp += [KizunaInterface()]

@@ -10,7 +10,8 @@ CHARACTER_NAME = "Min"  # The name of your character.
 TOY_TYPE = [TOY_LOVENSE]
 DD_VIB_MULT = 2  # Duration of vibration event is multiplied by this value. 
 WARN_ON_STACK_DUMP = True  # Loop short vibrations to notify user of Stack Dumps. Set to False to disable.
-BUTTPLUG_STRENGTH_MAX = 100 # Set to a value between 1 - 100 to cap the strength at a % of your toy's maximum
+BUTTPLUG_STRENGTH_MAX = 100  # Set to a value between 1 - 100 to cap the strength at a % of your toy's maximum
+BUTTPLUG_SERVER_ADDRESS = "ws://127.0.0.1:12345"  # Whatever Intiface Central says your Server Address is
 
 # Configuration if using Chaster:
 CHASTER_TOKEN = ""

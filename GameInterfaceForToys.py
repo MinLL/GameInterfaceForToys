@@ -350,7 +350,7 @@ async def main():
                         [sg.Button(GUI_TEST_SHOCK)],
                         [sg.Button(GUI_OPEN_CONFIG)]
                         ]),
-             sg.Column([[sg.Multiline(size=(120,60), background_color='black', text_color='white')]])
+             sg.Column([[sg.Output(size=(120,60), background_color='black', text_color='white')]])
         ]]
         window = sg.Window('Game Interface For Toys', layout)
         window.read(timeout=1)

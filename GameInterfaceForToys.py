@@ -11,7 +11,6 @@ import yaml
 
 from common.constants import *
 from common.util import *
-from settings import *
 import settings
 from toys.base import FEATURE_VIBRATOR, FEATURE_ESTIM
 
@@ -59,10 +58,10 @@ class ToyInterface(object):
                 tmp += [ButtplugInterface()]
             elif toy == TOY_COYOTE:
                 from toys.estim.coyote.dg_interface import CoyoteInterface
-                tmp += [CoyoteInterface(device_uid=COYOTE_UID,
-                                                 power_multiplier=COYOTE_MULTIPLIER,
-                                                 default_channel=COYOTE_DEFAULT_CHANNEL,
-                                                 safe_mode=COYOTE_SAFE_MODE)]  # See implementation for parameter details
+                tmp += [CoyoteInterface(device_uid=settings.COYOTE_UID,
+                                                 power_multiplier=settings.COYOTE_MULTIPLIER,
+                                                 default_channel=settings.COYOTE_DEFAULT_CHANNEL,
+                                                 safe_mode=settings.COYOTE_SAFE_MODE)]  # See implementation for parameter details
             elif toy == TOY_KIZUNA:
                 from toys.vibrators.kizuna.kizuna import KizunaInterface
                 tmp += [KizunaInterface()]
@@ -118,11 +117,8 @@ class SkyrimScriptInterface(object):
         
     def __init__(self, toy_type=TOY_LOVENSE, token=False):
         self._cached_stamp = 0
-        self.filename = LOG_PATH
+        self.filename = settings.LOG_PATH
         self.file_pointer = 0
-        fd = open(self.filename, 'r')
-        self._set_eof(fd)
-        fd.close()
         self.chaster_enabled = (token and token != "")
         self.token = token
         self.toys = ToyInterface(toy_type)
@@ -137,11 +133,17 @@ class SkyrimScriptInterface(object):
         self.chaster.update_time(random.randint(CHASTER_DEFEAT_MIN, CHASTER_DEFEAT_MAX))
 
     def setup(self):
+        try: 
+            fd = open(self.filename, 'r')
+            self._set_eof(fd)
+            fd.close()
+        except FileNotFoundError:
+            fail("Could not open {} for reading - file does not exist.".format(self.filename))
         sexlab_hooks = {
             # Sexlab Support
             #SEXLAB - ActorAlias[min] SetActor
-            re.compile(".+SEXLAB - ActorAlias\[{}\] SetActor.+".format(CHARACTER_NAME.lower()), re.I): self.sex_start,
-            re.compile(".+SEXLAB - ActorAlias\[{}\]  - Resetting!+".format(CHARACTER_NAME.lower()), re.I): self.sex_end,
+            re.compile(".+SEXLAB - ActorAlias\[{}\] SetActor.+".format(settings.CHARACTER_NAME.lower()), re.I): self.sex_start,
+            re.compile(".+SEXLAB - ActorAlias\[{}\]  - Resetting!+".format(settings.CHARACTER_NAME.lower()), re.I): self.sex_end,
             re.compile(".+SEXLAB - Thread\[[0-9]+\] Event Hook - StageStart$", re.I): self.sex_stage_start
         }
         fallout_hooks = {
@@ -339,8 +341,6 @@ async def run_task(foo, run_async=False):
         # No need to do anything if the task was not async.
         return
 
-ssi = SkyrimScriptInterface(toy_type=TOY_TYPE, token=CHASTER_TOKEN)
-
 async def main():
     try:
         # Set up GUI
@@ -368,6 +368,7 @@ async def main():
         # window.Refresh()
         throttle = 0
         while True:
+            throttle += 1
             # await asyncio.sleep(0.1)
             event, values = window.read(timeout=10) # Timeout after 10ms instead of sleeping
             if event == sg.WIN_CLOSED:
@@ -393,9 +394,12 @@ async def main():
             except FatalException as e:
                 fail("Caught an unrecoverable error: " + str(e))
                 raise e
+            except FileNotFoundError as e:
+                # User likely hasn't set up the log path.
+                if throttle > 100:
+                    fail("Could not open {} reading - File not found".format(str(e)))
             except Exception as e:
                 fail("Unhandled Exception ({}): {}".format(type(e), str(e)))
-            throttle += 1
     # Make sure toys shutdown cleanly incase anything fatal happens.
     except Exception as e:
         info("Shutting down...")
@@ -407,8 +411,11 @@ async def main():
 def open_config_modal():
     config_layout = []
     for k, v in config_fields.items():
-        if v == 'TOY_TYPE':
-            config_layout.append([sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE),
+        if v == 'LOG_PATH':
+            config_layout.append([sg.Text('Path to Log File'), sg.FileBrowse('Select Log File', key=v)])
+            config_layout.append([sg.Text('Old Log File Path: {}'.format(settings.LOG_PATH))])
+        elif v == 'TOY_TYPE':
+            config_layout.append([sg.Text('Supported Toys:'), sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_BUTTPLUG, key=TOY_BUTTPLUG, default=TOY_BUTTPLUG in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_COYOTE, key=TOY_COYOTE, default=TOY_COYOTE in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE)
@@ -424,7 +431,12 @@ def open_config_modal():
             break
         if event == GUI_CONFIG_SAVE:
             for x in config_fields.values():
-                if x == 'TOY_TYPE':
+                if x == 'LOG_PATH':
+                    if len(values['LOG_PATH']) > 0:
+                        settings.LOG_PATH = values['LOG_PATH']
+                    else:
+                        info('Log path did not change.')
+                elif x == 'TOY_TYPE':
                     toys = []
                     print(values)
                     if values[TOY_LOVENSE] == True:
@@ -473,8 +485,10 @@ def load_config():
         save_config()
 
 if __name__ == "__main__":
+    load_config()
     loop = asyncio.get_event_loop()
     while True:
+        ssi = SkyrimScriptInterface(toy_type=settings.TOY_TYPE, token=settings.CHASTER_TOKEN)
         try:
             loop.run_until_complete(main())
         except ReloadException as e:

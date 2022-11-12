@@ -7,13 +7,35 @@ import time
 import types
 import sys
 import importlib
+import yaml
 
 from common.constants import *
 from common.util import *
 from settings import *
+import settings
 from toys.base import FEATURE_VIBRATOR, FEATURE_ESTIM
 
+import PySimpleGUI as sg
+
 MAX_VIBRATE_STRENGTH = 100
+
+config_fields = {
+    'Log Path': 'LOG_PATH',
+    'Character Name': 'CHARACTER_NAME',
+    'Toy Type': 'TOY_TYPE',
+    'Devious Devices Vib Multiplier': 'DD_VIB_MULT',
+    'Warn On Stack Dump': 'WARN_ON_STACK_DUMP',
+    'Buttplug.io Strength Max': 'BUTTPLUG_STRENGTH_MAX',
+    'Buttplug.io Server Address': 'BUTTPLUG_SERVER_ADDRESS',
+    'Chaster Dev Token': 'CHASTER_TOKEN',
+    'Chaster Lock Name': 'LOCK_NAME',
+    'Chaster Defeat Minimum Time to Add': 'CHASTER_DEFEAT_MIN',
+    'Chaster Defeat Maximum Time to Add': 'CHASTER_DEFEAT_MAX',
+    'Coyote E-Stim UID': 'COYOTE_UID',
+    'Coyote E-Stim Multiplier': 'COYOTE_MULTIPLIER',
+    'Coyote E-Stim Default Channel': 'COYOTE_DEFAULT_CHANNEL',
+    'Lovense Host': 'LOVENSE_HOST'
+}
 
 def conditional_import(moduleName):
     if moduleName not in sys.modules:
@@ -321,18 +343,50 @@ ssi = SkyrimScriptInterface(toy_type=TOY_TYPE, token=CHASTER_TOKEN)
 
 async def main():
     try:
+        # Set up GUI
+        sg.theme('DarkGrey12')
+        layout = [
+            [sg.Column([[sg.Button(GUI_TEST_VIBRATE)],
+                        [sg.Button(GUI_TEST_SHOCK)],
+                        [sg.Button(GUI_OPEN_CONFIG)]
+                        ]),
+             sg.Column([[sg.Multiline(size=(120,60), background_color='black', text_color='white')]])
+        ]]
+        window = sg.Window('Game Interface For Toys', layout)
+        window.read(timeout=1)
+        load_config()
         ssi.setup()
         await run_task(ssi.toys.connect())
-        await run_task(ssi.toys.vibrate(2, 10))
-        await asyncio.sleep(2)
-        await run_task(ssi.toys.shock(2, 10))
-        await asyncio.sleep(2)
-        await run_task(ssi.toys.stop())
+        window.Refresh()
+        # await run_task(ssi.toys.vibrate(2, 10))
+        # window.Refresh()
+        # await asyncio.sleep(2)
+        # await run_task(ssi.toys.shock(2, 10))
+        # window.Refresh()
+        # await asyncio.sleep(2)
+        # await run_task(ssi.toys.stop())
+        # window.Refresh()
         throttle = 0
         while True:
-            await asyncio.sleep(0.1)
+            # await asyncio.sleep(0.1)
+            event, values = window.read(timeout=10) # Timeout after 10ms instead of sleeping
+            if event == sg.WIN_CLOSED:
+               await run_task(ssi.shutdown())
+               window.close()
+               raise FatalException("Exiting")
+            if event == GUI_TEST_VIBRATE:
+                await run_task(ssi.toys.vibrate(2, 10))
+            if event == GUI_TEST_SHOCK:
+                await run_task(ssi.toys.shock(2, 10))
+            if event == GUI_OPEN_CONFIG:
+                try:
+                    open_config_modal()
+                except ReloadException as e:
+                    raise e
+                except Exception as e:
+                    fail("Error while saving config ({}): {}".format(type(e), str(e)))
             try:
-                if throttle >= 10:
+                if throttle >= 100:
                     throttle = 0
                     await run_task(ssi.toys.check_in())
                 await run_task(ssi.parse_log(), run_async=True)
@@ -345,17 +399,94 @@ async def main():
     # Make sure toys shutdown cleanly incase anything fatal happens.
     except Exception as e:
         info("Shutting down...")
+        window.close()
         await run_task(ssi.shutdown())
         success("Goodbye!")
         raise e
+    
+def open_config_modal():
+    config_layout = []
+    for k, v in config_fields.items():
+        if v == 'TOY_TYPE':
+            config_layout.append([sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE),
+                                  sg.Checkbox(TOY_BUTTPLUG, key=TOY_BUTTPLUG, default=TOY_BUTTPLUG in settings.TOY_TYPE),
+                                  sg.Checkbox(TOY_COYOTE, key=TOY_COYOTE, default=TOY_COYOTE in settings.TOY_TYPE),
+                                  sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE)
+                                  ])
+        else:
+            config_layout.append([sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)])
+    config_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT)])
+    config_window = sg.Window('GIFT Configuration', config_layout, modal=True)
+    while True:
+        event, values = config_window.read()
+        if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:
+            info('Exited configuration menu without saving.')
+            break
+        if event == GUI_CONFIG_SAVE:
+            for x in config_fields.values():
+                if x == 'TOY_TYPE':
+                    toys = []
+                    print(values)
+                    if values[TOY_LOVENSE] == True:
+                        toys += [TOY_LOVENSE]
+                    if values[TOY_BUTTPLUG] == True:
+                        toys += [TOY_BUTTPLUG]
+                    if values[TOY_COYOTE] == True:
+                        toys += [TOY_COYOTE]
+                    if values[TOY_KIZUNA] == True:
+                        toys += [TOY_KIZUNA]
+                    settings.TOY_TYPE = toys
+                else:
+                    setattr(settings, x, values[x])
+            save_config()
+            load_config()
+            config_window.close()
+            raise ReloadException()
+    config_window.close()
+                
+def save_config():
+    info('Saving Config...')
+    with io.open('settings.yaml', 'w', encoding='utf8') as outfile:
+        data = {}
+        for x in config_fields.values():
+            data[x] = getattr(settings, x)
+        yaml.dump(data, outfile, default_flow_style=False, allow_unicode=True)
+        success('Done.')
+
+
+def load_config():
+    def safe_load_config(key):
+        try:
+            setattr(settings, key, data[key])
+            info("{} = {}".format(key, data[key]))
+        except:
+            fail("No config value found for {}".format(key))
+    try:
+        with io.open('settings.yaml', 'r') as stream:
+            info('Loading Config...')
+            data = yaml.safe_load(stream)
+            for x in config_fields.values():
+                safe_load_config(x)
+            success('Done.')
+    except FileNotFoundError:
+        fail("Could not load configuration file - using defaults.")
+        save_config()
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
-    try:
-        loop.run_until_complete(main())
-    except KeyboardInterrupt as e:
-        info("Shutting down...")
-        loop.run_until_complete(run_task(ssi.shutdown()))
-        success("Goodbye!")
+    while True:
+        try:
+            loop.run_until_complete(main())
+        except ReloadException as e:
+            # Reinitialize app on reload exception
+            continue
+        except FatalException as e:
+            break
+        except KeyboardInterrupt as e:
+            info("Shutting down...")
+            loop.run_until_complete(run_task(ssi.shutdown()))
+            success("Goodbye!")
+            break
+
     
 

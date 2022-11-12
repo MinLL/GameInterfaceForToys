@@ -13,14 +13,17 @@ class colors:
 class FatalException(Exception):
     pass
 
+class ReloadException(FatalException):
+    pass
+
 def info(s):
-    print(colors.OKCYAN + "[SkyrimToyInterface] [i] " +str(s) + colors.ENDC)
+    print("[SkyrimToyInterface] [i] " +str(s))
 
 def success(s):
-    print(colors.OKGREEN + "[SkyrimToyInterface] [+] " + str(s) + colors.ENDC)
+    print( "[SkyrimToyInterface] [+] " + str(s))
 
 def fail(s):
-    print(colors.FAIL + "[SkyrimToyInterface] [-] " + str(s) + colors.ENDC)
+    print("[SkyrimToyInterface] [-] " + str(s))
     # beep()
 
 def beep():

@@ -2,7 +2,7 @@ import asyncio
 import time
 from buttplug.client import (ButtplugClientWebsocketConnector, ButtplugClient,
                              ButtplugClientConnectorError)
-from settings import *
+import settings
 from common.util import *
 from toys.vibrators.vibrator import Vibrator
 
@@ -11,7 +11,7 @@ class ButtplugInterface(Vibrator):
     _BASE_VIBRATE_STRENGTH_COEFFICIENT = 0.01
     _MAX_STRENGTH = 100
     VIBRATE_STRENGTH_COEFFICIENT = _BASE_VIBRATE_STRENGTH_COEFFICIENT * \
-        (min(_MAX_STRENGTH, BUTTPLUG_STRENGTH_MAX) / _MAX_STRENGTH)
+        (min(_MAX_STRENGTH, int(settings.BUTTPLUG_STRENGTH_MAX)) / _MAX_STRENGTH)
 
     def shutdown(self):
         pass
@@ -23,7 +23,7 @@ class ButtplugInterface(Vibrator):
         self.client = ButtplugClient(self.CLIENT_NAME)
 
     async def connect(self):
-        connector = ButtplugClientWebsocketConnector(self.BUTTPLUG_SERVER_ADDRESS)
+        connector = ButtplugClientWebsocketConnector(settings.BUTTPLUG_SERVER_ADDRESS)
         try:
             await self.client.connect(connector)
         except ButtplugClientConnectorError as e:

@@ -9,5 +9,5 @@ GUI_TEST_VIBRATE = 'Test Vibrate'
 GUI_TEST_SHOCK = 'Test Shock'
 GUI_OPEN_CONFIG = 'Configuration'
 
-GUI_CONFIG_SAVE = 'Save Settings'
-GUI_CONFIG_EXIT = 'Exit Without Saving'
+GUI_CONFIG_SAVE = 'Save'
+GUI_CONFIG_EXIT = 'Cancel'

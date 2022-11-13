@@ -369,7 +369,7 @@ async def main():
         throttle = 0
         while True:
             throttle += 1
-            # await asyncio.sleep(0.1)
+            await asyncio.sleep(0.01)
             event, values = window.read(timeout=10) # Timeout after 10ms instead of sleeping
             if event == sg.WIN_CLOSED:
                await run_task(ssi.shutdown())

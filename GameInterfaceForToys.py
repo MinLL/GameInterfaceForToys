@@ -36,6 +36,20 @@ config_fields = {
     'Lovense Host': 'LOVENSE_HOST'
 }
 
+
+on_hit_patterns = {
+    "bow": "arrow",
+    "axe": "axe",
+    "hammer": "blunt",
+    "mace": "blunt",
+    "fist": "unarmed",
+    "unarmed": "unarmed",
+    "sword": "blade",
+    "dagger": "blade",
+    "knife": "blade",
+    "spear": "blade"
+}
+
 def conditional_import(moduleName):
     if moduleName not in sys.modules:
         return __import__(moduleName)
@@ -83,17 +97,17 @@ class ToyInterface(object):
             ret += [toy.check_in()]
         return ret
 
-    def vibrate(self, duration, strength):
-        info("Toy Vibrate - start(duration={}, strength={})".format(duration, strength))
+    def vibrate(self, duration, strength, pattern=""):
+        info("Toy Vibrate - start(duration={}, strength={}, pattern={})".format(duration, strength, pattern))
         if strength > 100:
             strength = 100
-        return self._do_action(self.vibrators, {"duration": duration, "strength": strength})
+        return self._do_action(self.vibrators, {"duration": duration, "strength": strength, "pattern": pattern})
 
-    def shock(self, duration, strength):
+    def shock(self, duration, strength, pattern=""):
         if strength > 100:
             strength = 100
-        info("Toy Shock - start(duration={}, strength={})".format(duration, strength))
-        return self._do_action(self.estim, {"duration": duration, "strength": strength})
+        info("Toy Shock - start(duration={}, strength={}, pattern={})".format(duration, strength, pattern))
+        return self._do_action(self.estim, {"duration": duration, "strength": strength, "pattern": pattern})
 
     def _do_action(self, toys, params):
         ret = []
@@ -171,11 +185,11 @@ class SkyrimScriptInterface(object):
             chaster_hooks = {
                 # Defeat integration
                 re.compile(".+Defeat: SetFollowers / Scenario.+$"): self._chaster_spin_wheel, # Player was knocked down.
-                re.compile(".+Defeat: PostAssault Marker Found.+$"): lambda m: self.chaster.update_time(random.randint(CHASTER_DEFEAT_MIN, CHASTER_DEFEAT_MAX)), # Party was defeated.
+                re.compile(".+Defeat: PostAssault Marker Found.+$"): lambda m: self.chaster.update_time(random.randint(settings.CHASTER_DEFEAT_MIN, settings.CHASTER_DEFEAT_MAX)), # Party was defeated.
                 re.compile(".+Defeat: Player victim - End scene, Restored.+$"): self._chaster_spin_wheel, #  Player actually died.
                 # Naked Defeat integration
                 re.compile(".+NAKED DEFEAT playeraliasquest: OnEnterBleedout\(\).+"): self._chaster_spin_wheel, # Player was knocked down.
-                re.compile(".+NAKED DEFEAT playeraliasquest: \(#msg\) All is lost.+"): lambda m: self.chaster.update_time(random.randint(CHASTER_DEFEAT_MIN, CHASTER_DEFEAT_MAX)) # Party was defeated.
+                re.compile(".+NAKED DEFEAT playeraliasquest: \(#msg\) All is lost.+"): lambda m: self.chaster.update_time(random.randint(settings.CHASTER_DEFEAT_MIN, settings.CHASTER_DEFEAT_MAX)) # Party was defeated.
             }
         devious_hooks = {
             # Devious Devices Support
@@ -193,13 +207,13 @@ class SkyrimScriptInterface(object):
         }
         misc_hooks = {
             # Stack Dump Monitoring Support
-            re.compile(".*\[SkyrimToyInterface\]: OnHit\(akProjectile='.*?', abPowerAttack='(TRUE|False)', abBashAttack='(TRUE|False)', abSneakAttack='(TRUE|False)', abHitBlocked='(TRUE|False)'\): \[health='([0-9.]+)\/([0-9.]+)', magicka='([0-9.]+)\/([0-9.]+)', stamina='([0-9.]+)\/([0-9.]+)'\].*"): self.on_hit,
+            re.compile(".*\[SkyrimToyInterface\]: OnHit\(akSource='(.*?)', akProjectile='.*?', abPowerAttack='(TRUE|False)', abBashAttack='(TRUE|False)', abSneakAttack='(TRUE|False)', abHitBlocked='(TRUE|False)'\): \[health='([0-9.]+)\/([0-9.]+)', magicka='([0-9.]+)\/([0-9.]+)', stamina='([0-9.]+)\/([0-9.]+)'\].*"): self.on_hit,
             re.compile("^.+Suspended stack count is over our warning threshold.+"): self.stack_overflow
         }
         self.hooks = {**sexlab_hooks, **chaster_hooks, **devious_hooks, **toys_hooks, **misc_hooks, **fallout_hooks}
 
         if self.chaster_enabled:
-            self.chaster = ChasterInterface(LOCK_NAME, self.token, self.toys)
+            self.chaster = ChasterInterface(settings.LOCK_NAME, self.token, self.toys)
             self.chaster.setup()
             
     def dd_event(self, match):
@@ -217,9 +231,18 @@ class SkyrimScriptInterface(object):
     def _set_eof(self, fd):
         fd.seek(0, io.SEEK_END)
         self.file_pointer = fd.tell()
-        
+
+    def dd_vibrate(self, duration, strength):
+        pattern = "vibrator_{}".format(strength)
+        info("dd_vibrate(" + str(duration)+", "+ str(strength)+", "+pattern+")")
+        ret =  [self.toys.vibrate(duration * int(settings.DD_VIB_MULT), 20 * strength, pattern=pattern)]
+        ret.append(self.toys.shock(duration, int(20 * strength / 5), pattern))
+        return ret
+    
     def vibrate(self, match):
-        return self.toys.vibrate(int(match.group(2)) * DD_VIB_MULT, 20 * int(match.group(1)))
+        duration = int(match.group(2))
+        strength = int(match.group(1))
+        return self.dd_vibrate(duration, strength)
 
     def fallout_dd_vibrate(self, match):
         strength = 50
@@ -244,12 +267,18 @@ class SkyrimScriptInterface(object):
         return self.toys.vibrate(5, 10)
 
     def on_hit(self, match):
-        (power_attack, bash_attack, sneak_attack, hit_blocked, health, health_max, magicka, magicka_max, stamina, stamina_max) = match.groups()
+        (source, power_attack, bash_attack, sneak_attack, hit_blocked, health, health_max, magicka, magicka_max, stamina, stamina_max) = match.groups()
         # Booleans are either 'TRUE' or 'False'.
         # AV's are a float
         
         # Start with an initial strength of 0.
         # Being hit sets strength 6. 47 of the potential strength is from being power attacked, the other 47 is from remaining health.
+        
+        source = source.lower()
+        if source == "" or source == "woven power":
+            # Do nothing for damage without a source, or from spellsiphon
+            return
+        
         strength = 6
 
         
@@ -263,7 +292,12 @@ class SkyrimScriptInterface(object):
         
         strength += 69 -(69 * (float(health) / float(health_max)))
 
-        return self.toys.shock(1, int(strength))
+        pattern = ""
+        for k, v in on_hit_patterns.items():
+            if k in source:
+                pattern = v
+                break
+        return self.toys.shock(1, int(strength), pattern)
         
     def stop_vibrate(self, match):
         return self.toys.stop()
@@ -287,7 +321,7 @@ class SkyrimScriptInterface(object):
             self.sex_stage += 1
             info("Sex_stage_start: {}".format(str(self.sex_stage)))
             # For stages 1-5, go from strength 20-100. Consider it a process of warming up or sensitization ;)
-            return self.toys.vibrate(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER)) + self.toys.shock(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER) / 2)
+            return [self.toys.vibrate(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER), pattern="untyped_sex"), self.toys.shock(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER) / 2, pattern="untyped_sex")]
 
     def sex_end(self, match):
         info("Sex_end")
@@ -327,16 +361,20 @@ class SkyrimScriptInterface(object):
 
 
 # Run a task and wait for the result.
-async def run_task(foo, run_async=False):
+async def run_task(foo, run_async=False, window=False):
     if isinstance(foo, list):
         for item in foo:
             await run_task(item, run_async)
+            if window:
+                window.Refresh()
         return
     if isinstance(foo, types.CoroutineType):
         if run_async:
             asyncio.create_task(foo)
         else:
             await foo
+            if window:
+                window.Refresh()
     else:
         # No need to do anything if the task was not async.
         return
@@ -348,6 +386,8 @@ async def main():
         layout = [
             [sg.Column([[sg.Button(GUI_TEST_VIBRATE)],
                         [sg.Button(GUI_TEST_SHOCK)],
+                        [sg.Button(GUI_TEST_SEX)],
+                        [sg.Button(GUI_TEST_PLUG_VIBRATE)],
                         [sg.Button(GUI_OPEN_CONFIG)]
                         ]),
              sg.Column([[sg.Output(size=(120,60), background_color='black', text_color='white')]])
@@ -356,7 +396,7 @@ async def main():
         window.read(timeout=1)
         load_config()
         ssi.setup()
-        await run_task(ssi.toys.connect())
+        await run_task(ssi.toys.connect(), run_async=True)
         window.Refresh()
         # await run_task(ssi.toys.vibrate(2, 10))
         # window.Refresh()
@@ -371,22 +411,34 @@ async def main():
             throttle += 1
             await asyncio.sleep(0.01)
             event, values = window.read(timeout=10) # Timeout after 10ms instead of sleeping
-            if event == sg.WIN_CLOSED:
-               await run_task(ssi.shutdown())
-               window.close()
-               raise FatalException("Exiting")
-            if event == GUI_TEST_VIBRATE:
-                await run_task(ssi.toys.vibrate(2, 10))
-            if event == GUI_TEST_SHOCK:
-                await run_task(ssi.toys.shock(2, 10))
-            if event == GUI_OPEN_CONFIG:
-                try:
-                    open_config_modal()
-                except ReloadException as e:
-                    raise e
-                except Exception as e:
-                    fail("Error while saving config ({}): {}".format(type(e), str(e)))
             try:
+                if event == sg.WIN_CLOSED:
+                    await run_task(ssi.shutdown())
+                    window.close()
+                    raise FatalException("Exiting")
+                if event == GUI_TEST_VIBRATE:
+                    await run_task(ssi.toys.vibrate(2, 10))
+                if event == GUI_TEST_PLUG_VIBRATE:
+                    for i in range(1, 6):
+                        await run_task(ssi.dd_vibrate(4, i), run_async=True)
+                        window.Refresh()
+                        await asyncio.sleep(4)
+                if event == GUI_TEST_SEX:
+                    ssi.sex_start(False)
+                    for i in range(0, 5):
+                        await run_task(ssi.sex_stage_start(False), run_async=True, window=window)
+                        window.Refresh()
+                        await asyncio.sleep(5)
+                    await run_task(ssi.sex_end(False))
+                if event == GUI_TEST_SHOCK:
+                    await run_task(ssi.toys.shock(2, 10, "random"), run_async=True)
+                if event == GUI_OPEN_CONFIG:
+                    try:
+                        open_config_modal()
+                    except ReloadException as e:
+                        raise e
+                    except Exception as e:
+                        fail("Error while saving config ({}): {}".format(type(e), str(e)))
                 if throttle >= 100:
                     throttle = 0
                     await run_task(ssi.toys.check_in())

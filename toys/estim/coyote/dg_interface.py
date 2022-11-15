@@ -51,12 +51,13 @@ Licensed under the MIT License, (c) 2022 S. F. S.
 
 import bleak  # bluetooth functionality
 import toys.estim.coyote.dg_encoding as dg_encoding  # custom functionality for encoding communication to the bluetooth device
-
 import logging
 import time
 import asyncio
 from toys.base import FEATURE_ESTIM
 from toys.estim.estim import Estim
+import random
+from common.util import *
 
 class CoyoteInterface(Estim):
     """
@@ -131,14 +132,9 @@ class CoyoteInterface(Estim):
         #
         # See https://github-com.translate.goog/dg-lab-opensource?_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=da
         # for more information
-        self.patterns = [
-            [[10, 90, 10]],  # simple, one-state pattern of 10 ms pulse, 90 ms pause, amplitude 10
-
-            [[5, 135, 20], [5, 135, 20], [5, 135, 20], [5, 135, 20], [5, 135, 20], [5, 135, 20],
-             [5, 135, 20], [5, 135, 20], [5, 135, 20], [5, 95, 20],  [4, 86, 20], [4, 76, 20],
-             [4, 66, 20], [3, 57, 20], [3, 37, 20], [3, 37, 20], [2, 28, 20], [2, 18, 20], [1, 14, 20],
-             [1, 9, 20]]  # varied pattern of 20 states
-        ]
+        # self.patterns = [
+        
+        # ]
 
     #
     # Internal methods
@@ -349,7 +345,6 @@ class CoyoteInterface(Estim):
         :param duration: Set duration in milliseconds.
         :param channel: Set output channel a|b.
         """
-        print("signal()")
         # todo: Enable multi-channel output, i.e. different patterns/power/durations on channels a & b simultaneously.
 
         # Set channel target (a/b)
@@ -452,23 +447,27 @@ class CoyoteInterface(Estim):
         # cast float to integer for compatibility with func.
         return int((((strength - 0) * stimRange) / vibrateRange) + min_power)
 
-    async def shock(self, duration: int, strength: int):  #
+    async def shock(self, duration: int, strength: int, pattern=""):  #
         """
         Method for compatibility with SkyrimToyInterface. Send a "vibration" signal of given duration and strength.
 
         :param duration: Vibration duration in milliseconds (ms).
         :param strength: Vibration strength (0 <= x <= 100).
+        :param pattern: The pattern to shock with.
         """
         # Vibration already in progress
-        print("shock()")
         if await self.is_running():
             await self.stop()
             timeout = 0
             while await self.is_running() and timeout < 30:
                 await asyncio.sleep(0.1)
                 timeout += 1
+        if not pattern in self.patterns:
+            fail("Pattern {} not found - Using default")
+            pattern = ""
+        pattern = random.choice(self.patterns[pattern])
         await self.signal(power=self.convert_power_vibrate(strength),
-                          pattern=self.patterns[0],  # todo: Different patterns corresponding to in-game events.
+                          pattern=pattern,  # todo: Different patterns corresponding to in-game events.
                           duration=(duration * 1000),
                           channel=self.default_channel)
         # Set power back to zero after event is done.

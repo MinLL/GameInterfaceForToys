@@ -1,0 +1,14 @@
+{
+    "arrow": ["wpn_impact_arrow_flesh_01.json", "wpn_impact_arrow_flesh_02.json", "wpn_impact_arrow_flesh_03.json", "wpn_impact_arrow_flesh_04.json", "wpn_impact_arrow_fleshplayer_01.json", "wpn_impact_arrow_fleshplayer_02.json", "wpn_impact_arrow_fleshplayer_03.json"],
+    "axe": ["wpn_impact_axe_flesh_01.json", "wpn_impact_axe_flesh_02.json", "wpn_impact_axe_flesh_03.json", "wpn_impact_axelarge_flesh_01.json", "wpn_impact_axelarge_flesh_02.json", "wpn_impact_axelarge_flesh_03.json"],
+    "blade": ["wpn_impact_blade_flesh_01.json", "wpn_impact_blade_flesh_02.json", "wpn_impact_blade_flesh_03.json"],
+    "blunt": ["wpn_impact_blunt2hand_flesh_01.json", "wpn_impact_blunt2hand_flesh_02.json", "wpn_impact_blunt2hand_flesh_03.json", "wpn_impact_blunt_flesh_01.json", "wpn_impact_blunt_flesh_02.json", "wpn_impact_blunt_flesh_03.json"],
+    "unarmed": ["wpn_impact_unarmed_flesh_01.json", "wpn_impact_unarmed_flesh_02.json", "wpn_impact_unarmed_flesh_03.json"],
+    "vibrator": ["vibrator_standard1LP.json", "vibrator_strong1LP.json", "vibrator_strong2LP.json", "vibrator_verystrong1LP.json", "vibrator_veryweak1LP.json", "vibrator_weak1LP.json"],
+    "vibrator_1": ["vibrator_veryweak1LP.json"],
+    "vibrator_2": ["vibrator_weak1LP.json"],
+    "vibrator_3": ["vibrator_standard1LP.json"],
+    "vibrator_4": ["vibrator_strong1LP.json", "vibrator_strong2LP.json"],
+    "vibrator_5": ["vibrator_verystrong1LP.json"],
+    "untyped_sex": ["vibrator_verystrong1LP.json"]
+}

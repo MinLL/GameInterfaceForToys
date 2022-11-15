@@ -29,7 +29,7 @@ class KizunaInterface(Vibrator):
             self.stop_time = None
             self.stop()
         
-    def vibrate(self, duration, strength):
+    def vibrate(self, duration, strength, pattern=""):
         now = datetime.datetime.utcnow()
         # Delay to avoid overwhelming the motor with sudden changes
         if (now - self.last_updated >= self.UPDATE_DELAY):

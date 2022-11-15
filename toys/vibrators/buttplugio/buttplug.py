@@ -44,7 +44,7 @@ class ButtplugInterface(Vibrator):
             self.stop_time = -1
             await self.stop()
 
-    async def vibrate(self, duration, strength):
+    async def vibrate(self, duration, strength, pattern=""):
         for device in self.client.devices.values():
             if "VibrateCmd" in device.allowed_messages.keys():
                 await device.send_vibrate_cmd(strength * self.VIBRATE_STRENGTH_COEFFICIENT)

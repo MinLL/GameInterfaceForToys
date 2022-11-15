@@ -63,7 +63,8 @@ Event OnHit(ObjectReference akAggressor, Form akSource, Projectile akProjectile,
         return
     EndIf
     string output = "OnHit("
-    output += "akProjectile='"+(akProjectile as string)+"'"
+    output += "akSource='" + (akSource.GetName() as string) +"'"
+    output += ", akProjectile='"+(akProjectile as string)+"'"
     output += ", abPowerAttack='" + (abPowerAttack as string)+ "'"
     output += ", abBashAttack='" +(abBashAttack as string)+"'"
     output += ", abSneakAttack='"+(abSneakAttack as string)+"'"

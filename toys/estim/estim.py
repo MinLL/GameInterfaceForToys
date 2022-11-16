@@ -6,12 +6,12 @@ from common.util import *
 
 class Estim(Toy):
     def load_patterns(self):
-        with open("toys/estim/pattern_dict.json") as pf:
+        with open("data/estim/pattern_dict.json") as pf:
             patterns = json.loads(pf.read())
             for k, v in patterns.items():
                 pattern_list = []
                 for pattern in v:
-                    with open("toys/estim/patterns/{}".format(pattern)) as psf:
+                    with open("data/estim/patterns/{}".format(pattern)) as psf:
                         pattern_list.append(json.loads(psf.read()))
                 patterns[k] = pattern_list
         patterns[""] = [[[10, 90, 10]],  # Default pattern - simple, one-state pattern of 10 ms pulse, 90 ms pause, amplitude 10

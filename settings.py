@@ -11,7 +11,7 @@ LOG_PATH = '../Documents/My Games/Fallout4/Logs/Script/Papyrus.0.log' # Full pat
 CHARACTER_NAME = "Min"  # The name of your character. 
 
 # Toy configuration
-TOY_TYPE = [TOY_LOVENSE]
+TOY_TYPE = []
 DD_VIB_MULT = 2  # Duration of vibration event is multiplied by this value. 
 WARN_ON_STACK_DUMP = True  # Loop short vibrations to notify user of Stack Dumps. Set to False to disable.
 BUTTPLUG_STRENGTH_MAX = 100  # Set to a value between 1 - 100 to cap the strength at a % of your toy's maximum
@@ -32,6 +32,6 @@ COYOTE_MULTIPLIER = 7.68  # Multiplier to translate between 0-100 vibration inte
 COYOTE_DEFAULT_CHANNEL = "a"  # Set default output channel. Accepts "a" or "b"
 COYOTE_SAFE_MODE = True  # Enable or disable safe mode. This caps the max e-stim output of the device. Warning: Don't touch unless you know what you're doing!
 
-# LOVENSE_HOST = "127.0.0.1"
-LOVENSE_HOST = "192.168.0.195:20010"
+LOVENSE_HOST = "127.0.0.1:20010"
+#LOVENSE_HOST = "192.168.0.195:20010"
 

@@ -8,7 +8,7 @@ class Vibrator(Toy):
         super().__init__("Default Vibrator", [FEATURE_VIBRATOR])
 
     def load_patterns(self):
-        with open("toys/vibrators/pattern_dict.json") as pf:
+        with open("data/vibrators/pattern_dict.json") as pf:
             patterns = json.loads(pf.read())
         return patterns
     

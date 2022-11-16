@@ -303,7 +303,10 @@ class SkyrimScriptInterface(object):
             if k in source:
                 pattern = v
                 break
-        return self.toys.shock(1, int(strength), pattern)
+        if len(self.toys.estim) == 0:
+            return self.toys.vibrate(strength, 2)
+        else:
+            return self.toys.shock(1, int(strength), pattern)
         
     def stop_vibrate(self, match):
         return self.toys.stop()

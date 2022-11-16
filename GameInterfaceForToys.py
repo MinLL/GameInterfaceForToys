@@ -50,6 +50,11 @@ on_hit_patterns = {
     "spear": "blade"
 }
 
+sex_animation_patterns = {
+
+
+}
+
 def conditional_import(moduleName):
     if moduleName not in sys.modules:
         return __import__(moduleName)
@@ -158,7 +163,8 @@ class SkyrimScriptInterface(object):
             #SEXLAB - ActorAlias[min] SetActor
             re.compile(".+SEXLAB - ActorAlias\[{}\] SetActor.+".format(settings.CHARACTER_NAME.lower()), re.I): self.sex_start,
             re.compile(".+SEXLAB - ActorAlias\[{}\]  - Resetting!+".format(settings.CHARACTER_NAME.lower()), re.I): self.sex_end,
-            re.compile(".+SEXLAB - Thread\[[0-9]+\] Event Hook - StageStart$", re.I): self.sex_stage_start
+            re.compile(".+SEXLAB - Thread\[[0-9]+\] Event Hook - StageStart$", re.I): self.sex_stage_start,
+            re.compile(".+OnSexlabAnimationStart\(boobjob='(.+)', vaginal='(.+)', fisting='(.+)', masturbation='(.+)', anal='(.+)', oral='(.+)'\).*", re.I): self.sex_animation_set
         }
         fallout_hooks = {
             # Fallout 4 AAF Support
@@ -311,6 +317,7 @@ class SkyrimScriptInterface(object):
     
     def sex_start(self, match):
         info("Sex_start")
+        self.sex_animation = "untyped_sex"
         self.sex_stage = 0
         return 
     
@@ -321,13 +328,37 @@ class SkyrimScriptInterface(object):
             self.sex_stage += 1
             info("Sex_stage_start: {}".format(str(self.sex_stage)))
             # For stages 1-5, go from strength 20-100. Consider it a process of warming up or sensitization ;)
-            return [self.toys.vibrate(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER), pattern="untyped_sex"), self.toys.shock(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER) / 2, pattern="untyped_sex")]
+            return [self.toys.vibrate(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER), pattern=self.sex_animation), self.toys.shock(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER) / 2, pattern=self.sex_animation)]
 
     def sex_end(self, match):
         info("Sex_end")
         self.sex_stage = None
+        self.sex_animation = "untyped_sex"
         return self.toys.stop()
 
+    def sex_animation_set(self, match):
+        # This only fires if the player is in the scene, so no need for further filtering
+        boobjob = match.group(1) == "TRUE"
+        vaginal = match.group(2) == "TRUE"
+        fisting = match.group(3) == "TRUE"
+        masturbation = match.group(4) == "TRUE"
+        anal = match.group(5) == "TRUE"
+        oral = match.group(6) == "TRUE"
+        if boobjob:
+            self.sex_animation = "boobjob"
+        if oral:
+            self.sex_animation = "oral"
+        if vaginal:
+            self.sex_animation = "vaginal"
+        if anal:
+            self.sex_animation = "anal"
+        # Ordered last, so that these override vaginal/anal/etc
+        if fisting:
+            self.sex_animation = "fisting"
+        if masturbation:
+            self.sex_animation = "masturbation"
+        success("Set sex animation type to " + self.sex_animation)
+        
     def parse_log(self):
         stamp = os.stat(self.filename).st_mtime
         ret = None
@@ -425,6 +456,7 @@ async def main():
                         await asyncio.sleep(4)
                 if event == GUI_TEST_SEX:
                     ssi.sex_start(False)
+                    ssi.sex_animation = random.choice(["boobjob", "vaginal", "fisting", "masturbation", "anal", "oral"])
                     for i in range(0, 5):
                         await run_task(ssi.sex_stage_start(False), run_async=True, window=window)
                         window.Refresh()

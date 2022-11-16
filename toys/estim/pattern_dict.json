@@ -10,5 +10,11 @@
     "vibrator_3": ["vibrator_standard1LP.json"],
     "vibrator_4": ["vibrator_strong1LP.json", "vibrator_strong2LP.json"],
     "vibrator_5": ["vibrator_verystrong1LP.json"],
-    "untyped_sex": ["vibrator_verystrong1LP.json"]
+    "untyped_sex": ["vibrator_standard1LP.json"],
+    "anal": ["vibrator_strong1LP.json"],
+    "vaginal": ["vibrator_verystrong1LP.json"],
+    "oral": ["vibrator_weak1LP.json"],
+    "fisting": ["wpn_impact_unarmed_flesh_01.json"],
+    "masturbation": ["vibrator_strong1LP.json"],
+    "boobjob": ["vibrator_veryweak1LP.json"]
 }

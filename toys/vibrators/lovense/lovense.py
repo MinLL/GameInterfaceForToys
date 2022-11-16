@@ -47,7 +47,7 @@ class LovenseInterface(Vibrator):
             strength = int(int(strength)/5) # Lovense supports 0-20 scale for vibrations
             r = self._command("Vibrate:"+str(strength), duration)
         else:
-            r = self._send_pattern(duration, random.choice(self.patterns[pattern]), (200 + (1000 - strength * 10)))
+            r = self._send_pattern(duration, random.choice(self.patterns[pattern]), (350 + (1000 - strength * 10)))
         if r.json()['code'] == 200:
             success("  " + str(r.json()))
         else:

@@ -2,7 +2,7 @@ Scriptname SkyrimToyInterfacePlayerScript extends ReferenceAlias
 
 ReferenceAlias Property PlayerRef  Auto  
 Float Property OnHitCooldown Auto
-
+SexLabFramework property SexLab auto
 
 ; Setup handlers for mod events we are interested in.
 function RegisterEvents()		
@@ -12,8 +12,25 @@ function RegisterEvents()
     RegisterForModEvent("DeviceVibrateEffectStop", "OnVibrateStop")
     RegisterForModEvent("DeviceActorOrgasm", "OnDeviceActorOrgasm")
     RegisterForModEvent("DeviceEdgedActor", "OnDeviceEdgedActor")
+    RegisterForModEvent("HookAnimationStart", "OnSexlabAnimationStart")
     Log("Registered for mod events.")
 EndFunction
+
+Event OnSexlabAnimationStart(int threadID, bool HasPlayer)
+      If !HasPlayer
+      	 Log("Animation does not contain player - done.")
+      	 return
+      EndIf
+      sslThreadController Controller = Sexlab.ThreadSlots.GetController(threadID)
+      sslBaseAnimation anim = Controller.Animation
+      bool boobjob = anim.HasTag("Boobjob")
+      bool vaginal = anim.HasTag("Vaginal")
+      bool fisting = anim.HasTag("Fisting")
+      bool masturbation = anim.HasTag("Masturbation")
+      bool anal = anim.HasTag("Anal")
+      bool oral = anim.HasTag("Oral")
+      Log("OnSexlabAnimationStart(boobjob='" + boobjob + "', vaginal='" + vaginal + "', fisting='" + fisting + "', masturbation='" + masturbation + "', anal='" + anal + "', oral='" + oral +"')")
+EndEvent
 
 
 Event OnVibrateStart(string eventName, string strArg, float numArg, Form sender)
@@ -84,3 +101,4 @@ Function Log(string in)
     Debug.Trace("[SkyrimToyInterface]: " + in)
 EndFunction
  
+

@@ -304,7 +304,7 @@ class SkyrimScriptInterface(object):
                 pattern = v
                 break
         if len(self.toys.estim) == 0:
-            return self.toys.vibrate(strength, 2)
+            return self.toys.vibrate(2, strength)
         else:
             return self.toys.shock(1, int(strength), pattern)
         

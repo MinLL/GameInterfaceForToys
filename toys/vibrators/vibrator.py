@@ -1,6 +1,8 @@
 from toys.base import Toy, FEATURE_VIBRATOR
 import json
 import io
+import random
+from common.util import *
 
 class Vibrator(Toy):
     def __init__(self, name, tags=[]):

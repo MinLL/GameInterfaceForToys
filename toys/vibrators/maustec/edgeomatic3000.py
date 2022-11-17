@@ -78,23 +78,32 @@ class EdgeomaticInterface(Vibrator):
         return await self._send_cmd(data)
     
 
-    async def _runMode(self, mode, duration):
+    async def _runMode(self, mode, duration, strength=0, pattern=""):
+        is_manual = (mode == "manual")
         if self.duration > 0:
             self.duration += duration
             info("Added {} to duration. Remaining: {}".format(duration, self.duration - self.i))
             return
         info("Running mode {} for {} seconds".format(mode, duration))
         self.duration = duration
-        await self._setMode(mode),
+        await self._setMode(mode)
+        if is_manual:
+            pattern = random.choice(self.patterns[pattern])
+            pattern_counter = 0
         self.i = 0
-        while self.i < self.duration:
-            await asyncio.sleep(1)
-            self.i += 1
+        while self.i < (self.duration):
+            if is_manual:
+                if pattern_counter >= len(pattern):
+                    pattern_counter = 0
+                await self._setMotor(self.scale_strength(pattern[pattern_counter] * 5))
+                pattern_counter += 1
+            await asyncio.sleep(0.25)
+            self.i += 0.25
         await self.stop()
         
     async def vibrate(self, duration, strength, pattern=""):
         await self._setMotor(strength)
-        await self._runMode("manual", duration)
+        await self._runMode("manual", duration, strength, pattern)
 
     async def vibrate_plus(self, duration, strength, pattern=""):
         await self._runMode("automatic", duration)

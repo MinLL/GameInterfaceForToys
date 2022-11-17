@@ -8,6 +8,7 @@ import types
 import sys
 import importlib
 import yaml
+import traceback
 
 from common.constants import *
 from common.util import *
@@ -397,6 +398,7 @@ class SkyrimScriptInterface(object):
                                 break
                     except Exception as e:
                         fail("Encountered exception while executing hooks: {}".format(str(e)))
+                        traceback.print_exception(e)
             except Exception as e:
                 self._set_eof(fd)
                 fd.close()
@@ -448,13 +450,16 @@ async def main():
     try:
         # Set up GUI
         sg.theme('DarkGrey12')
-        layout = [
-            [sg.Column([[sg.Button(GUI_TEST_VIBRATE)],
+        buttonColumn = [[sg.Button(GUI_TEST_VIBRATE)],
                         [sg.Button(GUI_TEST_SHOCK)],
                         [sg.Button(GUI_TEST_SEX)],
                         [sg.Button(GUI_TEST_PLUG_VIBRATE)],
                         [sg.Button(GUI_OPEN_CONFIG)]
-                        ]),
+                        ]
+        if ssi.chaster_enabled:
+            buttonColumn.append([sg.Button(GUI_CHASTER_SPIN_WHEEL)])
+        layout = [
+            [sg.Column(buttonColumn),
              sg.Column([[sg.Output(size=(120,60), background_color='black', text_color='white')]])
         ]]
         window = sg.Window('Game Interface For Toys', layout)
@@ -475,13 +480,15 @@ async def main():
                     window.close()
                     raise FatalException("Exiting")
                 if event == GUI_TEST_VIBRATE:
-                    await run_task(ssi.toys.vibrate_plus(5, 10), run_async=True)
+                    await run_task(ssi.toys.vibrate(5, 10, "random"), run_async=True)
                 if event == GUI_TEST_PLUG_VIBRATE:
                     await run_task(test_plugs(window, ssi), run_async=True)
                 if event == GUI_TEST_SEX:
                     await run_task(test_sex(window, ssi), run_async=True)
                 if event == GUI_TEST_SHOCK:
                     await run_task(ssi.toys.shock(2, 10, "random"), run_async=True)
+                if event == GUI_CHASTER_SPIN_WHEEL:
+                    await run_task(ssi._chaster_spin_wheel(False), run_async=True)
                 if event == GUI_OPEN_CONFIG:
                     try:
                         open_config_modal()
@@ -489,6 +496,7 @@ async def main():
                         raise e
                     except Exception as e:
                         fail("Error while saving config ({}): {}".format(type(e), str(e)))
+                        traceback.print_exception(e)
                 if throttle >= 0:
                     throttle = 0
                     await run_task(ssi.toys.check_in())
@@ -502,6 +510,7 @@ async def main():
                     fail("Could not open {} reading - File not found".format(str(e)))
             except Exception as e:
                 fail("Unhandled Exception ({}): {}".format(type(e), str(e)))
+                traceback.print_exception(e)
     # Make sure toys shutdown cleanly incase anything fatal happens.
     except Exception as e:
         info("Shutting down...")

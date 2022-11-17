@@ -11,6 +11,7 @@ GUI_TEST_SEX = 'Test Sex'
 GUI_TEST_VIBRATE = 'Test Vibrate'
 GUI_TEST_SHOCK = 'Test Shock'
 GUI_OPEN_CONFIG = 'Configuration'
+GUI_CHASTER_SPIN_WHEEL = 'Spin Wheel'
 
 GUI_CONFIG_SAVE = 'Save'
 GUI_CONFIG_EXIT = 'Cancel'

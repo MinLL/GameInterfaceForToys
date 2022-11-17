@@ -19,7 +19,7 @@ class ChasterInterface(object):
             'slsi_gear': lambda: "Gear Task: {}".format(self.assign_task("Match your characters bondage outfit for {} minutes.".format(random.choice([60, 120, 180])))),
             'slsi_plug': lambda: "Plug Task: {}".format(self.assign_task("Insert a plug and keep it there for at least {} minutes.".format(random.choice([60, 90, 120, 180])))),
             'slsi_clamps': lambda: "Clamp Task: {}".format(self.assign_task("Wear your clamps for at least {} minutes.".format(random.choice[15, 20, 25]))),
-            'slsi_shibari': lambda: "Shibari Task: {}".format(self.assign_task("Wear a {} for the rest of the day.".format(["body harness", "crotch rope", "chest harness"]))),
+            'slsi_shibari': lambda: "Shibari Task: {}".format(self.assign_task("Wear a {} for the rest of the day.".format(random.choice(["body harness", "crotch rope", "chest harness"])))),
             'slsi_bodywriting': lambda: "Body Writing Task: {}".format(self.assign_task("....")),
             'slsi_ice': lambda: "Ice Task: {}".format(self.assign_task("Hold an icecube in or against your {} until it melts.".format(random.choice(["cage", "nipples", "mouth", "bellybutton"])))),
             'slsi_squats': lambda: "Squat Task: {}".format(self.assign_task("Do {} squats while wearing {}.".format(random.randint(20, 30), random.choice(self.random_toys)))),

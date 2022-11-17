@@ -33,5 +33,7 @@ COYOTE_DEFAULT_CHANNEL = "a"  # Set default output channel. Accepts "a" or "b"
 COYOTE_SAFE_MODE = True  # Enable or disable safe mode. This caps the max e-stim output of the device. Warning: Don't touch unless you know what you're doing!
 
 LOVENSE_HOST = "127.0.0.1:20010"
+LOVENSE_STRENGTH_SCALE = 100
 #LOVENSE_HOST = "192.168.0.195:20010"
 
+MAUSTEC_HOST = "ws://192.168.0.230:80"

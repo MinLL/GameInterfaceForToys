@@ -5,6 +5,7 @@
 FEATURE_VIBRATOR = "vibrator"
 FEATURE_ESTIM = "estim"
 FEATURE_CHASTITY = "chastity"
+FEATURE_EDGE = "edge"
 
 class Toy:
     def __init__(self, name, features=[], min_strength=0, max_strength=100):

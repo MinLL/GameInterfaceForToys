@@ -35,7 +35,7 @@ class ChasterInterface(object):
         return self.toys.shock(10, 100)
     
     def overstimulate(self):
-        return self.toys.vibrate(random.randint(300, 600) , 100)
+        return self.toys.vibrate_plus(random.randint(300, 600) , 100)
 
     def tease(self):
         return self.toys.vibrate(240, 5)

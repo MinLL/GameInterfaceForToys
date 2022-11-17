@@ -33,7 +33,8 @@ config_fields = {
     'Coyote E-Stim UID': 'COYOTE_UID',
     'Coyote E-Stim Multiplier': 'COYOTE_MULTIPLIER',
     'Coyote E-Stim Default Channel': 'COYOTE_DEFAULT_CHANNEL',
-    'Lovense Host': 'LOVENSE_HOST'
+    'Lovense Host': 'LOVENSE_HOST',
+    'Lovense Strength Max': 'LOVENSE_STRENGTH_SCALE'
 }
 
 
@@ -84,6 +85,9 @@ class ToyInterface(object):
             elif toy == TOY_KIZUNA:
                 from toys.vibrators.kizuna.kizuna import KizunaInterface
                 tmp += [KizunaInterface()]
+            elif toy == TOY_EDGEOMATIC:
+                from toys.vibrators.maustec.edgeomatic3000 import EdgeomaticInterface
+                tmp += [EdgeomaticInterface()]
             else:
                 raise FatalException("Unsupported toy type!")
         self.vibrators = list(filter(lambda x: FEATURE_VIBRATOR in x.properties['features'], tmp))
@@ -106,7 +110,13 @@ class ToyInterface(object):
         info("Toy Vibrate - start(duration={}, strength={}, pattern={})".format(duration, strength, pattern))
         if strength > 100:
             strength = 100
-        return self._do_action(self.vibrators, {"duration": duration, "strength": strength, "pattern": pattern})
+        return self._do_action(self.vibrators, {"plus": False, "duration": duration, "strength": strength, "pattern": pattern})
+
+    def vibrate_plus(self, duration, strength, pattern=""):
+        info("Toy Vibrate+ - start(duration={}, strength={}, pattern={})".format(duration, strength, pattern))
+        if strength > 100:
+            strength = 100
+        return self._do_action(self.vibrators, {"plus": True, "duration": duration, "strength": strength, "pattern": pattern})
 
     def shock(self, duration, strength, pattern=""):
         if strength > 100:
@@ -241,7 +251,7 @@ class SkyrimScriptInterface(object):
     def dd_vibrate(self, duration, strength):
         pattern = "vibrator_{}".format(strength)
         info("dd_vibrate(" + str(duration)+", "+ str(strength)+", "+pattern+")")
-        ret =  [self.toys.vibrate(duration * int(settings.DD_VIB_MULT), 20 * strength, pattern=pattern)]
+        ret =  [self.toys.vibrate_plus(duration * int(settings.DD_VIB_MULT), 20 * strength, pattern=pattern)]
         ret.append(self.toys.shock(duration, int(20 * strength / 5), pattern))
         return ret
     
@@ -261,13 +271,13 @@ class SkyrimScriptInterface(object):
             strength = 70
         elif strText == "very strong":
             strength = 100
-        return self.toys.vibrate(120, strength)
+        return self.toys.vibrate_plus(120, strength)
 
     def player_orgasmed(self, match):
-        return self.toys.vibrate(60, 100)
+        return self.toys.vibrate_plus(60, 100)
 
     def player_edged(self, match):
-        return self.toys.vibrate(60, 10)
+        return self.toys.vibrate_plus(60, 10)
 
     def player_sit(self, match):
         return self.toys.vibrate(5, 10)
@@ -281,8 +291,10 @@ class SkyrimScriptInterface(object):
         # Being hit sets strength 6. 47 of the potential strength is from being power attacked, the other 47 is from remaining health.
         
         source = source.lower()
-        if source == "" or source == "woven power":
-            # Do nothing for damage without a source, or from spellsiphon
+        if source == "": # Animals and the like have an empty source name
+            source = "unarmed"
+        if source == "woven power":
+            # Do nothing for self-damage from spellsiphon
             return
         
         strength = 6
@@ -316,7 +328,7 @@ class SkyrimScriptInterface(object):
         return self.toys.vibrate(int(match.group(3)), int(match.group(2)))
 
     def sex_start_simple(self, match):
-        return self.toys.vibrate(300, MAX_VIBRATE_STRENGTH)
+        return self.toys.vibrate_plus(300, MAX_VIBRATE_STRENGTH)
     
     def sex_start(self, match):
         info("Sex_start")
@@ -331,7 +343,7 @@ class SkyrimScriptInterface(object):
             self.sex_stage += 1
             info("Sex_stage_start: {}".format(str(self.sex_stage)))
             # For stages 1-5, go from strength 20-100. Consider it a process of warming up or sensitization ;)
-            return [self.toys.vibrate(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER), pattern=self.sex_animation), self.toys.shock(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER) / 2, pattern=self.sex_animation)]
+            return [self.toys.vibrate_plus(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER), pattern=self.sex_animation), self.toys.shock(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER) / 2, pattern=self.sex_animation)]
 
     def sex_end(self, match):
         info("Sex_end")
@@ -413,6 +425,25 @@ async def run_task(foo, run_async=False, window=False):
         # No need to do anything if the task was not async.
         return
 
+
+async def test_plugs(window, ssi):
+    for i in range(1, 6):
+        await run_task(ssi.dd_vibrate(2, i), run_async=True)
+        window.Refresh()
+        timeout = 0
+        await asyncio.sleep(4)
+    await run_task(ssi.toys.stop())
+
+async def test_sex(window, ssi):
+    ssi.sex_start(False)
+    ssi.sex_animation = random.choice(["boobjob", "vaginal", "fisting", "masturbation", "anal", "oral"])
+    for i in range(0, 5):
+        await run_task(ssi.sex_stage_start(False), run_async=True, window=window)
+        window.Refresh()
+        await asyncio.sleep(5)
+    await run_task(ssi.sex_end(False))
+
+
 async def main():
     try:
         # Set up GUI
@@ -432,14 +463,7 @@ async def main():
         ssi.setup()
         await run_task(ssi.toys.connect(), run_async=True)
         window.Refresh()
-        # await run_task(ssi.toys.vibrate(2, 10))
-        # window.Refresh()
-        # await asyncio.sleep(2)
-        # await run_task(ssi.toys.shock(2, 10))
-        # window.Refresh()
-        # await asyncio.sleep(2)
-        # await run_task(ssi.toys.stop())
-        # window.Refresh()
+
         throttle = 0
         while True:
             throttle += 1
@@ -447,24 +471,15 @@ async def main():
             event, values = window.read(timeout=10) # Timeout after 10ms instead of sleeping
             try:
                 if event == sg.WIN_CLOSED:
-                    await run_task(ssi.shutdown())
+                    await run_task(ssi.shutdown(), window=window)
                     window.close()
                     raise FatalException("Exiting")
                 if event == GUI_TEST_VIBRATE:
-                    await run_task(ssi.toys.vibrate(2, 10))
+                    await run_task(ssi.toys.vibrate_plus(5, 10), run_async=True)
                 if event == GUI_TEST_PLUG_VIBRATE:
-                    for i in range(1, 6):
-                        await run_task(ssi.dd_vibrate(4, i), run_async=True)
-                        window.Refresh()
-                        await asyncio.sleep(4)
+                    await run_task(test_plugs(window, ssi), run_async=True)
                 if event == GUI_TEST_SEX:
-                    ssi.sex_start(False)
-                    ssi.sex_animation = random.choice(["boobjob", "vaginal", "fisting", "masturbation", "anal", "oral"])
-                    for i in range(0, 5):
-                        await run_task(ssi.sex_stage_start(False), run_async=True, window=window)
-                        window.Refresh()
-                        await asyncio.sleep(5)
-                    await run_task(ssi.sex_end(False))
+                    await run_task(test_sex(window, ssi), run_async=True)
                 if event == GUI_TEST_SHOCK:
                     await run_task(ssi.toys.shock(2, 10, "random"), run_async=True)
                 if event == GUI_OPEN_CONFIG:
@@ -474,7 +489,7 @@ async def main():
                         raise e
                     except Exception as e:
                         fail("Error while saving config ({}): {}".format(type(e), str(e)))
-                if throttle >= 100:
+                if throttle >= 0:
                     throttle = 0
                     await run_task(ssi.toys.check_in())
                 await run_task(ssi.parse_log(), run_async=True)
@@ -505,7 +520,8 @@ def open_config_modal():
             config_layout.append([sg.Text('Supported Toys:'), sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_BUTTPLUG, key=TOY_BUTTPLUG, default=TOY_BUTTPLUG in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_COYOTE, key=TOY_COYOTE, default=TOY_COYOTE in settings.TOY_TYPE),
-                                  sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE)
+                                  sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE),
+                                  sg.Checkbox(TOY_EDGEOMATIC, key=TOY_EDGEOMATIC, default=TOY_EDGEOMATIC in settings.TOY_TYPE)
                                   ])
         else:
             config_layout.append([sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)])
@@ -534,6 +550,8 @@ def open_config_modal():
                         toys += [TOY_COYOTE]
                     if values[TOY_KIZUNA] == True:
                         toys += [TOY_KIZUNA]
+                    if values[TOY_EDGEOMATIC] == True:
+                        toys += [TOY_EDGEOMATIC]
                     settings.TOY_TYPE = toys
                 else:
                     setattr(settings, x, values[x])

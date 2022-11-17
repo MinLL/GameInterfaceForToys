@@ -1,7 +1,8 @@
 TOY_LOVENSE = "Lovense"
 TOY_BUTTPLUG = "Buttplug.io"
-TOY_COYOTE = "Coyote"
+TOY_COYOTE = "DG-Lab Coyote"
 TOY_KIZUNA = "Kizuna Smart Controller"
+TOY_EDGEOMATIC = "Maus-Tec Edge-o-Matic 3000"
 VERSION = "Alpha 4"
 
 

@@ -35,7 +35,8 @@ config_fields = {
     'Coyote E-Stim Multiplier': 'COYOTE_MULTIPLIER',
     'Coyote E-Stim Default Channel': 'COYOTE_DEFAULT_CHANNEL',
     'Lovense Host': 'LOVENSE_HOST',
-    'Lovense Strength Max': 'LOVENSE_STRENGTH_SCALE'
+    'Lovense Strength Max': 'LOVENSE_STRENGTH_SCALE',
+    'Lovense Use New API': 'LOVENSE_USE_NEW_API'
 }
 
 
@@ -533,6 +534,8 @@ def open_config_modal():
                                   sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_EDGEOMATIC, key=TOY_EDGEOMATIC, default=TOY_EDGEOMATIC in settings.TOY_TYPE)
                                   ])
+        elif v == 'LOVENSE_USE_NEW_API':
+            config_layout.append([sg.Checkbox(k, key=v, default=settings.LOVENSE_USE_NEW_API)])
         else:
             config_layout.append([sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)])
     config_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT)])

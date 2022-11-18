@@ -27,9 +27,13 @@ class LovenseInterface(Vibrator):
         pattern = ";".join([str(self.scale_strength(x)) for x in pattern])
         info("Sending pattern command: {} at interval {}".format(str(pattern), interval))
         # interval should be 100 minimum, ms inbetwen steps
+        if settings.LOVENSE_USE_NEW_API:
+            rule = "V:1;F:v,r,p,t,s,f;S:{}#".format(interval)
+        else:
+            rule = "V:1;F:vrp;S:{}#".format(interval)
         params = {
             'command': "Pattern",
-            'rule': "V:1;F:vrp;S:{}#".format(interval),
+            'rule': rule,
             'strength': pattern,
             'timeSec': duration,
             'apiVer': 1
@@ -54,6 +58,10 @@ class LovenseInterface(Vibrator):
             r = self._send_pattern(duration, random.choice(self.patterns[pattern]), (350 + (1000 - strength * 10)))
         if r.json()['code'] == 200:
             success("  " + str(r.json()))
+        elif r.json()['code'] == 404:
+            fail("  Request failed. Try Toggling the 'Use New API' setting: " + str(r.json()))
+        elif r.json()['code'] == 402:
+            fail("  Remote server refused request. Make sure that you're logged in, control is permitted, or (if using a phone) that you're in game mode: " + str(r.json()))
         else:
             fail("  " + str(r.json()))
     def stop(self):

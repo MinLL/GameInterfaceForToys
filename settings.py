@@ -35,5 +35,6 @@ COYOTE_SAFE_MODE = True  # Enable or disable safe mode. This caps the max e-stim
 LOVENSE_HOST = "127.0.0.1:20010"
 LOVENSE_STRENGTH_SCALE = 100
 #LOVENSE_HOST = "192.168.0.195:20010"
+LOVENSE_USE_NEW_API = True
 
 MAUSTEC_HOST = "ws://192.168.0.230:80"

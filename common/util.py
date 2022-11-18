@@ -17,13 +17,13 @@ class ReloadException(FatalException):
     pass
 
 def info(s):
-    print("[SkyrimToyInterface] [i] " +str(s))
+    print("[GameInterfaceForToys] [i] " +str(s))
 
 def success(s):
-    print( "[SkyrimToyInterface] [+] " + str(s))
+    print( "[GameInterfaceForToys] [+] " + str(s))
 
 def fail(s):
-    print("[SkyrimToyInterface] [-] " + str(s))
+    print("[GameInterfaceForToys] [-] " + str(s))
     # beep()
 
 def beep():

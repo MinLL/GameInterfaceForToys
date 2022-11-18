@@ -215,6 +215,7 @@ class SkyrimScriptInterface(object):
             re.compile(".*\[SkyrimToyInterface\]: OnDeviceActorOrgasm().*"): self.player_orgasmed,
             re.compile(".*\[SkyrimToyInterface\]: OnDeviceEdgedActor().*"): self.player_edged,
             re.compile(".*\[SkyrimToyInterface\]: OnSitDevious().*"): self.player_sit,
+            re.compile(".*StartThirdPersonAnimation\({},(.+)\)".format(settings.CHARACTER_NAME.lower()), re.I): lambda m:  self.toys.vibrate(20, 50, "dd_struggle"),
             re.compile(".*Processing \[(.+)\].*"): self.dd_event
         }
         toys_hooks = {

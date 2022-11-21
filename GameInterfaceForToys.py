@@ -9,6 +9,7 @@ import sys
 import importlib
 import yaml
 import traceback
+import math
 
 from common.constants import *
 from common.util import *
@@ -34,6 +35,9 @@ config_fields = {
     'Coyote E-Stim UID': 'COYOTE_UID',
     'Coyote E-Stim Multiplier': 'COYOTE_MULTIPLIER',
     'Coyote E-Stim Default Channel': 'COYOTE_DEFAULT_CHANNEL',
+    'Coyote Sex Multiplier': 'COYOTE_SEX_MULT',
+    'Coyote Plug Multiplier': 'COYOTE_PLUG_MULT',
+    'Coyote On-Hit Multiplier': 'COYOTE_ON_HIT_MULT',
     'Lovense Host': 'LOVENSE_HOST',
     'Lovense Strength Max': 'LOVENSE_STRENGTH_SCALE',
     'Lovense Use New API': 'LOVENSE_USE_NEW_API'
@@ -115,12 +119,14 @@ class ToyInterface(object):
         return self._do_action(self.vibrators, {"plus": False, "duration": duration, "strength": strength, "pattern": pattern})
 
     def vibrate_plus(self, duration, strength, pattern=""):
+        strength = math.ceil(strength)
         info("Toy Vibrate+ - start(duration={}, strength={}, pattern={})".format(duration, strength, pattern))
         if strength > 100:
             strength = 100
         return self._do_action(self.vibrators, {"plus": True, "duration": duration, "strength": strength, "pattern": pattern})
 
     def shock(self, duration, strength, pattern=""):
+        strength = math.ceil(strength)
         if strength > 100:
             strength = 100
         info("Toy Shock - start(duration={}, strength={}, pattern={})".format(duration, strength, pattern))
@@ -154,6 +160,7 @@ class SkyrimScriptInterface(object):
         self.token = token
         self.toys = ToyInterface(toy_type)
         self.sex_stage = None
+        self.dd_vibrating = False
 
     def _chaster_spin_wheel(self, match):
         return self.chaster.spin_wheel()
@@ -216,7 +223,8 @@ class SkyrimScriptInterface(object):
             re.compile(".*\[SkyrimToyInterface\]: OnDeviceActorOrgasm().*"): self.player_orgasmed,
             re.compile(".*\[SkyrimToyInterface\]: OnDeviceEdgedActor().*"): self.player_edged,
             re.compile(".*\[SkyrimToyInterface\]: OnSitDevious().*"): self.player_sit,
-            re.compile(".*StartThirdPersonAnimation\({},(.+)\)".format(settings.CHARACTER_NAME.lower()), re.I): lambda m:  self.toys.vibrate(20, 50, "dd_struggle"),
+            re.compile(".*StartThirdPersonAnimation\({},(.+)\)".format(settings.CHARACTER_NAME.lower()), re.I): self.dd_anim,
+            re.compile(".*EndThirdPersonAnimation\({}.+".format(settings.CHARACTER_NAME.lower()), re.I): self.dd_anim_stop,
             re.compile(".*Processing \[(.+)\].*"): self.dd_event
         }
         toys_hooks = {
@@ -255,14 +263,29 @@ class SkyrimScriptInterface(object):
         pattern = "vibrator_{}".format(strength)
         info("dd_vibrate(" + str(duration)+", "+ str(strength)+", "+pattern+")")
         ret =  [self.toys.vibrate_plus(duration * int(settings.DD_VIB_MULT), 20 * strength, pattern=pattern)]
-        ret.append(self.toys.shock(duration, int(20 * strength / 5), pattern))
+        ret.append(self.toys.shock(duration * int(settings.DD_VIB_MULT), math.ceil((20 * strength) * float(settings.COYOTE_PLUG_MULT)), pattern))
         return ret
     
     def vibrate(self, match):
+        self.dd_vibrating = True
         duration = int(match.group(2))
         strength = int(match.group(1))
         return self.dd_vibrate(duration, strength)
 
+    def dd_anim(self, match):
+        # Don't override existing dd vibrations
+        if self.dd_vibrating:
+            info("Not starting new vibration - already in dd vibrate")
+            return
+        self.toys.vibrate(60, 50, "dd_struggle"),
+
+    def dd_anim_stop(self, match):
+        # Don't interrupt existing dd vibrations
+        if self.dd_vibrating:
+            info("Not stopping vibration - already in dd vibrate")
+            return
+        self.toys.stop()
+        
     def fallout_dd_vibrate(self, match):
         strength = 50
         strText = match.group(1)
@@ -321,9 +344,10 @@ class SkyrimScriptInterface(object):
         if len(self.toys.estim) == 0:
             return self.toys.vibrate(2, strength)
         else:
-            return self.toys.shock(1, int(strength), pattern)
+            return self.toys.shock(1, int(strength) * settings.COYOTE_ON_HIT_MULT, pattern)
         
     def stop_vibrate(self, match):
+        self.dd_vibrating = False
         return self.toys.stop()
     
     def toys_vibrate(self, match):
@@ -346,7 +370,8 @@ class SkyrimScriptInterface(object):
             self.sex_stage += 1
             info("Sex_stage_start: {}".format(str(self.sex_stage)))
             # For stages 1-5, go from strength 20-100. Consider it a process of warming up or sensitization ;)
-            return [self.toys.vibrate_plus(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER), pattern=self.sex_animation), self.toys.shock(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER) / 2, pattern=self.sex_animation)]
+            return [self.toys.vibrate_plus(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER), pattern=self.sex_animation),
+                    self.toys.shock(300, math.ceil(min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER) * float(settings.COYOTE_SEX_MULT)), pattern=self.sex_animation)]
 
     def sex_end(self, match):
         info("Sex_end")
@@ -467,7 +492,11 @@ async def main():
         window = sg.Window('Game Interface For Toys', layout)
         window.read(timeout=1)
         load_config()
-        ssi.setup()
+        try:
+            ssi.setup()
+        except Exception as e:
+            traceback.print_exception(e)
+            fail("Setup failed - please fix the above error and reload the window.")
         await run_task(ssi.toys.connect(), run_async=True)
         window.Refresh()
 
@@ -488,7 +517,7 @@ async def main():
                 if event == GUI_TEST_SEX:
                     await run_task(test_sex(window, ssi), run_async=True)
                 if event == GUI_TEST_SHOCK:
-                    await run_task(ssi.toys.shock(2, 10, "random"), run_async=True)
+                    await run_task(ssi.toys.shock(10, 10, "random"), run_async=True)
                 if event == GUI_CHASTER_SPIN_WHEEL:
                     await run_task(ssi._chaster_spin_wheel(False), run_async=True)
                 if event == GUI_OPEN_CONFIG:

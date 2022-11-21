@@ -31,7 +31,9 @@ COYOTE_UID = "C1:A9:D8:0C:CB:1D"  # Set to the Bluetooth UID for your particular
 COYOTE_MULTIPLIER = 7.68  # Multiplier to translate between 0-100 vibration intensity and e-stim intensity.
 COYOTE_DEFAULT_CHANNEL = "a"  # Set default output channel. Accepts "a" or "b"
 COYOTE_SAFE_MODE = True  # Enable or disable safe mode. This caps the max e-stim output of the device. Warning: Don't touch unless you know what you're doing!
-
+COYOTE_PLUG_MULT = 0.1
+COYOTE_SEX_MULT = 0.2
+COYOTE_ON_HIT_MULT = 1.0
 LOVENSE_HOST = "127.0.0.1:20010"
 LOVENSE_STRENGTH_SCALE = 100
 #LOVENSE_HOST = "192.168.0.195:20010"

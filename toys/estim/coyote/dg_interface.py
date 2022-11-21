@@ -366,17 +366,22 @@ class CoyoteInterface(Estim):
 
         pattern_duration = self._calculate_pattern_duration(pattern)
 
-        repeats = duration // pattern_duration  # Identical to math.floor(duration / pattern_duration)
         last_power_check = int(time.time())
 
+        end_time = int(time.time()) + int(duration / 1000)
+        cur_time = int(time.time())
         # Iterate over the pattern and send each value (ax, ay, az) to the device in succession
-        if not repeats:  # run pattern once only
+        while cur_time < end_time:
             for state in pattern:
+                cur_time = int(time.time())
+                # info("cur time = {}, end time = {}".format(cur_time, end_time))                
+                if cur_time >= end_time:
+                    info("Shock - Hit time limit, stopping")
+                    break
                 if self.stop_signal:
                     return
-                now = int(time.time())
                 # Check to see if power output has been reduced to zero once per second
-                if now - last_power_check > 1:
+                if cur_time - last_power_check > 1:
                     if not await self.is_running():
                         return
                     last_power_check = int(time.time())                
@@ -394,34 +399,8 @@ class CoyoteInterface(Estim):
 
                 # Sleep to avoid spamming the device and causing "frame tearing."
                 # fixme: Might work worse than a flat time.sleep(0.1)?
-                time.sleep(time_delta / 1000)  # Convert from milliseconds to seconds
-        else:
-            for _ in range(repeats):  # repeat pattern a number of times
-                for state in pattern:
-                    if self.stop_signal:
-                        return
-                    now = int(time.time())
-                    # Check to see if power output has been reduced to zero once per second
-                    if now - last_power_check > 1:
-                        if not await self.is_running():
-                            return
-                        last_power_check = int(time.time())
+                await asyncio.sleep(0.1) #time_delta / 1000)  # Convert from milliseconds to seconds
 
-                    # unpack pattern values
-                    ax, ay, az = state
-
-                    # Determine duration of state (ms)
-                    time_delta = ax + ay  # consists of sum of pulse duration and pause duration
-
-                    # Encode pattern
-                    message = dg_encoding.encode_pattern(ax, ay, az)
-
-                    # Send message to bluetooth device
-                    output = await self.device.write_gatt_char(characteristic, message)
-
-                    # Sleep to avoid spamming the device and causing "frame tearing."
-                    #fixme: Might work worse than a flat time.sleep(0.1)?
-                    time.sleep(time_delta / 1000)  # Convert from milliseconds to seconds
 
     async def is_running(self):
         if not self.is_connected: # Process is shutting down.
@@ -455,6 +434,7 @@ class CoyoteInterface(Estim):
         :param strength: Vibration strength (0 <= x <= 100).
         :param pattern: The pattern to shock with.
         """
+        info("duration = " + str(duration) + ", strength=" + str(strength) + ", pattern=" + pattern)
         # Vibration already in progress
         if await self.is_running():
             await self.stop()

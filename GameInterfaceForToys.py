@@ -173,7 +173,7 @@ class SkyrimScriptInterface(object):
 
     def setup(self):
         try: 
-            fd = open(self.filename, 'r')
+            fd = open(self.filename, 'r', encoding='utf8')
             self._set_eof(fd)
             fd.close()
         except FileNotFoundError:
@@ -409,7 +409,7 @@ class SkyrimScriptInterface(object):
         if stamp != self._cached_stamp:
             try:
                 self._cached_stamp = stamp
-                fd = open(self.filename, 'r')
+                fd = open(self.filename, 'r', encoding='utf8')
                 fd.seek(self.file_pointer, 0)
                 while True:
                     line = fd.readline()
@@ -622,7 +622,7 @@ def load_config():
         except:
             fail("No config value found for {}".format(key))
     try:
-        with io.open('settings.yaml', 'r') as stream:
+        with io.open('settings.yaml', 'r', encoding='utf8') as stream:
             info('Loading Config...')
             data = yaml.safe_load(stream)
             for x in config_fields.values():

@@ -38,6 +38,7 @@ config_fields = {
     'Coyote Sex Multiplier': 'COYOTE_SEX_MULT',
     'Coyote Plug Multiplier': 'COYOTE_PLUG_MULT',
     'Coyote On-Hit Multiplier': 'COYOTE_ON_HIT_MULT',
+    'Coyote Minimum Power (0-768)': 'COYOTE_MIN_POWER',
     'Lovense Host': 'LOVENSE_HOST',
     'Lovense Strength Max': 'LOVENSE_STRENGTH_SCALE',
     'Lovense Use New API': 'LOVENSE_USE_NEW_API'
@@ -344,7 +345,7 @@ class SkyrimScriptInterface(object):
         if len(self.toys.estim) == 0:
             return self.toys.vibrate(2, strength)
         else:
-            return self.toys.shock(1, int(strength) * settings.COYOTE_ON_HIT_MULT, pattern)
+            return self.toys.shock(1, math.ceil(int(strength) * float(settings.COYOTE_ON_HIT_MULT)), pattern)
         
     def stop_vibrate(self, match):
         self.dd_vibrating = False
@@ -517,7 +518,7 @@ async def main():
                 if event == GUI_TEST_SEX:
                     await run_task(test_sex(window, ssi), run_async=True)
                 if event == GUI_TEST_SHOCK:
-                    await run_task(ssi.toys.shock(10, 10, "random"), run_async=True)
+                    await run_task(ssi.toys.shock(2, 10, "random"), run_async=True)
                 if event == GUI_CHASTER_SPIN_WHEEL:
                     await run_task(ssi._chaster_spin_wheel(False), run_async=True)
                 if event == GUI_OPEN_CONFIG:

@@ -58,6 +58,7 @@ from toys.base import FEATURE_ESTIM
 from toys.estim.estim import Estim
 import random
 from common.util import *
+import settings
 
 class CoyoteInterface(Estim):
     """
@@ -419,7 +420,7 @@ class CoyoteInterface(Estim):
         return True
     
     def convert_power_vibrate(self, strength: int):
-        min_power = 320
+        min_power = int(settings.COYOTE_MIN_POWER)
         max_power = 768
         vibrateRange = (100 - 0)  
         stimRange = (max_power - min_power)

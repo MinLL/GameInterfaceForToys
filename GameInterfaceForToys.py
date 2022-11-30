@@ -226,7 +226,8 @@ class SkyrimScriptInterface(object):
             re.compile(".*\[SkyrimToyInterface\]: OnSitDevious().*"): self.player_sit,
             re.compile(".*StartThirdPersonAnimation\({},(.+)\)".format(settings.CHARACTER_NAME.lower()), re.I): self.dd_anim,
             re.compile(".*EndThirdPersonAnimation\({}.+".format(settings.CHARACTER_NAME.lower()), re.I): self.dd_anim_stop,
-            re.compile(".*Processing \[(.+)\].*"): self.dd_event
+            re.compile(".*Processing \[(.+)\].*"): self.dd_event,
+            re.compile(".*\[SkyrimToyInterface\]: OnAnimationEvent\((.+)\) \[wornVagPlug='(.+)', wornAnalPlug='(.+)', wornVagPiercing='(.+)', wornNipplePiercing = '(.+)'\].*"): self.on_animation_event
         }
         toys_hooks = {
             # Toys support
@@ -243,7 +244,47 @@ class SkyrimScriptInterface(object):
         if self.chaster_enabled:
             self.chaster = ChasterInterface(settings.LOCK_NAME, self.token, self.toys)
             self.chaster.setup()
-            
+
+    def on_animation_event(self, match):
+        if self.dd_vibrating:
+            info("Not processing on_animation_event - Already vibrating")
+            return
+        akSource = match.group(1)
+        wornVagPlug = (match.group(2) == "TRUE")
+        wornAnalPlug = (match.group(3) == "TRUE")
+        wornVagPiercing = (match.group(4) == "TRUE")
+        wornNipplePiercing = (match.group(5) == "TRUE") # Not currently supported
+        moving = False
+        sprinting = False
+        jumping = False
+        pattern = ""
+        if akSource == "FootLeft" or akSource == "FootRight":
+            moving = True
+        if akSource == "FootSprintLeft" or akSource == "FootSprintRight":
+            sprinting = True
+        if akSource == "JumpDown":
+            jumping = True
+        if not wornVagPlug and not wornAnalPlug and not wornVagPiercing:
+            return
+        strength = 0
+        if wornVagPlug:
+            strength += 10
+        if wornAnalPlug:
+            strength += 5
+        if wornVagPiercing:
+            strength += 5
+        if moving:
+            strength *= 1
+            pattern = "animation_walking"
+        if sprinting:
+            strength *= 2
+            pattern = "animation_sprinting"
+        if jumping:
+            strength *= 5
+            pattern = "animation_jumping"
+        if strength > 0:
+            return self.toys.vibrate(1, strength, pattern)
+        
     def dd_event(self, match):
         # Processing [Nipple Piercings]
         return self.toys.vibrate(random.randint(2, 30), 10)

@@ -1,11 +1,15 @@
 Scriptname SkyrimToyInterfacePlayerScript extends ReferenceAlias  
 
-ReferenceAlias Property PlayerRef  Auto  
+ReferenceAlias Property PlayerRef  Auto
 Float Property OnHitCooldown Auto
+Float Property OnMoveCooldown Auto
 SexLabFramework property SexLab auto
+zadLibs ddLib
+Actor PlayerActor
 
 ; Setup handlers for mod events we are interested in.
-function RegisterEvents()		
+function RegisterEvents()
+    PlayerActor = PlayerRef.GetActorRef()
     ; RegisterForModEvent("theEvent", "OnEventHandler")
     RegisterForModEvent("EventOnSit", "OnSitDevious")
     RegisterForModEvent("DeviceVibrateEffectStart", "OnVibrateStart")
@@ -13,8 +17,37 @@ function RegisterEvents()
     RegisterForModEvent("DeviceActorOrgasm", "OnDeviceActorOrgasm")
     RegisterForModEvent("DeviceEdgedActor", "OnDeviceEdgedActor")
     RegisterForModEvent("HookAnimationStart", "OnSexlabAnimationStart")
+    RegisterForAnimationEvent(PlayerActor, "FootLeft")
+    RegisterForAnimationEvent(PlayerActor, "FootRight")
+    RegisterForAnimationEvent(PlayerActor, "FootSprintRight")
+    RegisterForAnimationEvent(PlayerActor, "FootSprintLeft")
+    RegisterForAnimationEvent(PlayerActor, "JumpDown")
     Log("Registered for mod events.")
 EndFunction
+
+Event OnAnimationEvent(ObjectReference akSource, string asEventName)
+  if (akSource != PlayerActor)
+     return
+  endIf
+  if (asEventName == "FootLeft" || asEventName == "FootRight" || asEventName == "FootSprintLeft" || asEventName == "FootSprintRight" || asEventName == "Jumpdown")
+    if (Utility.GetCurrentRealTime() > OnMoveCooldown)
+        OnMoveCooldown = Utility.GetCurrentRealTime() + 1 ; 1 second cooldown
+    else
+	If asEventName != "JumpDown"
+           return
+ 	endIf
+    EndIf
+    if (ddLib != None)
+        Bool wornVagPlug = playerActor.WornHasKeyword(ddLib.zad_DeviousPlugVaginal)
+    	Bool wornAnalPlug = playerActor.WornHasKeyword(ddLib.zad_DeviousPlugAnal)
+    	Bool wornVagPiercing = playerActor.WornHasKeyword(ddLib.zad_DeviousPiercingsVaginal)
+	Bool wornNipplePiercing = playerActor.WornHasKeyword(ddLib.zad_DeviousPiercingsNipple)
+	if (wornVagPlug || wornAnalPlug || wornVagPiercing || wornNipplePiercing)
+	    Log("OnAnimationEvent(" + asEventName + ") [wornVagPlug='" + wornVagPlug + "', wornAnalPlug='" + wornAnalPlug +"', wornVagPiercing='" + wornVagPiercing +"', wornNipplePiercing = '" + wornNipplePiercing +"']")
+	endIf
+    endIf
+  endIf
+endEvent
 
 Event OnSexlabAnimationStart(int threadID, bool HasPlayer)
       If !HasPlayer
@@ -56,8 +89,12 @@ EndEvent
 ; Called when game loads.
 Event OnPlayerLoadGame()
     OnHitCooldown = Utility.GetCurrentRealTime()
+    OnMoveCooldown = Utility.GetCurrentRealTime()
     Log("OnPlayerLoadGame(): " + OnHitCooldown as string)
     RegisterEvents()
+    if Game.GetModByName("Devious Devices - Expansion.esm") != 255
+        ddLib = (Quest.GetQuest("zadQuest") As zadLibs)
+    endif
 EndEvent
 
 

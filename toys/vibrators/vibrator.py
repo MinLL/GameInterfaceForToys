@@ -17,12 +17,15 @@ class Vibrator(Toy):
     def action(self, params):
         pattern = ""
         if "pattern" in params:
-            pattern = params['pattern']
+            original_pattern = params['pattern'].split(";")
+            pattern = original_pattern[0]
             if pattern == "random":
                 pattern = random.choice([x for x in self.patterns.keys()])
                 info("random - selected: {}".format(pattern))
             if pattern not in self.patterns:
                 pattern = ""
+            original_pattern[0] = pattern
+            pattern = ";".join(original_pattern)
         if params['plus']:
             return self.vibrate_plus(params['duration'], params['strength'], pattern)
         else:

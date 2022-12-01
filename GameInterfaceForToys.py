@@ -249,21 +249,17 @@ class SkyrimScriptInterface(object):
         if self.dd_vibrating:
             info("Not processing on_animation_event - Already vibrating")
             return
+
         akSource = match.group(1)
         wornVagPlug = (match.group(2) == "TRUE")
         wornAnalPlug = (match.group(3) == "TRUE")
         wornVagPiercing = (match.group(4) == "TRUE")
         wornNipplePiercing = (match.group(5) == "TRUE") # Not currently supported
-        moving = False
-        sprinting = False
-        jumping = False
+        moving = (akSource == "FootLeft" or akSource == "FootRight")
+        sprinting = (akSource == "FootSprintLeft" or akSource == "FootSprintRight" or akSource == "tailSprint")
+        jumping = (akSource == "JumpDown")
         pattern = ""
-        if akSource == "FootLeft" or akSource == "FootRight":
-            moving = True
-        if akSource == "FootSprintLeft" or akSource == "FootSprintRight":
-            sprinting = True
-        if akSource == "JumpDown":
-            jumping = True
+
         if not wornVagPlug and not wornAnalPlug and not wornVagPiercing:
             return
         strength = 0
@@ -275,15 +271,15 @@ class SkyrimScriptInterface(object):
             strength += 5
         if moving:
             strength *= 1
-            pattern = "animation_walking"
+            pattern = "animation_walking;scale_intensity;interval=200"
         if sprinting:
             strength *= 2
-            pattern = "animation_sprinting"
+            pattern = "animation_sprinting;scale_intensity;interval=200"
         if jumping:
-            strength *= 5
-            pattern = "animation_jumping"
+            strength *= 2
+            pattern = "animation_jumping;scale_intensity;interval=200"
         if strength > 0:
-            return self.toys.vibrate(1, strength, pattern)
+            return self.toys.vibrate(2, strength, pattern)
         
     def dd_event(self, match):
         # Processing [Nipple Piercings]

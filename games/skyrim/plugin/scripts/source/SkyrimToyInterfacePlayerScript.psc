@@ -19,6 +19,7 @@ function RegisterEvents()
     RegisterForModEvent("HookAnimationStart", "OnSexlabAnimationStart")
     RegisterForAnimationEvent(PlayerActor, "FootLeft")
     RegisterForAnimationEvent(PlayerActor, "FootRight")
+    RegisterForAnimationEvent(PlayerActor, "tailSprint")
     RegisterForAnimationEvent(PlayerActor, "FootSprintRight")
     RegisterForAnimationEvent(PlayerActor, "FootSprintLeft")
     RegisterForAnimationEvent(PlayerActor, "JumpDown")
@@ -33,7 +34,7 @@ Event OnAnimationEvent(ObjectReference akSource, string asEventName)
     if (Utility.GetCurrentRealTime() > OnMoveCooldown)
         OnMoveCooldown = Utility.GetCurrentRealTime() + 1 ; 1 second cooldown
     else
-	If asEventName != "JumpDown"
+	If asEventName != "JumpDown" && asEventName != "tailSprint"
            return
  	endIf
     EndIf

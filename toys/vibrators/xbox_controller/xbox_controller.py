@@ -18,7 +18,7 @@ class XboxControllerInterface(Vibrator):
         self.taskList = []
         t1 = threading.Thread(target=self.t1, args=(), daemon=True)
         t1.start()
-        super().__init__("Lovense")
+        super().__init__("Xbox controller")
     
     def t1(self):
         # print('time thread '," running ....")

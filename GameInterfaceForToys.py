@@ -26,6 +26,7 @@ config_fields = {
     'Toy Type': 'TOY_TYPE',
     'Devious Devices Vib Multiplier': 'DD_VIB_MULT',
     'Warn On Stack Dump': 'WARN_ON_STACK_DUMP',
+    'Warn On Stack Dump SOUND': 'WARN_ON_STACK_DUMP_SOUND',
     'Buttplug.io Strength Max': 'BUTTPLUG_STRENGTH_MAX',
     'Buttplug.io Server Address': 'BUTTPLUG_SERVER_ADDRESS',
     'Chaster Dev Token': 'CHASTER_TOKEN',
@@ -603,6 +604,12 @@ def open_config_modal():
                                   ])
         elif v == 'LOVENSE_USE_NEW_API':
             config_layout.append([sg.Checkbox(k, key=v, default=settings.LOVENSE_USE_NEW_API)])
+        elif v == 'WARN_ON_STACK_DUMP':
+            config_layout.append([sg.Checkbox(k, key=v, default=settings.WARN_ON_STACK_DUMP),
+                                sg.Radio("speaker","WARN_ON_STACK_DUMP_SOUND", key="WARN_ON_STACK_DUMP_SOUND", default=settings.WARN_ON_STACK_DUMP_SOUND),
+                                sg.Radio("buzzer","WARN_ON_STACK_DUMP_SOUND", key="WARN_ON_STACK_DUMP_SOUND", default=not settings.WARN_ON_STACK_DUMP_SOUND)])
+        elif v == 'WARN_ON_STACK_DUMP_SOUND':
+            pass
         else:
             config_layout.append([sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)])
     config_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT)])

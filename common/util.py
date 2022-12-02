@@ -1,3 +1,6 @@
+from settings import WARN_ON_STACK_DUMP_SOUND
+if WARN_ON_STACK_DUMP_SOUND: import winsound
+
 class colors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -28,5 +31,6 @@ def fail(s):
 
 def beep():
     print("\a")
+    if WARN_ON_STACK_DUMP_SOUND : winsound.PlaySound('SystemQuestion',winsound.SND_ASYNC)
 
 

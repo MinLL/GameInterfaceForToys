@@ -84,8 +84,53 @@ class CoyoteInterface(Estim):
         """
         super().__init__("coyote")
         # Set bluetooth device uid and device reference
-        self.device_uid = device_uid
-        self.device = bleak.BleakClient(self.device_uid)
+        if device_uid:
+            self.device_uid = device_uid
+            self.device = bleak.BleakClient(self.device_uid)
+        else:
+            # attempt to find device automatically if device_uid left blank.
+            print("Coyote UID was left blank. Trying to find the device automatically.")
+
+            async def search_for_device():
+                # BLEAK bluetooth device placeholders
+                self.scanner = None
+                self.device = None
+                self.device_uid = None
+                self.device_alias = "D-LAB ESTIM01"
+
+                print("Scanning for Bluetooth devices.")
+                self.scanner = bleak.BleakScanner()
+                bluetooth_devices = await self.scanner.discover(timeout=10)
+
+                # Search for Coyote device with name/alias "DG-LAB ESTIM01".
+                # on success, order the list to end with the devices with the strongest signal.
+                # If there are several active DG-Lab Coyote devices active simultaneously for pairing,
+                # then this will ensure that the code defaults to the device closest to the Bluetooth adapter.
+                # todo: Allow for choosing between several e-stim devices, if present simultaneously.
+                if bluetooth_devices:
+                    # Sort in descending order of signal strength
+                    bluetooth_devices.sort(key=lambda device: device.rssi, reverse=True)
+                    logging.info(bluetooth_devices)
+
+                    # Look for the DG-Lab Coyote device among the detected devices.
+                    for bluetooth_device in bluetooth_devices:
+                        # Is this the Coyote device?
+                        if bluetooth_device.name == self.device_alias:
+                            # If we've already found one Coyote device, skip additional devices with same alias.
+                            if self.device_uid:
+                                print(
+                                    f"WARNING: More than one Coyote was found. Skipping subsequent device: {bluetooth_device.name}")
+                            else:
+                                # Save UUID of found device to self.device_uid and instantiate BLEAK as normal.
+                                self.device_uid = bluetooth_device.address
+                                print(f"Coyote found! UUID: {self.device_uid}")
+                                self.device = bleak.BleakClient(self.device_uid)
+                    if not self.device_uid:
+                        raise RuntimeError("BLEAK failed to find the DG-Lab Coyote automatically.")
+                else:
+                    raise RuntimeError("BLEAK failed to find any Bluetooth devices.")
+
+            asyncio.run(search_for_device())
 
         # Bluetooth characteristic placeholders; populated in self.connect()
         self._battery_level = None  # battery level

@@ -80,6 +80,9 @@ class ToyInterface(object):
             if toy == TOY_LOVENSE:
                 from toys.vibrators.lovense.lovense import LovenseInterface
                 tmp += [LovenseInterface()]
+            elif toy == TOY_XBOXCONTROLLER:
+                from toys.vibrators.xbox_controller.xbox_controller import XboxControllerInterface
+                tmp += [XboxControllerInterface()]
             elif toy == TOY_BUTTPLUG:
                 from toys.vibrators.buttplugio.buttplug import ButtplugInterface
                 tmp += [ButtplugInterface()]
@@ -596,6 +599,7 @@ def open_config_modal():
             config_layout.append([sg.Text('Old Log File Path: {}'.format(settings.LOG_PATH))])
         elif v == 'TOY_TYPE':
             config_layout.append([sg.Text('Supported Toys:'), sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE),
+                                  sg.Checkbox(TOY_XBOXCONTROLLER, key=TOY_XBOXCONTROLLER, default=TOY_XBOXCONTROLLER in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_BUTTPLUG, key=TOY_BUTTPLUG, default=TOY_BUTTPLUG in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_COYOTE, key=TOY_COYOTE, default=TOY_COYOTE in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE),
@@ -624,6 +628,8 @@ def open_config_modal():
                     print(values)
                     if values[TOY_LOVENSE] == True:
                         toys += [TOY_LOVENSE]
+                    if values[TOY_XBOXCONTROLLER] == True:
+                        toys += [TOY_XBOXCONTROLLER]
                     if values[TOY_BUTTPLUG] == True:
                         toys += [TOY_BUTTPLUG]
                     if values[TOY_COYOTE] == True:

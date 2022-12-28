@@ -23,6 +23,8 @@ function RegisterEvents()
     RegisterForAnimationEvent(PlayerActor, "FootSprintRight")
     RegisterForAnimationEvent(PlayerActor, "FootSprintLeft")
     RegisterForAnimationEvent(PlayerActor, "JumpDown")
+    RegisterForAnimationEvent(PlayerActor, "tailMTIdle")
+    RegisterForAnimationEvent(PlayerActor, "tailCombatIdle")
     Log("Registered for mod events.")
 EndFunction
 
@@ -34,7 +36,7 @@ Event OnAnimationEvent(ObjectReference akSource, string asEventName)
     if (Utility.GetCurrentRealTime() > OnMoveCooldown)
         OnMoveCooldown = Utility.GetCurrentRealTime() + 1 ; 1 second cooldown
     else
-	If asEventName != "JumpDown" && asEventName != "tailSprint"
+	If asEventName != "JumpDown" && asEventName != "tailSprint" && asEventName != "tailMTIdle" && asEventName != "tailCombatIdle"
            return
  	endIf
     EndIf

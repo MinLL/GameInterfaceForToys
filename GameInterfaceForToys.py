@@ -275,13 +275,13 @@ class SkyrimScriptInterface(object):
             strength += 5
         if moving:
             strength *= 1
-            pattern = "animation_walking;scale_intensity;interval=200"
+            pattern = "animation_walking;scale_intensity;interval=400"
         if sprinting:
             strength *= 2
             pattern = "animation_sprinting;scale_intensity;interval=200"
         if jumping:
             strength *= 2
-            pattern = "animation_jumping;scale_intensity;interval=200"
+            pattern = "animation_jumping;scale_intensity;interval=150"
         if strength > 0:
             return self.toys.vibrate(2, strength, pattern)
         

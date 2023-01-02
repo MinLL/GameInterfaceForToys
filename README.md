@@ -10,6 +10,7 @@ This project also integrates with Chaster, allowing games to manipulate a user's
 - Edge-o-Matic 3000
 - XBox controllers
 - DG-Lab E-Stim
+- All physical chastity devices utilizing a key (Via Chaster)
 
 ## Supported Games
 - Skyrim - All versions (Best Supported)

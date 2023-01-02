@@ -1,0 +1,16 @@
+- Sex Start:
+    regex: .+SEXLAB - ActorAlias\[{GIFT_ACTOR_NAME}\] SetActor.+
+    function: sex_start
+    group: default
+    case_sensitive: False
+- Sex End:
+    regex: .+SEXLAB - ActorAlias\[{GIFT_ACTOR_NAME}\]  - Resetting!+
+    function: sex_end
+    group: default
+    case_sensitive: False
+- Sex Stage Start:
+    regex: .+SEXLAB - Thread\[[0-9]+\] Event Hook - StageStart$
+    function: sex_stage_start
+- Animation Set:
+    regex: .+OnSexlabAnimationStart\(boobjob='(.+)', vaginal='(.+)', fisting='(.+)', masturbation='(.+)', anal='(.+)', oral='(.+)'\).*
+    function: sex_animation_set

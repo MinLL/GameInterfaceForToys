@@ -15,6 +15,7 @@ from common.constants import *
 from common.util import *
 import settings
 from toys.base import FEATURE_VIBRATOR, FEATURE_ESTIM
+from events.eventloader import EventLoader
 
 import PySimpleGUI as sg
 
@@ -22,6 +23,7 @@ MAX_VIBRATE_STRENGTH = 100
 
 config_fields = {
     'Log Path': 'LOG_PATH',
+    'Is the OS Windows?': 'IS_WINDOWS',
     'Character Name': 'CHARACTER_NAME',
     'Toy Type': 'TOY_TYPE',
     'Devious Devices Vib Multiplier': 'DD_VIB_MULT',
@@ -40,9 +42,11 @@ config_fields = {
     'Coyote Plug Multiplier': 'COYOTE_PLUG_MULT',
     'Coyote On-Hit Multiplier': 'COYOTE_ON_HIT_MULT',
     'Coyote Minimum Power (0-768)': 'COYOTE_MIN_POWER',
+    'Coyote Maximum Power (0-768)': 'COYOTE_MAX_POWER',
     'Lovense Host': 'LOVENSE_HOST',
     'Lovense Strength Max': 'LOVENSE_STRENGTH_SCALE',
     'Lovense Use New API': 'LOVENSE_USE_NEW_API'
+    
 }
 
 
@@ -156,7 +160,7 @@ class SkyrimScriptInterface(object):
 
     def shutdown(self):
         return self.toys.shutdown()
-        
+
     def __init__(self, toy_type=TOY_LOVENSE, token=False):
         self._cached_stamp = 0
         self.filename = settings.LOG_PATH
@@ -169,12 +173,52 @@ class SkyrimScriptInterface(object):
 
     def _chaster_spin_wheel(self, match):
         return self.chaster.spin_wheel()
-    
+
+    def generic_chaster_add_time(self, match, params):
+        if 'TOTAL_TIME' in params:
+            duration = params['TOTAL_TIME']
+        elif 'MIN_TIME' and 'MAX_TIME' in params:
+            duration = random.randint(int(params['MIN_TIME']), int(params['MAX_TIME']))
+        else:
+            fail("Malformed event - could not determine chastity duration")
+            return
+        self.chaster.update_time(duration)
 
     def player_defeated(self, match):
         self.chaster.spin_wheel()
         self.chaster.update_time(random.randint(CHASTER_DEFEAT_MIN, CHASTER_DEFEAT_MAX))
 
+
+    def _parse_generic_params(self, params):
+        if 'duration' in params:
+            duration = params['duration']
+        elif 'min_duration' in params and 'max_duration' in params:
+            duration = random.randint(int(params['min_duration']), int(params['max_duration']))
+        else:
+            fail("Malformed event - Could not determine duration.")
+            return
+        if 'strength' in params:
+            strength = params['strength']
+        elif 'min_strength' in params and 'max_strength' in params:
+            strength = duration = random.randint(int(params['min_strength']), int(params['max_strength']))
+        else:
+            fail("Malformed event - could not determine strength.")
+            return
+        pattern = "pattern" in parmas and params['pattern'] or ""
+        return (duration, strength, pattern)
+    
+    def generic_random_vibrate(self, match, params):
+        (duration, strength, pattern) = self._parse_generic_params(params)
+        if not duration or not strength:
+            return
+        return self.toys.vibrate(duration, strength, pattern)
+
+    def generic_random_shock(self, match, params):
+        (duration, strength, pattern) = self._parse_generic_params(params)
+        if not duration or not strength:
+            return
+        return self.toys.shock(duration, strength, pattern)
+    
     def setup(self):
         try: 
             fd = open(self.filename, 'r', encoding='utf8')
@@ -182,70 +226,10 @@ class SkyrimScriptInterface(object):
             fd.close()
         except FileNotFoundError:
             fail("Could not open {} for reading - file does not exist.".format(self.filename))
-        sexlab_hooks = {
-            # Sexlab Support
-            #SEXLAB - ActorAlias[min] SetActor
-            re.compile(".+SEXLAB - ActorAlias\[{}\] SetActor.+".format(settings.CHARACTER_NAME.lower()), re.I): self.sex_start,
-            re.compile(".+SEXLAB - ActorAlias\[{}\]  - Resetting!+".format(settings.CHARACTER_NAME.lower()), re.I): self.sex_end,
-            re.compile(".+SEXLAB - Thread\[[0-9]+\] Event Hook - StageStart$", re.I): self.sex_stage_start,
-            re.compile(".+OnSexlabAnimationStart\(boobjob='(.+)', vaginal='(.+)', fisting='(.+)', masturbation='(.+)', anal='(.+)', oral='(.+)'\).*", re.I): self.sex_animation_set
-        }
-        fallout_hooks = {
-            # Fallout 4 AAF Support
-            # AAF does not verbosely log, so we must depend on other mods that write log events on these hooks.
-            # DD writes a specific log event when an animation involving the player starts, bostion devious helper writes one when it ends.
-            # Use the two of these to capture a sex scene.
-            # TODO: Write my own plugin that watches for these events.
-            re.compile(".+DD: Player in AAF animation.*"): self.sex_start_simple,
-            re.compile(".+BDH-INFO - OnAnimationStop.*"): self.sex_end,
-            re.compile(".+AFV Report: Player is bleeding out in surrender.*"): self.player_defeated,
-            re.compile(".+Your plug gives a painfull shock.+"): lambda m: self.toys.shock(random.randint(1, 5), random.randint(50,65)),
-            re.compile(".+Your plug gives multiple painfull shocks.*"): lambda m: self.toys.shock(random.randint(5, 10), random.randint(75,85)),
-            re.compile(".+You acidentally bump your .+ plug pumpbulb and it inflates.*"): lambda m: self.toys.vibrate(random.randint(5, 10), 20),
-            re.compile(".+You hear your .+ plug pump whirr and inflating.*"): lambda m: self.toys.vibrate(random.randint(10, 20), 40),
-            re.compile(".+Your .+ plug moves, sending pleasure trough your body.*"): lambda m: self.toys.vibrate(random.randint(5, 10), 10),
-            re.compile(".+Your plugs stops vibrating.*"): lambda m: self.toys.stop(),
-            re.compile(".+Your plug sends you into an uncontrollable orgasm.*"): self.player_orgasmed,
-            re.compile(".+Your plug stops vibrating just before you can orgasm.*"): self.player_edged,
-            re.compile(".+Your .+ plug.* start.* to vibrate ?(.*)"): self.fallout_dd_vibrate,
-        }
-        chaster_hooks = {}
+        self.event_loader = EventLoader(self)
+        
         if self.chaster_enabled:
             from toys.chastity.chaster.chaster import ChasterInterface
-            chaster_hooks = {
-                # Defeat integration
-                re.compile(".+Defeat: SetFollowers / Scenario.+$"): self._chaster_spin_wheel, # Player was knocked down.
-                re.compile(".+Defeat: PostAssault Marker Found.+$"): lambda m: self.chaster.update_time(random.randint(settings.CHASTER_DEFEAT_MIN, settings.CHASTER_DEFEAT_MAX)), # Party was defeated.
-                re.compile(".+Defeat: Player victim - End scene, Restored.+$"): self._chaster_spin_wheel, #  Player actually died.
-                # Naked Defeat integration
-                re.compile(".+NAKED DEFEAT playeraliasquest: OnEnterBleedout\(\).+"): self._chaster_spin_wheel, # Player was knocked down.
-                re.compile(".+NAKED DEFEAT playeraliasquest: \(#msg\) All is lost.+"): lambda m: self.chaster.update_time(random.randint(settings.CHASTER_DEFEAT_MIN, settings.CHASTER_DEFEAT_MAX)) # Party was defeated.
-            }
-        devious_hooks = {
-            # Devious Devices Support
-            re.compile(".+VibrateEffect.([0-9]+) for ([0-9]+).+"): self.vibrate,
-            re.compile(".*\[SkyrimToyInterface\]: OnVibrateStop().*"): self.stop_vibrate,
-            re.compile(".*\[SkyrimToyInterface\]: OnDeviceActorOrgasm().*"): self.player_orgasmed,
-            re.compile(".*\[SkyrimToyInterface\]: OnDeviceEdgedActor().*"): self.player_edged,
-            re.compile(".*\[SkyrimToyInterface\]: OnSitDevious().*"): self.player_sit,
-            re.compile(".*StartThirdPersonAnimation\({},(.+)\)".format(settings.CHARACTER_NAME.lower()), re.I): self.dd_anim,
-            re.compile(".*EndThirdPersonAnimation\({}.+".format(settings.CHARACTER_NAME.lower()), re.I): self.dd_anim_stop,
-            re.compile(".*Processing \[(.+)\].*"): self.dd_event,
-            re.compile(".*\[SkyrimToyInterface\]: OnAnimationEvent\((.+)\) \[wornVagPlug='(.+)', wornAnalPlug='(.+)', wornVagPiercing='(.+)', wornNipplePiercing = '(.+)'\].*"): self.on_animation_event
-        }
-        toys_hooks = {
-            # Toys support
-            re.compile(".+\[TOYS\] ControllerShake (Left|Right), ([0-9.]+), ([0-9]+.?[0-9]|.[0-9]+)+"): self.toys_vibrate
-
-        }
-        misc_hooks = {
-            # Stack Dump Monitoring Support
-            re.compile(".*\[SkyrimToyInterface\]: OnHit\(akSource='(.*?)', akProjectile='.*?', abPowerAttack='(TRUE|False)', abBashAttack='(TRUE|False)', abSneakAttack='(TRUE|False)', abHitBlocked='(TRUE|False)'\): \[health='([0-9.]+)\/([0-9.]+)', magicka='([0-9.]+)\/([0-9.]+)', stamina='([0-9.]+)\/([0-9.]+)'\].*"): self.on_hit,
-            re.compile("^.+Suspended stack count is over our warning threshold.+"): self.stack_overflow
-        }
-        self.hooks = {**sexlab_hooks, **chaster_hooks, **devious_hooks, **toys_hooks, **misc_hooks, **fallout_hooks}
-
-        if self.chaster_enabled:
             self.chaster = ChasterInterface(settings.LOCK_NAME, self.token, self.toys)
             self.chaster.setup()
 
@@ -460,10 +444,13 @@ class SkyrimScriptInterface(object):
                     print(line)
                     # Process hooks
                     try:
-                        for reg in self.hooks.keys():
-                            match = reg.match(line)
+                        for event in self.event_loader.events:
+                            match = event.regex.match(line)
                             if match:
-                                ret = self.hooks[reg](match)
+                                if event.params is not None:
+                                    ret = event.function(match, event.params)
+                                else:
+                                    ret = event.function(match)
                                 break
                     except Exception as e:
                         fail("Encountered exception while executing hooks: {}".format(str(e)))
@@ -598,6 +585,8 @@ def open_config_modal():
         if v == 'LOG_PATH':
             config_layout.append([sg.Text('Path to Log File'), sg.FileBrowse('Select Log File', key=v)])
             config_layout.append([sg.Text('Old Log File Path: {}'.format(settings.LOG_PATH))])
+        elif v == 'IS_WINDOWS':
+            config_layout.append([sg.Checkbox(k, key=v, default=settings.IS_WINDOWS)])
         elif v == 'TOY_TYPE':
             config_layout.append([sg.Text('Supported Toys:'), sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_XBOXCONTROLLER, key=TOY_XBOXCONTROLLER, default=TOY_XBOXCONTROLLER in settings.TOY_TYPE),

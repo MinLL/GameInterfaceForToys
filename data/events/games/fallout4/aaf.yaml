@@ -1,0 +1,7 @@
+- Sex Start:
+    regex: ".+DD: Player in AAF animation.*"
+    function: sex_start_simple
+    group: default
+- Sex End:
+    regex: .+BDH-INFO - OnAnimationStop.*
+    function: sex_end

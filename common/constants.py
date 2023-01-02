@@ -17,3 +17,7 @@ GUI_CHASTER_SPIN_WHEEL = 'Spin Wheel'
 
 GUI_CONFIG_SAVE = 'Save'
 GUI_CONFIG_EXIT = 'Cancel'
+
+
+EVENTS_PATH = "data/events"
+EVENTS_YAML = EVENTS_PATH + "/events.yaml"

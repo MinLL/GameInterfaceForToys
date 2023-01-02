@@ -472,7 +472,7 @@ class CoyoteInterface(Estim):
         # cast float to integer for compatibility with func.
         return int((((strength - 0) * stimRange) / vibrateRange) + min_power)
 
-    async def shock(self, duration: int, strength: int, pattern=""):  #
+    async def shock(self, duration: int, strength: int, pattern="", channel=None):  #
         """
         Method for compatibility with SkyrimToyInterface. Send a "vibration" signal of given duration and strength.
 
@@ -492,10 +492,11 @@ class CoyoteInterface(Estim):
             fail("Pattern {} not found - Using default")
             pattern = ""
         pattern = random.choice(self.patterns[pattern])
+        channel = channel is not None and channel or self.default_channel
         await self.signal(power=self.convert_power_vibrate(strength),
                           pattern=pattern,  # todo: Different patterns corresponding to in-game events.
                           duration=(duration * 1000),
-                          channel=self.default_channel)
+                          channel=channel)
         # Set power back to zero after event is done.
         await self.stop()
 

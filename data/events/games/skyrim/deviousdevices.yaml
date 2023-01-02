@@ -1,0 +1,29 @@
+- DD Vibrate:
+    regex: .+VibrateEffect.([0-9]+) for ([0-9]+).+
+    function: vibrate
+- DD Stop Vibrate:
+    regex: ".*\\[SkyrimToyInterface\\]: OnVibrateStop().*"
+    function: stop_vibrate
+- DD Player Orgasmed:
+    regex: ".*\\[SkyrimToyInterface\\]: OnDeviceActorOrgasm().*"
+    function: player_orgasmed
+- DD Player Edged:
+    regex: ".*\\[SkyrimToyInterface\\]: OnDeviceEdgedActor().*"
+    function: player_edged
+- DD Player Sit With Plugs:
+    regex: ".*\\[SkyrimToyInterface\\]: OnSitDevious().*"
+    function: player_sit
+- DD Third Person Animation:
+    regex: .*StartThirdPersonAnimation\({GIFT_ACTOR_NAME},(.+)\)
+    function: dd_anim
+    case_sensitive: False
+- DD End Third Person Animation:
+    regex: .*EndThirdPersonAnimation\({GIFT_ACTOR_NAME}.+
+    function: dd_anim_stop
+    case_sensitive: False
+- DD Random Event:
+    regex: .*Processing \[(.+)\].*
+    function: dd_event
+- DD On Animation Event:
+    regex: ".*\\[SkyrimToyInterface\\]: OnAnimationEvent\\((.+)\\) \\[wornVagPlug='(.+)', wornAnalPlug='(.+)', wornVagPiercing='(.+)', wornNipplePiercing = '(.+)'\\].*"
+    function: on_animation_event

@@ -3,14 +3,14 @@ import yaml
 from common.util import *
 from common.constants import EVENTS_YAML, EVENTS_PATH
 import events.functions
-from settings import IS_WINDOWS, CHARACTER_NAME, CHASTER_DEFEAT_MIN, CHASTER_DEFEAT_MAX
+import settings
 from events.event import Event
 
 class EventLoader:
     def _parse_arg(self, arg):
-        arg = arg.replace('{GIFT_ACTOR_NAME}', CHARACTER_NAME)
-        arg = arg.replace('{CHASTER_DEFEAT_MIN}', str(CHASTER_DEFEAT_MIN))
-        arg = arg.replace('{CHASTER_DEFEAT_MAX}', str(CHASTER_DEFEAT_MAX))
+        arg = arg.replace('{GIFT_ACTOR_NAME}', settings.CHARACTER_NAME)
+        arg = arg.replace('{CHASTER_DEFEAT_MIN}', str(settings.CHASTER_DEFEAT_MIN))
+        arg = arg.replace('{CHASTER_DEFEAT_MAX}', str(settings.CHASTER_DEFEAT_MAX))
         return arg
     
     def _parse_event(self, event, path):
@@ -56,7 +56,7 @@ class EventLoader:
         self.interface = interface
         self.event_files = {}
         self.events = []
-        if IS_WINDOWS:
+        if settings.IS_WINDOWS:
             events_yaml_path = EVENTS_YAML.replace("/", "\\")
         else:
             events_yaml_path = EVENTS_YAML
@@ -77,7 +77,7 @@ class EventLoader:
                     continue
                 for event_file in v:
                     path = "{}/games/{}/{}".format(EVENTS_PATH, k, event_file)
-                    if IS_WINDOWS:
+                    if settings.IS_WINDOWS:
                         path = path.replace("/", "\\")
                     self._load_events(path)
 

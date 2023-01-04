@@ -724,17 +724,22 @@ async def main():
 
 def open_toy_event_modal(ssi):
     toy_layout = []
-    toy_layout.append([sg.Text('Origin', size=(25, 1)), sg.Text('Event Name', size=(25, 1))])
+    toy_layout.append([sg.Text('Event Name', size=(25, 1))])
     for toy in ssi.toys.available_toys:
         toy_layout[0].append(sg.Text(toy, size=(15, 1)))
     i = 1
+    last_origin = None
     for event in ssi.event_loader.events:
-        toy_layout.append([sg.Text(event.origin, size=(25, 1)), sg.Text(event.shortname, size=(25, 1))])
+        if last_origin != event.origin:
+            toy_layout.append([sg.HorizontalSeparator(), sg.Text(event.origin), sg.HorizontalSeparator()])
+            last_origin = event.origin
+            i += 1
+        toy_layout.append([sg.Text(event.shortname, size=(25, 1))])
         for toy in ssi.toys.available_toys:
             toy_layout[i].append(sg.Checkbox("", size=(15, 1), key="{}:{}".format(event.name, toy), default=toy in ssi.toys.toy_event_map[event.name]))
         i += 1
     toy_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT), sg.Button(GUI_CONFIG_ENABLE_ALL), sg.Button(GUI_CONFIG_DISABLE_ALL)])
-    toy_window = sg.Window('GIFT Toy:Event Map Configuration', toy_layout, modal=True)
+    toy_window = sg.Window('GIFT Toy:Event Map Configuration', [[sg.Column(toy_layout, scrollable=True)]], modal=True)
     while True:
         event, values = toy_window.read()
         if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:

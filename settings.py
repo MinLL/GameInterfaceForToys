@@ -19,7 +19,9 @@ BUTTPLUG_STRENGTH_MAX = 100  # Set to a value between 1 - 100 to cap the strengt
 BUTTPLUG_SERVER_ADDRESS = "ws://127.0.0.1:12345"  # Whatever Intiface Central says your Server Address is
 
 # Configuration if using Chaster:
+CHASTER_ENABLED = False
 CHASTER_TOKEN = ""
+CHASTER_REFRESH_TOKEN = ""
 
 LOCK_NAME = "Self-lock"  # The name of the lock to manipulate. Must be unique.
 # LOCK_NAME = "Keyholder lock"  # The name of the lock to manipulate. Must be unique.

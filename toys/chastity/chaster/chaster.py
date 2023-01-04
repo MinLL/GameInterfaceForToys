@@ -2,12 +2,44 @@ import requests
 from common.util import *
 from common.constants import *
 import random
+from requests_oauthlib import OAuth2Session
+
+import webbrowser
+# Stand up a quick web server using Flask to catch oauth callback
+from flask import Flask, request
+import threading
+import settings
+
+app = Flask(__name__)
+oauth_verifier = ['']
+
+authorization_base_url = "https://sso.chaster.app/auth/realms/app/protocol/openid-connect/auth"
+token_url = "https://sso.chaster.app/auth/realms/app/protocol/openid-connect/token"
+client_id = "gameinterfacefortoys-950539"
+client_secret = "901d7dbf-1f5c-4c3b-9ee1-da0935ec10b1"
+redirect_uri = "http://127.0.0.1:8008/callback"
+scope = ["offline_access", "locks", "profile", "email"]
+
+chaster = None
+callback_hit = False
+
+@app.route('/callback')
+def oauth_callback():
+    global chaster
+    print(request.query_string)
+    data = chaster.fetch_token(token_url, client_secret=client_secret, authorization_response=request.url)
+    settings.CHASTER_TOKEN = data['access_token']
+    settings.CHASTER_REFRESH_TOKEN = data['refresh_token']
+    print("Got tokens: {}\nRefresh Token: {}".format(settings.CHASTER_TOKEN, settings.CHASTER_REFRESH_TOKEN))
+    global callback_hit
+    callback_hit = True
+    return("<p>GIFT has successfully authenticated with Chaster. You can close this window and return to the application now.</p>")
 
 class ChasterInterface(object):
-    def __init__(self, lock_name, developer_token, toys):
+    def __init__(self, lock_name, toys):
+        self.oauth_thread = None
         self.toys = toys
         self.lock_name = lock_name
-        self.token = developer_token
         self.api_root = "https://api.chaster.app/"
         self.extensions = {}
         self.enabled = True
@@ -28,6 +60,37 @@ class ChasterInterface(object):
             'slsi_tease': self.tease,
         }
 
+
+    def refresh_token(self):
+        global chaster
+        if not chaster:
+            chaster = OAuth2Session(client_id, scope=scope, redirect_uri=redirect_uri)
+            data = chaster.refresh_token(token_url, refresh_token=settings.CHASTER_REFRESH_TOKEN)
+            settings.CHASTER_TOKEN = data['access_token']
+            settings.CHASTER_REFRESH_TOKEN = data['refresh_token']
+            success("Successfully refreshed token.")
+            return True
+        return False
+
+    
+    def authenticate(self, window):
+        import os 
+        os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+        self.oauth_thread = threading.Thread(target = app.run, kwargs={"host": "localhost", "port": 8008})
+        self.oauth_thread.setDaemon(True)
+        self.oauth_thread.start()
+        # Send oauth
+        global chaster
+        chaster = OAuth2Session(client_id, scope=scope, redirect_uri=redirect_uri)
+        authorization_url, state = chaster.authorization_url(authorization_base_url,
+                                                             access_type="offline",
+                                                             prompt="select_account")
+        self.oauth_state = state
+        webbrowser.open(authorization_url)
+        window.refresh()
+        
+
+        
     def slsi_shock1(self):
         return self.toys.shock(5, 80)
 
@@ -54,17 +117,21 @@ class ChasterInterface(object):
         if not self.enabled:
             raise Exception("Chaster is disabled.")
         headers = {
-            "Authorization": "Bearer " + self.token,
+            "Authorization": "Bearer " + settings.CHASTER_TOKEN,
             "accept": "application/json",
             "Content-Type": "application/json",
             "User-Agent": "SkyrimToyInterface {}".format(VERSION)
         }
         if method == "GET":
-            return requests.get(self.api_root + endpoint, headers=headers, timeout=10)
+            r = requests.get(self.api_root + endpoint, headers=headers, timeout=10)
         elif method == "POST":
-            return requests.post(self.api_root + endpoint, headers=headers, json=data, timeout=10)
+            r = requests.post(self.api_root + endpoint, headers=headers, json=data, timeout=10)
         else:
             raise FatalException("Unsupported method type to ChasterInterface")
+        if r.status_code == 401:
+            fail("Access Token rejected; Attempting to refresh token.")
+            self.refresh_token()
+        return r
 
 
     def _get_locks(self):
@@ -149,6 +216,9 @@ class ChasterInterface(object):
             'action': 'submit',
             'payload': {}
         })
+        if r.status_code == 400:
+            fail("Request to spin wheel failed; is the lock valid?")
+            return None
         response = r.json()['text']
         if response in self.wheel_hooks.keys():
             response = self.wheel_hooks[response]()

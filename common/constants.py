@@ -15,6 +15,7 @@ GUI_TEST_SHOCK = 'Test Shock'
 GUI_OPEN_CONFIG = 'Settings'
 GUI_OPEN_TOY_CONFIG = 'Configure Events'
 GUI_CHASTER_SPIN_WHEEL = 'Spin Wheel'
+GUI_CHASTER_AUTHENTICATE = 'Authenticate with Chaster'
 GUI_REFRESH_TOYS = 'Reload Toys'
 
 GUI_CONFIG_SAVE = 'Save'

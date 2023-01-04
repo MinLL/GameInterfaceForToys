@@ -17,7 +17,7 @@ from common.util import *
 import settings
 from toys.base import FEATURE_VIBRATOR, FEATURE_ESTIM
 from events.eventloader import EventLoader
-
+import toys.chastity.chaster.chaster
 import PySimpleGUI as sg
 
 MAX_VIBRATE_STRENGTH = 100
@@ -32,7 +32,9 @@ config_fields = {
     'Warn On Stack Dump SOUND': 'WARN_ON_STACK_DUMP_SOUND',
     'Buttplug.io Strength Max': 'BUTTPLUG_STRENGTH_MAX',
     'Buttplug.io Server Address': 'BUTTPLUG_SERVER_ADDRESS',
-    'Chaster Dev Token': 'CHASTER_TOKEN',
+    'Chaster Enabled': 'CHASTER_ENABLED',
+    'Chaster Token': 'CHASTER_TOKEN',
+    'Chaster Refresh Token': 'CHASTER_REFRESH_TOKEN',
     'Chaster Lock Name': 'LOCK_NAME',
     'Chaster Defeat Minimum Time to Add': 'CHASTER_DEFEAT_MIN',
     'Chaster Defeat Maximum Time to Add': 'CHASTER_DEFEAT_MAX',
@@ -222,12 +224,10 @@ class SkyrimScriptInterface(object):
     def shutdown(self):
         return self.toys.shutdown()
 
-    def __init__(self, toy_type=TOY_LOVENSE, token=False):
+    def __init__(self, toy_type=TOY_LOVENSE):
         self._cached_stamp = 0
         self.filename = settings.LOG_PATH
         self.file_pointer = 0
-        self.chaster_enabled = (token and token != "")
-        self.token = token
         self.toys = ToyInterface(toy_type)
         self.sex_stage = None
         self.dd_vibrating = False
@@ -290,9 +290,9 @@ class SkyrimScriptInterface(object):
             fail("Could not open {} for reading - file does not exist.".format(self.filename))
         self.event_loader = EventLoader(self)
         
-        if self.chaster_enabled:
+        if settings.CHASTER_ENABLED:
             from toys.chastity.chaster.chaster import ChasterInterface
-            self.chaster = ChasterInterface(settings.LOCK_NAME, self.token, self.toys)
+            self.chaster = ChasterInterface(settings.LOCK_NAME, self.toys)
             self.chaster.setup()
         return self.load_toy_list()
 
@@ -623,9 +623,10 @@ async def main():
             [sg.Button(GUI_OPEN_TOY_CONFIG)],
             [sg.Button(GUI_REFRESH_TOYS)]
         ]
-        if ssi.chaster_enabled:
+        if settings.CHASTER_ENABLED:
             buttonColumn.append([sg.Text("Chaster")])
             buttonColumn.append([sg.Button(GUI_CHASTER_SPIN_WHEEL)])
+            buttonColumn.append([sg.Button(GUI_CHASTER_AUTHENTICATE)])
         layout = [
             [sg.Column(buttonColumn),
              sg.Column([[sg.Output(size=(120,60), background_color='black', text_color='white')]])
@@ -662,7 +663,22 @@ async def main():
                 if event == GUI_TEST_SHOCK:
                     await run_task(ssi.toys.shock(2, 10, "random"), run_async=True)
                 if event == GUI_CHASTER_SPIN_WHEEL:
-                    await run_task(ssi._chaster_spin_wheel(False), run_async=True)
+                    await run_task(ssi._chaster_spin_wheel(False, event=None), run_async=True)
+                if event == GUI_CHASTER_AUTHENTICATE:
+                    info("Authenticating with chaster... Please login in the browser.")
+                    await run_task(ssi.chaster.authenticate(window))
+                    timeout = 0
+                    while timeout < 60 and not toys.chastity.chaster.chaster.callback_hit:
+                        info("Waiting for response...")
+                        window.Refresh()
+                        time.sleep(1)
+                        timeout += 1
+                    if timeout >= 60:
+                        fail("Failed to authenticate with Chaster.")
+                    else:
+                        ssi.chaster.enabled = True
+                        ssi.chaster.setup()
+                        save_config()
                 if event == GUI_REFRESH_TOYS:
                     await run_task(ssi.toys.get_toys(), run_async=True)
                 if event == GUI_OPEN_TOY_CONFIG:
@@ -757,6 +773,8 @@ def open_config_modal():
             config_layout.append([sg.Text('Old Log File Path: {}'.format(settings.LOG_PATH))])
         elif v == 'IS_WINDOWS':
             config_layout.append([sg.Checkbox(k, key=v, default=settings.IS_WINDOWS)])
+        elif v == 'CHASTER_ENABLED':
+            config_layout.append([sg.Checkbox(k, key=v, default=settings.CHASTER_ENABLED)])
         elif v == 'TOY_TYPE':
             config_layout.append([sg.Text('Supported Toys:'), sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_XBOXCONTROLLER, key=TOY_XBOXCONTROLLER, default=TOY_XBOXCONTROLLER in settings.TOY_TYPE),
@@ -845,7 +863,7 @@ if __name__ == "__main__":
     load_config()
     loop = asyncio.get_event_loop()
     while True:
-        ssi = SkyrimScriptInterface(toy_type=settings.TOY_TYPE, token=settings.CHASTER_TOKEN)
+        ssi = SkyrimScriptInterface(toy_type=settings.TOY_TYPE)
         try:
             loop.run_until_complete(main())
         except ReloadException as e:

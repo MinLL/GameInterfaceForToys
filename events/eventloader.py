@@ -33,7 +33,9 @@ class EventLoader:
         group = 'group' in event[name] and event[name]['group'] or 'default'
         case_sensitive = 'case_sensitive' in event[name] and event[name]['case_sensitive'] or True
         params = 'params' in event[name] and event[name]['params'] or None
-        return Event(name_key, regex, function, group, case_sensitive, params)
+        origin = " ".join(path.split("_")[3:])
+        shortname = list(event.keys())[0]
+        return Event(name_key, regex, function, group, case_sensitive, params, origin, shortname)
 
 
     def _load_events(self, path):

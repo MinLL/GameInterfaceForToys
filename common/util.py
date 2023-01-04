@@ -19,6 +19,9 @@ class FatalException(Exception):
 class ReloadException(FatalException):
     pass
 
+class ReloadToyEventModalException(Exception):
+    pass
+
 def info(s):
     print("[GameInterfaceForToys] [i] " +str(s))
 

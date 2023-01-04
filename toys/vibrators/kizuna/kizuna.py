@@ -71,3 +71,13 @@ class KizunaInterface(Vibrator):
 
     def _is_connected(self):
         return self.kizuna_serial_port is not None
+
+    def get_toys(self):
+        return {'Kizuna': {
+            "name": "Kizuna",
+            "interface": self.properties['name'],
+            "id": "Kizuna",
+            "battery": -1,
+            "enabled": True
+        }}
+

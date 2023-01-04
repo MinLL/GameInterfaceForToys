@@ -10,6 +10,7 @@ import importlib
 import yaml
 import traceback
 import math
+import copy
 
 from common.constants import *
 from common.util import *
@@ -108,7 +109,8 @@ class ToyInterface(object):
         self.vibrators = list(filter(lambda x: FEATURE_VIBRATOR in x.properties['features'], tmp))
         self.estim = list(filter(lambda x: FEATURE_ESTIM in x.properties['features'], tmp))
         self.interface = self.vibrators + self.estim
-
+        self.available_toys = {}
+        
     def connect(self):
         ret = []
         for toy in self.interface:
@@ -120,33 +122,92 @@ class ToyInterface(object):
         for toy in self.interface:
             ret += [toy.check_in()]
         return ret
-
-    def vibrate(self, duration, strength, pattern=""):
+    
+    def vibrate(self, duration, strength, pattern="", event=None, vibrate_only=False):
         info("Toy Vibrate - start(duration={}, strength={}, pattern={})".format(duration, strength, pattern))
         if strength > 100:
             strength = 100
-        return self._do_action(self.vibrators, {"plus": False, "duration": duration, "strength": strength, "pattern": pattern})
+        toys = self.find_toys_for_event(event)
+        if len(toys) == 0 or vibrate_only:
+            interface = self.vibrators
+        else:
+            interface = self.interface
+        # Event is disabled
+        if event is not None and len(toys) == 0:
+            info("Toy Vibrate - event {} is disabled.".format(event.name))
+            return
+        return self._do_action(interface, {"plus": False, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys})
 
-    def vibrate_plus(self, duration, strength, pattern=""):
+    def vibrate_plus(self, duration, strength, pattern="", event=None, vibrate_only=False):
         strength = math.ceil(strength)
         info("Toy Vibrate+ - start(duration={}, strength={}, pattern={})".format(duration, strength, pattern))
         if strength > 100:
             strength = 100
-        return self._do_action(self.vibrators, {"plus": True, "duration": duration, "strength": strength, "pattern": pattern})
+        toys = self.find_toys_for_event(event)
+        if len(toys) == 0 or vibrate_only:
+            interface = self.vibrators
+        else:
+            interface = self.interface
+        # Event is disabled
+        if event is not None and len(toys) == 0:
+            info("Toy Vibrate+ - event {} is disabled.".format(event.name))
+            return
+        return self._do_action(interface, {"plus": True, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys})
 
-    def shock(self, duration, strength, pattern=""):
+    def shock(self, duration, strength, pattern="", event=None, shock_only=False):
         strength = math.ceil(strength)
         if strength > 100:
             strength = 100
+        toys = self.find_toys_for_event(event)
+        if len(toys) == 0 or shock_only:
+            interface = self.estim
+        else:
+            interface = self.interface
+        # Event is disabled
+        if event is not None and len(toys) == 0:
+            info("Toy Shock - event {} is disabled.".format(event.name))
+            return
         info("Toy Shock - start(duration={}, strength={}, pattern={})".format(duration, strength, pattern))
-        return self._do_action(self.estim, {"duration": duration, "strength": strength, "pattern": pattern})
+        return self._do_action(interface, {"plus": False, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys})
 
-    def _do_action(self, toys, params):
+    def find_toys_for_event(self, event):
+        if event is None:
+            return []
+        return [self.available_toys[toy] for toy in self.toy_event_map[event.name] if self.available_toys[toy]['enabled']]
+    
+    def _do_action(self, interfaces, params):
         ret = []
-        for toy in toys:
-            ret += [toy.action(params)]
+        toys = params['toys']
+        for interface in interfaces:
+            tmp_params = copy.copy(params)
+            if len(toys) > 0:
+                # Filter toys to only ones supported by target interface
+                tmp_params['toys'] = [toy for toy in tmp_params['toys'] if interface.properties['name'] == toy['interface']]
+                if len(tmp_params['toys']) > 0:
+                    info("Invoking the following devices:")
+                    for toy in tmp_params['toys']:
+                        info(toy)
+                    ret += [interface.action(tmp_params)]
+            else:
+                info("Invoking all devices in interface {}".format(interface.properties['name']))
+                ret += [interface.action(params)]
         return ret
-        
+
+    async def get_toys(self):
+        previous_toys = self.available_toys
+        self.available_toys = {}
+        for toy in self.interface:
+            self.available_toys = {**self.available_toys,  **await run_task(toy.get_toys())}
+            # self.available_toys = {**self.available_toys, **toy.get_toys()}
+        success("Reloaded toys. Currently available toys:")
+        for k, v in previous_toys.items():
+            if k not in self.available_toys:
+                self.available_toys[k] = v
+                self.available_toys[k]['enabled'] = False
+        for k, v in self.available_toys.items():
+            info("  {} ({}) - battery {}%: {}".format(k, v['id'], v['battery'], (v['enabled'] and 'Enabled' or 'Disabled')))
+        return self.available_toys
+            
     def stop(self):
         info("Toy Vibrate - stop")
         ret = []
@@ -171,10 +232,11 @@ class SkyrimScriptInterface(object):
         self.sex_stage = None
         self.dd_vibrating = False
 
-    def _chaster_spin_wheel(self, match):
+    def _chaster_spin_wheel(self, match, event):
         return self.chaster.spin_wheel()
 
-    def generic_chaster_add_time(self, match, params):
+    def generic_chaster_add_time(self, match, event):
+        params = event.params
         if 'TOTAL_TIME' in params:
             duration = params['TOTAL_TIME']
         elif 'MIN_TIME' and 'MAX_TIME' in params:
@@ -184,7 +246,7 @@ class SkyrimScriptInterface(object):
             return
         self.chaster.update_time(duration)
 
-    def player_defeated(self, match):
+    def player_defeated(self, match, event):
         self.chaster.spin_wheel()
         self.chaster.update_time(random.randint(CHASTER_DEFEAT_MIN, CHASTER_DEFEAT_MAX))
 
@@ -204,20 +266,20 @@ class SkyrimScriptInterface(object):
         else:
             fail("Malformed event - could not determine strength.")
             return
-        pattern = "pattern" in parmas and params['pattern'] or ""
+        pattern = "pattern" in params and params['pattern'] or ""
         return (duration, strength, pattern)
     
-    def generic_random_vibrate(self, match, params):
-        (duration, strength, pattern) = self._parse_generic_params(params)
+    def generic_random_vibrate(self, match, event):
+        (duration, strength, pattern) = self._parse_generic_params(event.params)
         if not duration or not strength:
             return
-        return self.toys.vibrate(duration, strength, pattern)
+        return self.toys.vibrate(duration, strength, pattern, event)
 
-    def generic_random_shock(self, match, params):
-        (duration, strength, pattern) = self._parse_generic_params(params)
+    def generic_random_shock(self, match, event):
+        (duration, strength, pattern) = self._parse_generic_params(event.params)
         if not duration or not strength:
             return
-        return self.toys.shock(duration, strength, pattern)
+        return self.toys.shock(duration, strength, pattern, event)
     
     def setup(self):
         try: 
@@ -232,8 +294,9 @@ class SkyrimScriptInterface(object):
             from toys.chastity.chaster.chaster import ChasterInterface
             self.chaster = ChasterInterface(settings.LOCK_NAME, self.token, self.toys)
             self.chaster.setup()
+        return self.load_toy_list()
 
-    def on_animation_event(self, match):
+    def on_animation_event(self, match, event):
         if self.dd_vibrating:
             info("Not processing on_animation_event - Already vibrating")
             return
@@ -267,13 +330,13 @@ class SkyrimScriptInterface(object):
             strength *= 2
             pattern = "animation_jumping;scale_intensity;interval=150"
         if strength > 0:
-            return self.toys.vibrate(2, strength, pattern)
+            return self.toys.vibrate(2, strength, pattern, event)
         
-    def dd_event(self, match):
+    def dd_event(self, match, event):
         # Processing [Nipple Piercings]
-        return self.toys.vibrate(random.randint(2, 30), 10)
+        return self.toys.vibrate(random.randint(2, 30), 10, event=event)
         
-    def stack_overflow(self, match):
+    def stack_overflow(self, match, event):
         if not WARN_ON_STACK_DUMP:
             return
         while(True):
@@ -285,34 +348,34 @@ class SkyrimScriptInterface(object):
         fd.seek(0, io.SEEK_END)
         self.file_pointer = fd.tell()
 
-    def dd_vibrate(self, duration, strength):
+    def dd_vibrate(self, duration, strength, event):
         pattern = "vibrator_{}".format(strength)
         info("dd_vibrate(" + str(duration)+", "+ str(strength)+", "+pattern+")")
-        ret =  [self.toys.vibrate_plus(duration * int(settings.DD_VIB_MULT), 20 * strength, pattern=pattern)]
-        ret.append(self.toys.shock(duration * int(settings.DD_VIB_MULT), math.ceil((20 * strength) * float(settings.COYOTE_PLUG_MULT)), pattern))
+        ret =  [self.toys.vibrate_plus(duration * int(settings.DD_VIB_MULT), 20 * strength, pattern=pattern, event=event, vibrate_only=True)]
+        ret.append(self.toys.shock(duration * int(settings.DD_VIB_MULT), math.ceil((20 * strength) * float(settings.COYOTE_PLUG_MULT)), pattern, event=event, shock_only=True))
         return ret
     
-    def vibrate(self, match):
+    def vibrate(self, match, event):
         self.dd_vibrating = True
         duration = int(match.group(2))
         strength = int(match.group(1))
-        return self.dd_vibrate(duration, strength)
+        return self.dd_vibrate(duration, strength, event=event)
 
-    def dd_anim(self, match):
+    def dd_anim(self, match, event):
         # Don't override existing dd vibrations
         if self.dd_vibrating:
             info("Not starting new vibration - already in dd vibrate")
             return
-        self.toys.vibrate(60, 50, "dd_struggle"),
+        self.toys.vibrate(60, 50, "dd_struggle", event),
 
-    def dd_anim_stop(self, match):
+    def dd_anim_stop(self, match, event):
         # Don't interrupt existing dd vibrations
         if self.dd_vibrating:
             info("Not stopping vibration - already in dd vibrate")
             return
         self.toys.stop()
         
-    def fallout_dd_vibrate(self, match):
+    def fallout_dd_vibrate(self, match, event):
         strength = 50
         strText = match.group(1)
         if strText == "very weak":
@@ -323,18 +386,18 @@ class SkyrimScriptInterface(object):
             strength = 70
         elif strText == "very strong":
             strength = 100
-        return self.toys.vibrate_plus(120, strength)
+        return self.toys.vibrate_plus(120, strength, event=event)
 
-    def player_orgasmed(self, match):
-        return self.toys.vibrate_plus(60, 100)
+    def player_orgasmed(self, match, event):
+        return self.toys.vibrate_plus(60, 100, event=event)
 
-    def player_edged(self, match):
-        return self.toys.vibrate_plus(60, 10)
+    def player_edged(self, match, event):
+        return self.toys.vibrate_plus(60, 10, event=event)
 
-    def player_sit(self, match):
-        return self.toys.vibrate(5, 10)
+    def player_sit(self, match, event):
+        return self.toys.vibrate(5, 10, event=event)
 
-    def on_hit(self, match):
+    def on_hit(self, match, event):
         (source, power_attack, bash_attack, sneak_attack, hit_blocked, health, health_max, magicka, magicka_max, stamina, stamina_max) = match.groups()
         # Booleans are either 'TRUE' or 'False'.
         # AV's are a float
@@ -368,44 +431,44 @@ class SkyrimScriptInterface(object):
                 pattern = v
                 break
         if len(self.toys.estim) == 0:
-            return self.toys.vibrate(2, strength)
+            return self.toys.vibrate(2, strength, event=event)
         else:
-            return self.toys.shock(1, math.ceil(int(strength) * float(settings.COYOTE_ON_HIT_MULT)), pattern)
+            return self.toys.shock(1, math.ceil(int(strength) * float(settings.COYOTE_ON_HIT_MULT)), pattern, event)
         
-    def stop_vibrate(self, match):
+    def stop_vibrate(self, match, event):
         self.dd_vibrating = False
         return self.toys.stop()
     
-    def toys_vibrate(self, match):
+    def toys_vibrate(self, match, event):
         orientation = match.group(1) # left/right, unused for now
-        return self.toys.vibrate(int(match.group(3)), int(match.group(2)))
+        return self.toys.vibrate(int(match.group(3)), int(match.group(2)), event=event)
 
-    def sex_start_simple(self, match):
-        return self.toys.vibrate_plus(300, MAX_VIBRATE_STRENGTH)
+    def sex_start_simple(self, match, event):
+        return self.toys.vibrate_plus(300, MAX_VIBRATE_STRENGTH, event=event)
     
-    def sex_start(self, match):
+    def sex_start(self, match, event):
         info("Sex_start")
         self.sex_animation = "untyped_sex"
         self.sex_stage = 0
         return 
     
-    def sex_stage_start(self, match):
+    def sex_stage_start(self, match, event):
         # This could go up too fast if there are multiple scenes happening, but shouldn't move if
         # the player is involved in none of them.
         if self.sex_stage is not None:
             self.sex_stage += 1
             info("Sex_stage_start: {}".format(str(self.sex_stage)))
             # For stages 1-5, go from strength 20-100. Consider it a process of warming up or sensitization ;)
-            return [self.toys.vibrate_plus(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER), pattern=self.sex_animation),
-                    self.toys.shock(300, math.ceil(min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER) * float(settings.COYOTE_SEX_MULT)), pattern=self.sex_animation)]
+            return [self.toys.vibrate_plus(300, min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER), pattern=self.sex_animation, event=event, vibrate_only=True),
+                    self.toys.shock(300, math.ceil(min(MAX_VIBRATE_STRENGTH, self.sex_stage * self.SEX_STAGE_STRENGTH_MULTIPLIER) * float(settings.COYOTE_SEX_MULT)), pattern=self.sex_animation, event=event, shock_only=True)]
 
-    def sex_end(self, match):
+    def sex_end(self, match, event):
         info("Sex_end")
         self.sex_stage = None
         self.sex_animation = "untyped_sex"
         return self.toys.stop()
 
-    def sex_animation_set(self, match):
+    def sex_animation_set(self, match, event):
         # This only fires if the player is in the scene, so no need for further filtering
         boobjob = match.group(1) == "TRUE"
         vaginal = match.group(2) == "TRUE"
@@ -427,7 +490,52 @@ class SkyrimScriptInterface(object):
         if masturbation:
             self.sex_animation = "masturbation"
         success("Set sex animation type to " + self.sex_animation)
-        
+
+    def load_toy_event_map(self):
+        try:
+            with io.open('toy-event-map.yaml', 'r', encoding='utf8') as stream:
+                info('Loading Toy Event Mapping...')
+                self.toys.toy_event_map = yaml.safe_load(stream)
+                for event in self.event_loader.events:
+                    if event.name not in self.toys.toy_event_map:
+                        self.toy_event_map[event.name] = []
+                success('Done.')
+        except FileNotFoundError:
+            fail("Could not load toy - event mapping file - using defaults.")
+            self.toys.toy_event_map = {}
+            for event in self.event_loader.events:
+                self.toys.toy_event_map[event.name] = []
+            self.save_toy_event_map()
+
+            
+    def save_toy_event_map(self): 
+        info('Saving Toy Event Mapping...')
+        with io.open('toy-event-map.yaml', 'w', encoding='utf8') as outfile:
+            yaml.dump(self.toys.toy_event_map, outfile, default_flow_style=False, allow_unicode=True)
+        success('Done.')
+
+    def load_toy_list(self):
+        try:
+            with io.open('toys.yaml', 'r', encoding='utf8') as stream:
+                info('Loading list of Toys...')
+                self.toys.available_toys = yaml.safe_load(stream)
+                for k, v in self.toys.available_toys.items():
+                    # Toys we saw previously may not be in this session. Start disabled.
+                    self.toys.available_toys[k]['enabled'] = False
+                success('Done.')
+        except FileNotFoundError:
+            fail("Could not load list of toys - file does not exist. If you haven't set up any toys yet, this is normal.")
+        # Fetch updated list of toys
+        return self.toys.get_toys()
+
+            
+    def save_toy_list(self): 
+        info('Saving List of Toys...')
+        with io.open('toys.yaml', 'w', encoding='utf8') as outfile:
+            yaml.dump(self.toys.available_toys, outfile, default_flow_style=False, allow_unicode=True)
+        success('Done.')
+
+    
     def parse_log(self):
         stamp = os.stat(self.filename).st_mtime
         ret = None
@@ -447,10 +555,7 @@ class SkyrimScriptInterface(object):
                         for event in self.event_loader.events:
                             match = event.regex.match(line)
                             if match:
-                                if event.params is not None:
-                                    ret = event.function(match, event.params)
-                                else:
-                                    ret = event.function(match)
+                                ret = event.function(match, event)
                                 break
                     except Exception as e:
                         fail("Encountered exception while executing hooks: {}".format(str(e)))
@@ -467,52 +572,59 @@ class SkyrimScriptInterface(object):
 # Run a task and wait for the result.
 async def run_task(foo, run_async=False, window=False):
     if isinstance(foo, list):
+        ret = []
         for item in foo:
-            await run_task(item, run_async)
+            ret += [await run_task(item, run_async)]
             if window:
                 window.Refresh()
-        return
+        return ret
     if isinstance(foo, types.CoroutineType):
         if run_async:
             asyncio.create_task(foo)
         else:
-            await foo
+            return await foo
             if window:
                 window.Refresh()
     else:
         # No need to do anything if the task was not async.
-        return
+        return foo
 
 
 async def test_plugs(window, ssi):
     for i in range(1, 6):
-        await run_task(ssi.dd_vibrate(2, i), run_async=True)
+        await run_task(ssi.dd_vibrate(2, i, event=None), run_async=True)
         window.Refresh()
         timeout = 0
         await asyncio.sleep(4)
     await run_task(ssi.toys.stop())
 
 async def test_sex(window, ssi):
-    ssi.sex_start(False)
+    ssi.sex_start(False, event=None)
     ssi.sex_animation = random.choice(["boobjob", "vaginal", "fisting", "masturbation", "anal", "oral"])
     for i in range(0, 5):
-        await run_task(ssi.sex_stage_start(False), run_async=True, window=window)
+        await run_task(ssi.sex_stage_start(False, event=None), run_async=True, window=window)
         window.Refresh()
         await asyncio.sleep(5)
-    await run_task(ssi.sex_end(False))
+    await run_task(ssi.sex_end(False, event=None))
 
 
 async def main():
     try:
         # Set up GUI
         sg.theme('DarkGrey12')
-        buttonColumn = [[sg.Button(GUI_TEST_VIBRATE)],
-                        [sg.Button(GUI_TEST_SHOCK)],
-                        [sg.Button(GUI_TEST_SEX)],
-                        [sg.Button(GUI_TEST_PLUG_VIBRATE)],
-                        [sg.Button(GUI_OPEN_CONFIG)]
-                        ]
+        buttonColumn = [
+            [sg.Text("Test Functions")],
+            [sg.Button(GUI_TEST_VIBRATE)],
+             [sg.Button(GUI_TEST_SHOCK)],
+             [sg.Button(GUI_TEST_SEX)],
+             [sg.Button(GUI_TEST_PLUG_VIBRATE)],
+             [sg.Text("Configuration")],
+            [sg.Button(GUI_OPEN_CONFIG)],
+            [sg.Button(GUI_OPEN_TOY_CONFIG)],
+            [sg.Button(GUI_REFRESH_TOYS)]
+        ]
         if ssi.chaster_enabled:
+            buttonColumn.append([sg.Text("Chaster")])
             buttonColumn.append([sg.Button(GUI_CHASTER_SPIN_WHEEL)])
         layout = [
             [sg.Column(buttonColumn),
@@ -522,11 +634,13 @@ async def main():
         window.read(timeout=1)
         load_config()
         try:
-            ssi.setup()
+            await run_task(ssi.toys.connect())
+            await run_task(ssi.setup())
+            ssi.load_toy_event_map()
+            ssi.save_toy_list()
         except Exception as e:
             traceback.print_exception(e)
             fail("Setup failed - please fix the above error and reload the window.")
-        await run_task(ssi.toys.connect(), run_async=True)
         window.Refresh()
 
         throttle = 0
@@ -549,6 +663,19 @@ async def main():
                     await run_task(ssi.toys.shock(2, 10, "random"), run_async=True)
                 if event == GUI_CHASTER_SPIN_WHEEL:
                     await run_task(ssi._chaster_spin_wheel(False), run_async=True)
+                if event == GUI_REFRESH_TOYS:
+                    await run_task(ssi.toys.get_toys(), run_async=True)
+                if event == GUI_OPEN_TOY_CONFIG:
+                    while True:
+                        try:
+                            if open_toy_event_modal(ssi): # Returns true if done
+                                break
+                        except ReloadException as e:
+                            raise e
+                        except Exception as e:
+                            fail("Error while saving toy-event map ({}): {}".format(type(e), str(e)))
+                            traceback.print_exception(e)
+                            break
                 if event == GUI_OPEN_CONFIG:
                     try:
                         open_config_modal()
@@ -578,7 +705,50 @@ async def main():
         await run_task(ssi.shutdown())
         success("Goodbye!")
         raise e
-    
+
+def open_toy_event_modal(ssi):
+    toy_layout = []
+    toy_layout.append([sg.Text('Origin', size=(25, 1)), sg.Text('Event Name', size=(25, 1))])
+    for toy in ssi.toys.available_toys:
+        toy_layout[0].append(sg.Text(toy, size=(15, 1)))
+    i = 1
+    for event in ssi.event_loader.events:
+        toy_layout.append([sg.Text(event.origin, size=(25, 1)), sg.Text(event.shortname, size=(25, 1))])
+        for toy in ssi.toys.available_toys:
+            toy_layout[i].append(sg.Checkbox("", size=(15, 1), key="{}:{}".format(event.name, toy), default=toy in ssi.toys.toy_event_map[event.name]))
+        i += 1
+    toy_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT), sg.Button(GUI_CONFIG_ENABLE_ALL), sg.Button(GUI_CONFIG_DISABLE_ALL)])
+    toy_window = sg.Window('GIFT Toy:Event Map Configuration', toy_layout, modal=True)
+    while True:
+        event, values = toy_window.read()
+        if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:
+            info('Exited toy-event configuration menu without saving.')
+            break
+        if event == GUI_CONFIG_ENABLE_ALL:
+            for event in ssi.event_loader.events:
+                for toy in ssi.toys.available_toys:
+                    ssi.toys.toy_event_map[event.name].append(toy)
+            toy_window.close()
+            return False
+        if event == GUI_CONFIG_DISABLE_ALL:
+            for event in ssi.event_loader.events:
+                for toy in ssi.toys.available_toys:
+                    ssi.toys.toy_event_map[event.name] = []
+            toy_window.close()
+            return False
+        if event == GUI_CONFIG_SAVE:
+            for event in ssi.event_loader.events:
+                ssi.toys.toy_event_map[event.name] = []
+                for toy in ssi.toys.available_toys:
+                    if values['{}:{}'.format(event.name, toy)]:
+                        ssi.toys.toy_event_map[event.name].append(toy)
+            ssi.save_toy_event_map()
+            ssi.load_toy_event_map()
+            toy_window.close()
+            return True
+    toy_window.close()
+    return True
+
 def open_config_modal():
     config_layout = []
     for k, v in config_fields.items():
@@ -621,7 +791,6 @@ def open_config_modal():
                         info('Log path did not change.')
                 elif x == 'TOY_TYPE':
                     toys = []
-                    print(values)
                     if values[TOY_LOVENSE] == True:
                         toys += [TOY_LOVENSE]
                     if values[TOY_XBOXCONTROLLER] == True:
@@ -642,7 +811,8 @@ def open_config_modal():
             config_window.close()
             raise ReloadException()
     config_window.close()
-                
+
+
 def save_config():
     info('Saving Config...')
     with io.open('settings.yaml', 'w', encoding='utf8') as outfile:

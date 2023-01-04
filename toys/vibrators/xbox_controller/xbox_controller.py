@@ -75,4 +75,13 @@ class XboxControllerInterface(Vibrator):
 
     def shutdown(self):
         pass
-    
+
+
+    def get_toys(self):
+        return {'Xbox Controller': {
+            "name": "Xbox Controller",
+            "interface": self.properties['name'],
+            "id": "Xbox Controller",
+            "battery": -1,
+            "enabled": True
+        }}

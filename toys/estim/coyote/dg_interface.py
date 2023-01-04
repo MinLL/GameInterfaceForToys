@@ -59,6 +59,7 @@ from toys.estim.estim import Estim
 import random
 from common.util import *
 import settings
+import copy
 
 class CoyoteInterface(Estim):
     """
@@ -83,6 +84,7 @@ class CoyoteInterface(Estim):
         :param safe_mode:
         """
         super().__init__("coyote")
+        self.battery = -1
         # Set bluetooth device uid and device reference
         if device_uid:
             self.device_uid = device_uid
@@ -349,6 +351,7 @@ class CoyoteInterface(Estim):
         # Convert from bytearray to hex to decimal
         battery_level_dec = int(battery_level.hex(), 16)
         print("Current device battery level: ", battery_level_dec)
+        self.battery = battery_level_dec
 
         # write output power = 0 to device
         logging.info("Attempting to communicate command 'set channels strength to 0' to device...")
@@ -472,7 +475,7 @@ class CoyoteInterface(Estim):
         # cast float to integer for compatibility with func.
         return int((((strength - 0) * stimRange) / vibrateRange) + min_power)
 
-    async def shock(self, duration: int, strength: int, pattern="", channel=None):  #
+    async def shock(self, duration: int, strength: int, pattern="", toys=[]):  #
         """
         Method for compatibility with SkyrimToyInterface. Send a "vibration" signal of given duration and strength.
 
@@ -492,11 +495,10 @@ class CoyoteInterface(Estim):
             fail("Pattern {} not found - Using default")
             pattern = ""
         pattern = random.choice(self.patterns[pattern])
-        channel = channel is not None and channel or self.default_channel
         await self.signal(power=self.convert_power_vibrate(strength),
                           pattern=pattern,  # todo: Different patterns corresponding to in-game events.
                           duration=(duration * 1000),
-                          channel=channel)
+                          channel="a") # [toy['id'] for toy in toys])
         # Set power back to zero after event is done.
         await self.stop()
 
@@ -512,6 +514,22 @@ class CoyoteInterface(Estim):
     async def check_in(self):
         return await self.is_running()
 
+    def get_toys(self):
+        toy_a = {
+            "name": "DG-Lab",
+            "interface": self.properties['name'],
+            "id": "a",
+            "battery": self.battery,
+            "enabled": True
+        }
+        toy_b = copy.copy(toy_a)
+        toy_b['id'] = "b"
+        toy_b['name'] = "DG-Lab (B)"
+        
+        return {
+            toy_a['name']: toy_a# ,
+            # toy_b['name']: toy_b
+        }
 
 if __name__ == "__main__":
     """Execute this file directly to test functionality without SkyrimToyInterface/game integration."""

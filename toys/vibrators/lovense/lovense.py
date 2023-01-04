@@ -4,6 +4,7 @@ from toys.vibrators.vibrator import Vibrator
 import settings
 import random
 import math
+import json
 
 class LovenseInterface(Vibrator):
     def __init__(self):
@@ -13,7 +14,7 @@ class LovenseInterface(Vibrator):
     def shutdown(self):
         pass
     
-    def _command(self, command, duration):
+    def _command(self, command, duration, toy=None):
         info("Sending vibrate command")
         params = {
             'command':"Function",
@@ -21,9 +22,11 @@ class LovenseInterface(Vibrator):
             'timeSec': duration,
             'apiVer':1
         }
+        if toy is not None:
+            params['toy'] = toy
         return requests.post(self.COMMAND_URL, verify=False, json=params)
 
-    def _send_pattern(self, duration, pattern, strength):
+    def _send_pattern(self, duration, pattern, strength, toy=None):
         pattern = pattern.split(";")
         interval = (350 + (1000 - strength * 10))
         scale_intensity = False
@@ -39,15 +42,19 @@ class LovenseInterface(Vibrator):
         # interval should be 100 minimum, ms inbetwen steps
         if settings.LOVENSE_USE_NEW_API:
             rule = "V:1;F:v,r,p,t,s,f;S:{}#".format(interval)
+            apiVer = 2
         else:
             rule = "V:1;F:vrp;S:{}#".format(interval)
+            apiVer = 1
         params = {
             'command': "Pattern",
             'rule': rule,
             'strength': pattern,
             'timeSec': duration,
-            'apiVer': 1
+            'apiVer': apiVer
         }
+        if toy is not None and type(toy) is not list:
+            params['toy'] = toy
         return requests.post(self.COMMAND_URL, verify=False, json=params)
     
     def connect(self):
@@ -64,13 +71,18 @@ class LovenseInterface(Vibrator):
             ret = 20
         return ret
     
-    def vibrate(self, duration, strength, pattern=""):
+    def vibrate(self, duration, strength, pattern="", toys=[]):
+        if len(toys) > 0 and type(toys) is list:
+            for toy in toys:
+                info("Triggering vibration for toy {} ({})".format(toy['name'], toy['id']))
+                self.vibrate(duration, strength, pattern, toy['id'])
+            return
         if pattern == "":
             strength = self.scale_strength(strength, 0, False)
             strength = math.ceil(int(strength)/5) # Lovense supports 0-20 scale for vibrations
-            r = self._command("Vibrate:"+str(strength), duration)
+            r = self._command("Vibrate:"+str(strength), duration, toys)
         else:
-            r = self._send_pattern(duration, pattern, strength)
+            r = self._send_pattern(duration, pattern, strength, toys)
         if r.json()['code'] == 200:
             success("  " + str(r.json()))
         elif r.json()['code'] == 404:
@@ -79,9 +91,31 @@ class LovenseInterface(Vibrator):
             fail("  Remote server refused request. Make sure that you're logged in, control is permitted, or (if using a phone) that you're in game mode: " + str(r.json()))
         else:
             fail("  " + str(r.json()))
+
     def stop(self):
         r = self._command("Stop", 0)
         if r.json()['code'] == 200:
             success("  " + str(r.json()))
         else:
             fail("  " + str(r.json()))
+
+
+    def get_toys(self):
+        params = {
+            'command':"GetToys",
+        }
+        r = requests.post(self.COMMAND_URL, verify=False, json=params)
+        ret = {}
+        if r.json()['code'] != 200:
+            fail("Warning: Got non-200 response when fetching list of toys: " + str(r))
+            return {}
+        tmp = json.loads(r.json()['data']['toys'])
+        for k, v in tmp.items():
+            ret[v['name']] = {
+                'interface': self.properties['name'],
+                'name': v['name'],
+                'id': v['id'],
+                'battery': v['battery'],
+                'enabled': True
+            }
+        return ret

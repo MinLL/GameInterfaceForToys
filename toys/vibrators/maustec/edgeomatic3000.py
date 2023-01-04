@@ -118,5 +118,12 @@ class EdgeomaticInterface(Vibrator):
                 await self.check_in()
                 await asyncio.sleep(0.2)
                 timeout += 1
-            
 
+    def get_toys(self):
+        return {'Edge-o-Matic 3000': {
+            "name": "Edge-o-Matic 3000",
+            "interface": self.properties['name'],
+            "id": "Edge-o-Matic",
+            "battery": -1,
+            "enabled": True
+        }}

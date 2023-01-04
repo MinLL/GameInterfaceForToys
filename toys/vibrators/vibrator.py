@@ -7,7 +7,7 @@ from common.util import *
 class Vibrator(Toy):
     def __init__(self, name, tags=[]):
         self.patterns = self.load_patterns()
-        super().__init__("Default Vibrator", [FEATURE_VIBRATOR] + tags)
+        super().__init__(name, [FEATURE_VIBRATOR] + tags)
 
     def load_patterns(self):
         with open("data/vibrators/pattern_dict.json") as pf:
@@ -27,12 +27,12 @@ class Vibrator(Toy):
             original_pattern[0] = pattern
             pattern = ";".join(original_pattern)
         if params['plus']:
-            return self.vibrate_plus(params['duration'], params['strength'], pattern)
+            return self.vibrate_plus(params['duration'], params['strength'], pattern, params['toys'])
         else:
-            return self.vibrate(params['duration'], params['strength'], pattern)
+            return self.vibrate(params['duration'], params['strength'], pattern, params['toys'])
 
-    def vibrate(self, duration, strength, pattern=""):
+    def vibrate(self, duration, strength, pattern="", toys=[]):
         pass
 
-    def vibrate_plus(self, duration, strength, pattern=""):
-        return self.vibrate(duration, strength, pattern)
+    def vibrate_plus(self, duration, strength, pattern="", toys=[]):
+        return self.vibrate(duration, strength, pattern, toys)

@@ -44,8 +44,12 @@ class ButtplugInterface(Vibrator):
             self.stop_time = -1
             await self.stop()
 
-    async def vibrate(self, duration, strength, pattern=""):
+    async def vibrate(self, duration, strength, pattern="", toys=[]):
         for device in self.client.devices.values():
+            if len(toys) > 0:
+                if not device.name in [toy['name'] for toy in toys]:
+                    print("{} does not match {}".format(device.name, str([toy['name'] for toy in toys])))
+                    continue
             if "VibrateCmd" in device.allowed_messages.keys():
                 await device.send_vibrate_cmd(strength * self.VIBRATE_STRENGTH_COEFFICIENT)
         self.stop_time = time.time() + duration
@@ -53,3 +57,15 @@ class ButtplugInterface(Vibrator):
     async def stop(self):
         for device in self.client.devices.values():
             await device.send_stop_device_cmd()
+
+    def get_toys(self):
+        ret = {}
+        for device in self.client.devices.values():
+            ret[device.name] = {
+                "name": device.name,
+                "id": device.name,
+                "battery": -1,
+                "enabled": True,
+                "interface": self.properties['name']
+            }
+        return ret

@@ -30,3 +30,6 @@ class Toy:
 
     def shutdown(self):
         pass
+
+    def get_toys(self):
+        pass

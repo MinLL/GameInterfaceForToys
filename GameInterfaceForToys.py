@@ -48,8 +48,9 @@ config_fields = {
     'Coyote Maximum Power (0-768)': 'COYOTE_MAX_POWER',
     'Lovense Host': 'LOVENSE_HOST',
     'Lovense Strength Max': 'LOVENSE_STRENGTH_SCALE',
-    'Lovense Use New API': 'LOVENSE_USE_NEW_API'
-    
+    'Lovense Use New API': 'LOVENSE_USE_NEW_API',
+    'Print Log Lines': 'PRINT_LOG_LINES',
+    'Window Update Frequency': 'WINDOW_UPDATE_FREQUENCY',    
 }
 
 
@@ -498,7 +499,7 @@ class SkyrimScriptInterface(object):
                 self.toys.toy_event_map = yaml.safe_load(stream)
                 for event in self.event_loader.events:
                     if event.name not in self.toys.toy_event_map:
-                        self.toy_event_map[event.name] = []
+                        self.toys.toy_event_map[event.name] = []
                 success('Done.')
         except FileNotFoundError:
             fail("Could not load toy - event mapping file - using defaults.")
@@ -549,7 +550,8 @@ class SkyrimScriptInterface(object):
                     if not line:
                         break
                     line = line.strip('\n')
-                    print(line)
+                    if settings.PRINT_LOG_LINES:
+                        print(line)
                     # Process hooks
                     try:
                         for event in self.event_loader.events:
@@ -645,10 +647,15 @@ async def main():
         window.Refresh()
 
         throttle = 0
+        window_last_read = time.time()
         while True:
             throttle += 1
             await asyncio.sleep(0.01)
-            event, values = window.read(timeout=10) # Timeout after 10ms instead of sleeping
+            if time.time() - window_last_read  > float(settings.WINDOW_UPDATE_FREQUENCY):
+                event, values = window.read(timeout=10) # Timeout after 10ms instead of sleeping
+                window_last_read = time.time()
+            else:
+                event, values = (False, False)
             try:
                 if event == sg.WIN_CLOSED:
                     await run_task(ssi.shutdown(), window=window)
@@ -796,6 +803,8 @@ def open_config_modal():
                                 sg.Radio("buzzer","WARN_ON_STACK_DUMP_SOUND", key="WARN_ON_STACK_DUMP_SOUND", default=not settings.WARN_ON_STACK_DUMP_SOUND)])
         elif v == 'WARN_ON_STACK_DUMP_SOUND':
             pass
+        elif v == 'PRINT_LOG_LINES':
+            config_layout.append([sg.Checkbox(k, key=v, default=settings.PRINT_LOG_LINES)])
         else:
             config_layout.append([sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)])
     config_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT)])

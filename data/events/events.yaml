@@ -8,3 +8,5 @@ games:
 - fallout4:
     - aaf.yaml
     - deviousdevices.yaml
+- bannerlord2:
+    - captiveevents.yaml

@@ -253,6 +253,7 @@ class SkyrimScriptInterface(object):
 
 
     def _parse_generic_params(self, params):
+        print(params)
         if 'duration' in params:
             duration = params['duration']
         elif 'min_duration' in params and 'max_duration' in params:
@@ -263,7 +264,7 @@ class SkyrimScriptInterface(object):
         if 'strength' in params:
             strength = params['strength']
         elif 'min_strength' in params and 'max_strength' in params:
-            strength = duration = random.randint(int(params['min_strength']), int(params['max_strength']))
+            strength = random.randint(int(params['min_strength']), int(params['max_strength']))
         else:
             fail("Malformed event - could not determine strength.")
             return
@@ -274,6 +275,7 @@ class SkyrimScriptInterface(object):
         (duration, strength, pattern) = self._parse_generic_params(event.params)
         if not duration or not strength:
             return
+        print("Generic_random_vibrate({}, {}, {}): {}".format(duration, strength, pattern, event.params))
         return self.toys.vibrate(duration, strength, pattern, event)
 
     def generic_random_shock(self, match, event):

@@ -1,0 +1,36 @@
+- Surrendered:
+    regex: .*\[GAME MENU\] CE_taken_prisoner_sexual.*
+    function: _chaster_spin_wheel
+
+- Captured:
+    regex: .*\[GAME MENU\] defeated_and_taken_prisoner.*
+    function: _chaster_spin_wheel
+
+
+- TB catch-all:
+    regex: .+\[GAME MENU\] TB_.*
+    function: generic_random_vibrate
+    params:
+        duration: 5
+        min_strength: 20
+        max_strength: 100
+        pattern: random
+
+
+- BC catch-all:
+    regex: .+\[GAME MENU\] BC_.*
+    function: generic_random_vibrate
+    params:
+        duration: 5
+        min_strength: 20
+        max_strength: 100
+        pattern: random
+
+- Captive Events Catch-all:
+    regex: .+\[GAME MENU\] ce_.*
+    function: generic_random_vibrate
+    params:
+        duration: 5
+        min_strength: 20
+        max_strength: 100
+        pattern: random

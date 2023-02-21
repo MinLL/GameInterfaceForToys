@@ -30,14 +30,12 @@ class ButtplugInterface(Vibrator):
             print("Could not connect to Buttplug.io server, exiting: {}".format(e.message))
             return
 
-        # Immediately scan for devices and just connect whatever we find
+        # Continuously scan for new devices and do not block UI while waiting on the first device
+        # - It is only necessary to stop scanning when we do not want to automatically discover new
+        #   toys as they connect
+        # - Disabling the device scan can be done in the "Intiface Central" application, which runs the
+        #   Buttplug server
         await self.client.start_scanning()
-        await asyncio.sleep(3)
-        while (len(self.client.devices) == 0):
-            print("Searching for devices...")
-            await asyncio.sleep(2)
-        print("Found devices: {}".format(self.client.devices.values()))
-        await self.client.stop_scanning()
 
     async def check_in(self):
         if (self.stop_time > 0 and time.time() > self.stop_time):

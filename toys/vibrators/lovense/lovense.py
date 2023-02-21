@@ -111,9 +111,12 @@ class LovenseInterface(Vibrator):
             return {}
         tmp = json.loads(r.json()['data']['toys'])
         for k, v in tmp.items():
-            ret[v['name']] = {
+            name = v['name']
+            if name in ret:
+                name = name + " 2"
+            ret[name] = {
                 'interface': self.properties['name'],
-                'name': v['name'],
+                'name': name,
                 'id': v['id'],
                 'battery': v['battery'],
                 'enabled': True

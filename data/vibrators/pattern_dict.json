@@ -14,5 +14,6 @@
     "dd_struggle": [[1, 1, 1, 1, 2, 4, 6, 8, 10, 8, 6, 4, 2, 1, 1, 1, 1]],
     "animation_walking": [[1, 2]],
     "animation_sprinting": [[1, 2, 3]],
-    "animation_jumping": [[5, 4, 3, 2, 1]]
+    "animation_jumping": [[5, 4, 3, 2, 1]],
+    "sex_simple": [[20, 15, 18], [20, 19], [15, 16, 17, 18, 19, 20]]
 }

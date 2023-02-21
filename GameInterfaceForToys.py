@@ -137,7 +137,7 @@ class ToyInterface(object):
             interface = self.interface
         # Event is disabled
         if event is not None and len(toys) == 0:
-            info("Toy Vibrate - event {} is disabled.".format(event.name))
+            info("Toy Vibrate - No toys for event {} are enabled.".format(event.name))
             return
         return self._do_action(interface, {"plus": False, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys})
 
@@ -153,7 +153,7 @@ class ToyInterface(object):
             interface = self.interface
         # Event is disabled
         if event is not None and len(toys) == 0:
-            info("Toy Vibrate+ - event {} is disabled.".format(event.name))
+            info("Toy Vibrate+ - No toys for event {} are enabled.".format(event.name))
             return
         return self._do_action(interface, {"plus": True, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys})
 
@@ -168,7 +168,7 @@ class ToyInterface(object):
             interface = self.interface
         # Event is disabled
         if event is not None and len(toys) == 0:
-            info("Toy Shock - event {} is disabled.".format(event.name))
+            info("Toy Shock - No toys for event {} are enabled.".format(event.name))
             return
         info("Toy Shock - start(duration={}, strength={}, pattern={})".format(duration, strength, pattern))
         return self._do_action(interface, {"plus": False, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys})
@@ -249,37 +249,47 @@ class SkyrimScriptInterface(object):
 
     def player_defeated(self, match, event):
         self.chaster.spin_wheel()
-        self.chaster.update_time(random.randint(CHASTER_DEFEAT_MIN, CHASTER_DEFEAT_MAX))
+        self.chaster.update_time(random.randint(settings.CHASTER_DEFEAT_MIN, settings.CHASTER_DEFEAT_MAX))
 
 
-    def _parse_generic_params(self, params):
-        print(params)
+    def _parse_param(self, match, param):
+        if '$' in param:
+            index = param[1]
+            if not index.isnumeric():
+                warn("Found non-number index for generic event.")
+                return param
+            return match.group(int(index))
+        else:
+            return param
+        
+    def _parse_generic_params(self, match, params):
         if 'duration' in params:
-            duration = params['duration']
+            duration = int(self._parse_param(match, params['duration']))
         elif 'min_duration' in params and 'max_duration' in params:
-            duration = random.randint(int(params['min_duration']), int(params['max_duration']))
+            duration = random.randint(int(self._parse_param(match, params['min_duration'])), int(self._parse_param(match, params['max_duration'])))
         else:
             fail("Malformed event - Could not determine duration.")
             return
         if 'strength' in params:
-            strength = params['strength']
+            strength = int(self._parse_param(match, params['strength']))
         elif 'min_strength' in params and 'max_strength' in params:
-            strength = random.randint(int(params['min_strength']), int(params['max_strength']))
+            strength = random.randint(int(self._parse_param(match, params['min_strength'])), int(self._parse_param(match, params['max_strength'])))
         else:
             fail("Malformed event - could not determine strength.")
             return
         pattern = "pattern" in params and params['pattern'] or ""
+        pattern = self._parse_param(match, pattern)
         return (duration, strength, pattern)
     
     def generic_random_vibrate(self, match, event):
-        (duration, strength, pattern) = self._parse_generic_params(event.params)
+        (duration, strength, pattern) = self._parse_generic_params(match, event.params)
         if not duration or not strength:
             return
         print("Generic_random_vibrate({}, {}, {}): {}".format(duration, strength, pattern, event.params))
         return self.toys.vibrate(duration, strength, pattern, event)
 
     def generic_random_shock(self, match, event):
-        (duration, strength, pattern) = self._parse_generic_params(event.params)
+        (duration, strength, pattern) = self._parse_generic_params(match, event.params)
         if not duration or not strength:
             return
         return self.toys.shock(duration, strength, pattern, event)
@@ -447,7 +457,7 @@ class SkyrimScriptInterface(object):
         return self.toys.vibrate(int(match.group(3)), int(match.group(2)), event=event)
 
     def sex_start_simple(self, match, event):
-        return self.toys.vibrate_plus(300, MAX_VIBRATE_STRENGTH, event=event)
+        return self.toys.vibrate_plus(300, MAX_VIBRATE_STRENGTH, "sex_simple", event=event)
     
     def sex_start(self, match, event):
         info("Sex_start")

@@ -65,7 +65,7 @@ class XboxControllerInterface(Vibrator):
         return
         
 
-    def vibrate(self, duration, strength, pattern=""):
+    def vibrate(self, duration, strength, pattern="", toys=[]):
         # print('addCommand',self.command)
         self.taskList.append([duration,strength])
     

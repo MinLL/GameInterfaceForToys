@@ -253,7 +253,7 @@ class SkyrimScriptInterface(object):
 
 
     def _parse_param(self, match, param):
-        if '$' in param:
+        if type(param) == str and  '$' in param:
             index = param[1]
             if not index.isnumeric():
                 warn("Found non-number index for generic event.")

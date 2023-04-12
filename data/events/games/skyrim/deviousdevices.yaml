@@ -33,6 +33,6 @@
     params:
         pattern: device_shock
         min_duration: 1
-        max_duration: 5
+        max_duration: 3
         min_strength: 65
         max_strength: 85

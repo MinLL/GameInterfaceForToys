@@ -292,7 +292,7 @@ class SkyrimScriptInterface(object):
         (duration, strength, pattern) = self._parse_generic_params(match, event.params)
         if not duration or not strength:
             return
-        return self.toys.shock(duration, strength, pattern, event)
+        return self.toys.shock(duration, math.ceil(strength * float(settings.COYOTE_PLUG_MULT)), pattern, event=event, shock_only=True)
     
     def setup(self):
         try: 

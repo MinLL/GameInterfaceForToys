@@ -79,7 +79,7 @@ class LovenseInterface(Vibrator):
             return
         if pattern == "":
             strength = self.scale_strength(strength, 0, False)
-            strength = math.ceil(int(strength)/5) # Lovense supports 0-20 scale for vibrations
+            # strength = math.ceil(int(strength)/5) # Lovense supports 0-20 scale for vibrations
             r = self._command("Vibrate:"+str(strength), duration, toys)
         else:
             r = self._send_pattern(duration, pattern, strength, toys)

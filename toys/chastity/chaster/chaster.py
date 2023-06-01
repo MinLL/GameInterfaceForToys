@@ -9,6 +9,7 @@ import webbrowser
 from flask import Flask, request
 import threading
 import settings
+import time
 
 app = Flask(__name__)
 oauth_verifier = ['']
@@ -37,6 +38,7 @@ def oauth_callback():
 
 class ChasterInterface(object):
     def __init__(self, lock_name, toys):
+        self.last_update = 0
         self.oauth_thread = None
         self.toys = toys
         self.lock_name = lock_name
@@ -170,12 +172,15 @@ class ChasterInterface(object):
         return lock_found
     
     def update_time(self, duration):
-        info("update_time({})".format(duration))
-        r = self._api("POST", "locks/{}/update-time".format(self.lock["_id"]), {"duration": duration})
-        if r.status_code != 204:
-            fail("  Failed to update lock time: Status code {}: {}".format(r.status_code, str(r.json())))
-            return
-        success("  Updated lock duration by {} seconds.".format(duration))
+        if time.time() - 180 > self.last_update:
+            self.last_update = time.time()
+            info("update_time({})".format(duration))
+            r = self._api("POST", "locks/{}/update-time".format(self.lock["_id"]), {"duration": duration})
+            if r.status_code != 204:
+                fail("  Failed to update lock time: Status code {}: {}".format(r.status_code, str(r.json())))
+                return
+            success("  Updated lock duration by {} seconds.".format(duration))
+            self.last_update = time.time()
 
     def _run_extension(self, extension, foo):
         try:

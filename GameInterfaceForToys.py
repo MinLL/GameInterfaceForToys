@@ -240,8 +240,9 @@ class SkyrimScriptInterface(object):
         params = event.params
         if 'TOTAL_TIME' in params:
             duration = params['TOTAL_TIME']
-        elif 'MIN_TIME' and 'MAX_TIME' in params:
-            duration = random.randint(int(params['MIN_TIME']), int(params['MAX_TIME']))
+        elif 'min_time' and 'max_time' in params:
+            print(params)
+            duration = random.randint(int(params['min_time']), int(params['max_time']))
         else:
             fail("Malformed event - could not determine chastity duration")
             return

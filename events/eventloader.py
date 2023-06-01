@@ -8,9 +8,10 @@ from events.event import Event
 
 class EventLoader:
     def _parse_arg(self, arg):
-        arg = arg.replace('{GIFT_ACTOR_NAME}', settings.CHARACTER_NAME)
-        arg = arg.replace('{CHASTER_DEFEAT_MIN}', str(settings.CHASTER_DEFEAT_MIN))
-        arg = arg.replace('{CHASTER_DEFEAT_MAX}', str(settings.CHASTER_DEFEAT_MAX))
+        if isinstance(arg, str):
+            arg = arg.replace('{GIFT_ACTOR_NAME}', settings.CHARACTER_NAME)
+            arg = arg.replace('{CHASTER_DEFEAT_MIN}', str(settings.CHASTER_DEFEAT_MIN))
+            arg = arg.replace('{CHASTER_DEFEAT_MAX}', str(settings.CHASTER_DEFEAT_MAX))
         return arg
     
     def _parse_event(self, event, path):
@@ -33,6 +34,9 @@ class EventLoader:
         group = 'group' in event[name] and event[name]['group'] or 'default'
         case_sensitive = 'case_sensitive' in event[name] and event[name]['case_sensitive'] or True
         params = 'params' in event[name] and event[name]['params'] or None
+        if params is not None:
+            for k,v in params.items():
+                params[k] = self._parse_arg(v)
         origin = " ".join(path.split("_")[3:])
         shortname = list(event.keys())[0]
         return Event(name_key, regex, function, group, case_sensitive, params, origin, shortname)

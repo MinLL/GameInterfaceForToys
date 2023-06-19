@@ -1,12 +1,12 @@
 - Defeat - Player Knocked Down:
     regex: ".+Defeat: SetFollowers / Scenario.+$"
+    function: _chaster_spin_wheel
+- Defeat - Party Defeated:
+    regex: ".+Defeat: PostAssault Marker Found.+$"
     function: generic_chaster_add_time
     params:
         min_time: '{CHASTER_DEFEAT_MIN}'
         max_time: '{CHASTER_DEFEAT_MAX}'
-- Defeat - Party Defeated:
-    regex: ".+Defeat: PostAssault Marker Found.+$"
-    function: _chaster_spin_wheel
 - Defeat - Player Died:
     regex: ".+Defeat: Player victim - End scene, Restored.+$"
     function: _chaster_spin_wheel
@@ -15,6 +15,12 @@
     function: _chaster_spin_wheel
 - Naked Defeat - Party Defeated:
     regex: ".+NAKED DEFEAT playeraliasquest: \\(#msg\\) All is lost.+"
+    function: generic_chaster_add_time
+    params:
+        min_time: '{CHASTER_DEFEAT_MIN}'
+        max_time: '{CHASTER_DEFEAT_MAX}'
+- Acheron - Defeat:
+    regex: ".+OnAcheronDefeatPlayer().+"
     function: generic_chaster_add_time
     params:
         min_time: '{CHASTER_DEFEAT_MIN}'

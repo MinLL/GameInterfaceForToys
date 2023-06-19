@@ -17,6 +17,9 @@ function RegisterEvents()
     RegisterForModEvent("DeviceActorOrgasm", "OnDeviceActorOrgasm")
     RegisterForModEvent("DeviceEdgedActor", "OnDeviceEdgedActor")
     RegisterForModEvent("HookAnimationStart", "OnSexlabAnimationStart")
+	if(SKSE.GetPluginVersion("Acheron") > -1)
+		AcheronHook.RegisterAcheronEvents(self)
+	endif
     RegisterForAnimationEvent(PlayerActor, "FootLeft")
     RegisterForAnimationEvent(PlayerActor, "FootRight")
     RegisterForAnimationEvent(PlayerActor, "tailSprint")
@@ -89,12 +92,21 @@ Event OnDeviceEdgedActor(string eventName, string strArg, float numArg, Form sen
 EndEvent
 
 
+
+Event OnActorDefeated(Actor akVictim)
+  if (akVictim == PlayerActor)   
+	Log("OnAcheronDefeatPlayer()")
+	endif
+EndEvent
+
+
 ; Called when game loads.
 Event OnPlayerLoadGame()
     OnHitCooldown = Utility.GetCurrentRealTime()
     OnMoveCooldown = Utility.GetCurrentRealTime()
     Log("OnPlayerLoadGame(): " + OnHitCooldown as string)
     RegisterEvents()
+
     if Game.GetModByName("Devious Devices - Expansion.esm") != 255
         ddLib = (Quest.GetQuest("zadQuest") As zadLibs)
     endif

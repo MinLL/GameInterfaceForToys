@@ -18,7 +18,7 @@
 
 
 - Sex Start PPLUS:
-    regex: .+SEXLAB - Thread\[[0-9]+\] ActorAlias\[.+\]  - PlaceActor on \[Actor < (00000014)>\].*
+    regex: .+SEXLAB - Thread\[[0-9]+\] ActorAlias\[.+\]  - PlaceActor on \[Actor < \(00000014\)>\].*
     function: sex_start
     group: default
     case_sensitive: False
@@ -26,7 +26,7 @@
     regex: .+SEXLAB - Thread\[[0-9]+\]  - Going to Stage.*$
     function: sex_stage_start
 - Sex End PPLUS:
-    regex: .+SEXLAB - Thread\[[0-9]+] ActorAlias\[.+\]  - UnplaceActor on \[Actor < (00000014)>\].*
+    regex: .+SEXLAB - Thread\[[0-9]+] ActorAlias\[.+\]  - UnplaceActor on \[Actor < \(00000014\)>\].*
     function: sex_end
     group: default
     case_sensitive: False

@@ -19,3 +19,9 @@
     params:
         min_time: '{CHASTER_DEFEAT_MIN}'
         max_time: '{CHASTER_DEFEAT_MAX}'
+- Acheron - Defeat:
+    regex: ".+OnAcheronDefeatPlayer\(\).+"
+    function: generic_chaster_add_time
+    params:
+        min_time: '{CHASTER_DEFEAT_MIN}'
+        max_time: '{CHASTER_DEFEAT_MAX}'

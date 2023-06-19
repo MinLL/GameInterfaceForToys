@@ -1,6 +1,6 @@
 - Defeat - Player Knocked Down:
     regex: ".+Defeat: SetFollowers / Scenario.+$"
-    function: _chaster_spin_wheel
+    function: _generic_chaster_add_time
 - Defeat - Party Defeated:
     regex: ".+Defeat: PostAssault Marker Found.+$"
     function: generic_chaster_add_time
@@ -20,7 +20,7 @@
         min_time: '{CHASTER_DEFEAT_MIN}'
         max_time: '{CHASTER_DEFEAT_MAX}'
 - Acheron - Defeat:
-    regex: ".+OnAcheronDefeatPlayer().+"
+    regex: ".+OnAcheronDefeatPlayer\(\).+"
     function: generic_chaster_add_time
     params:
         min_time: '{CHASTER_DEFEAT_MIN}'

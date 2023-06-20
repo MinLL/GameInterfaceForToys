@@ -20,7 +20,19 @@
         min_time: '{CHASTER_DEFEAT_MIN}'
         max_time: '{CHASTER_DEFEAT_MAX}'
 - Acheron - Defeat:
-    regex: ".+OnAcheronDefeatPlayer\(\).+"
+    regex: ".+OnAcheronDefeatPlayer.+"
+    function: generic_chaster_add_time
+    params:
+        min_time: '{CHASTER_DEFEAT_MIN}'
+        max_time: '{CHASTER_DEFEAT_MAX}' 
+- Yamete - Struggle Fail:
+    regex: ".+Yamete.+Struggle End.+00000014.+False"
+    function: generic_chaster_add_time
+    params:
+        min_time: '{CHASTER_DEFEAT_MIN}'
+        max_time: '{CHASTER_DEFEAT_MAX}'
+- Practical Defeat - Struggle Fail:
+    regex: ".+PD.+Victim was defeated"
     function: generic_chaster_add_time
     params:
         min_time: '{CHASTER_DEFEAT_MIN}'

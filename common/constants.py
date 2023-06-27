@@ -4,6 +4,7 @@ TOY_COYOTE = "DG-Lab Coyote"
 TOY_KIZUNA = "Kizuna Smart Controller"
 TOY_EDGEOMATIC = "Maus-Tec Edge-o-Matic 3000"
 TOY_XBOXCONTROLLER = "Xbox Controller"
+TOY_XTOYS = "XToys"
 
 VERSION = "Alpha 4"
 

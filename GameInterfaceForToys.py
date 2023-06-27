@@ -107,6 +107,9 @@ class ToyInterface(object):
             elif toy == TOY_EDGEOMATIC:
                 from toys.vibrators.maustec.edgeomatic3000 import EdgeomaticInterface
                 tmp += [EdgeomaticInterface()]
+            elif toy == TOY_XTOYS:
+                from toys.xtoys.interface import XToysInterface
+                tmp += [XToysInterface()]
             else:
                 raise FatalException("Unsupported toy type!")
         self.vibrators = list(filter(lambda x: FEATURE_VIBRATOR in x.properties['features'], tmp))
@@ -139,7 +142,7 @@ class ToyInterface(object):
         if event is not None and len(toys) == 0:
             info("Toy Vibrate - No toys for event {} are enabled.".format(event.name))
             return
-        return self._do_action(interface, {"plus": False, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys})
+        return self._do_action(interface, {"plus": False, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys, "action": "vibrate"})
 
     def vibrate_plus(self, duration, strength, pattern="", event=None, vibrate_only=False):
         strength = math.ceil(strength)
@@ -155,7 +158,7 @@ class ToyInterface(object):
         if event is not None and len(toys) == 0:
             info("Toy Vibrate+ - No toys for event {} are enabled.".format(event.name))
             return
-        return self._do_action(interface, {"plus": True, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys})
+        return self._do_action(interface, {"plus": True, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys, "action": "vibrate_plus"})
 
     def shock(self, duration, strength, pattern="", event=None, shock_only=False):
         strength = math.ceil(strength)
@@ -171,7 +174,7 @@ class ToyInterface(object):
             info("Toy Shock - No toys for event {} are enabled.".format(event.name))
             return
         info("Toy Shock - start(duration={}, strength={}, pattern={})".format(duration, strength, pattern))
-        return self._do_action(interface, {"plus": False, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys})
+        return self._do_action(interface, {"plus": False, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys, "action": "shock"})
 
     def find_toys_for_event(self, event):
         if event is None:
@@ -179,6 +182,8 @@ class ToyInterface(object):
         return [self.available_toys[toy] for toy in self.toy_event_map[event.name] if self.available_toys[toy]['enabled']]
     
     def _do_action(self, interfaces, params):
+        # Remove duplicate interfaces
+        interfaces = set(interfaces)
         ret = []
         toys = params['toys']
         for interface in interfaces:
@@ -802,9 +807,10 @@ def open_config_modal():
             config_layout.append([sg.Checkbox(k, key=v, default=settings.CHASTER_ENABLED)])
         elif v == 'TOY_TYPE':
             config_layout.append([sg.Text('Supported Toys:'), sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE),
-                                  sg.Checkbox(TOY_XBOXCONTROLLER, key=TOY_XBOXCONTROLLER, default=TOY_XBOXCONTROLLER in settings.TOY_TYPE),
+                                  sg.Checkbox(TOY_XTOYS, key=TOY_XTOYS, default=TOY_XTOYS in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_BUTTPLUG, key=TOY_BUTTPLUG, default=TOY_BUTTPLUG in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_COYOTE, key=TOY_COYOTE, default=TOY_COYOTE in settings.TOY_TYPE),
+                                  sg.Checkbox(TOY_XBOXCONTROLLER, key=TOY_XBOXCONTROLLER, default=TOY_XBOXCONTROLLER in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE),
                                   sg.Checkbox(TOY_EDGEOMATIC, key=TOY_EDGEOMATIC, default=TOY_EDGEOMATIC in settings.TOY_TYPE)
                                   ])
@@ -848,6 +854,8 @@ def open_config_modal():
                         toys += [TOY_KIZUNA]
                     if values[TOY_EDGEOMATIC] == True:
                         toys += [TOY_EDGEOMATIC]
+                    if values[TOY_XTOYS] == True:
+                        toys += [TOY_XTOYS]
                     settings.TOY_TYPE = toys
                 else:
                     setattr(settings, x, values[x])

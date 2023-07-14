@@ -28,8 +28,14 @@ function RegisterEvents()
     RegisterForAnimationEvent(PlayerActor, "JumpDown")
     RegisterForAnimationEvent(PlayerActor, "tailMTIdle")
     RegisterForAnimationEvent(PlayerActor, "tailCombatIdle")
+    ; Submissive Lola Integration
+    RegisterForModEvent("SLTR_TryToAddPunishmentDays", "OnSLTRPunish")
     Log("Registered for mod events.")
 EndFunction
+
+Event OnSLTRPunish(float daysAdded, float oldDays)
+  Log("Submissive Lola Punish (Original: " + oldDays +", Added: " + daysAdded + ")")
+EndEvent
 
 Event OnAnimationEvent(ObjectReference akSource, string asEventName)
   if (akSource != PlayerActor)

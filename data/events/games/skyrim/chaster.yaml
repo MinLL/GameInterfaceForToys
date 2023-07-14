@@ -37,3 +37,6 @@
     params:
         min_time: '{CHASTER_DEFEAT_MIN}'
         max_time: '{CHASTER_DEFEAT_MAX}'
+- Submissive Lola Punishment:
+    regex: .+Submissive Lola Punish \(Original. ([0-9\.]+), Added. ([0-9\.]+).*
+    function: submissive_lola_punish_add_time

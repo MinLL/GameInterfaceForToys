@@ -1,4 +1,7 @@
 from settings import WARN_ON_STACK_DUMP_SOUND
+import types
+import asyncio
+
 if WARN_ON_STACK_DUMP_SOUND: import winsound
 
 class colors:
@@ -37,3 +40,23 @@ def beep():
     if WARN_ON_STACK_DUMP_SOUND : winsound.PlaySound('SystemQuestion',winsound.SND_ASYNC)
 
 
+
+# Run a task and wait for the result.
+async def run_task(foo, run_async=False, window=False):
+    if isinstance(foo, list):
+        ret = []
+        for item in foo:
+            ret += [await run_task(item, run_async)]
+            if window:
+                window.Refresh()
+        return ret
+    if isinstance(foo, types.CoroutineType):
+        if run_async:
+            asyncio.create_task(foo)
+        else:
+            return await foo
+            if window:
+                window.Refresh()
+    else:
+        # No need to do anything if the task was not async.
+        return foo

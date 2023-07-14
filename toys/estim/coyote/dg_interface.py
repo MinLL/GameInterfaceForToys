@@ -270,6 +270,7 @@ class CoyoteInterface(Estim):
         print("Connecting to device: {} ...".format(self.device_uid))
 
         saved_exception = ConnectionError
+        
         if not self.device.is_connected:
             for _ in range(retries):
                 # Catch time-out errors while we retry

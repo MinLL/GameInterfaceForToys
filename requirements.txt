@@ -7,3 +7,6 @@ pyserial
 pybluez
 flask
 requests-oauthlib
+cv2
+dxcam
+readwritememory

@@ -24,7 +24,7 @@ class EventLoader:
             return None
         function = event[name]['function']
         if not hasattr(self.interface, function):
-            fail("    Function {} is not defined in interface.")
+            fail("    Function {} is not defined in interface {}.".format(function, self.interface.name))
             return None
         function = getattr(self.interface, function)
         if not 'regex' in event[name]:

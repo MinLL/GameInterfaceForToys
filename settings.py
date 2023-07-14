@@ -28,6 +28,8 @@ LOCK_NAME = "Self-lock"  # The name of the lock to manipulate. Must be unique.
 # Chaster + Sexlab Defeat Configuration
 CHASTER_DEFEAT_MIN = 60 * 60 * 6  # Minimum number of hours to add on party defeat
 CHASTER_DEFEAT_MAX = CHASTER_DEFEAT_MIN * 2  # Maximum number of hours to add on party defeat
+CHASTER_PUNISH_MIN = 60 * 60 * 4
+CHASTER_PUNISH_MAX = CHASTER_PUNISH_MIN * 2
 
 # Configuration if using DG-Lab Coyote:
 COYOTE_UID = "C1:A9:D8:0C:CB:1D"  # Set to the Bluetooth UID for your particular Coyote device
@@ -49,3 +51,6 @@ MAUSTEC_HOST = "ws://192.168.0.230:80"
 IS_WINDOWS = True
 PRINT_LOG_LINES = True
 WINDOW_UPDATE_FREQUENCY = 0.01 # 10ms
+
+RESOLUTION_H = 3840
+RESOLUTION_W = 2160

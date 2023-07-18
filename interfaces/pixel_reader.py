@@ -51,7 +51,7 @@ class PixelReaderInterface(Interface):
 
     def setup(self):
         info("Initializing pixel reader (h{} / w{})".format(self.height, self.width))
-        info("Available Devices:")
+        print("Available Devices:")
         info(dxcam.device_info())
         self.start_cam()
         self.vibrate_ramp_start = 0

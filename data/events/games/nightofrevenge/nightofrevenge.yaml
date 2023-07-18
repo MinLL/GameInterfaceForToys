@@ -52,3 +52,53 @@
             g: 195
             r: 201
 
+
+- Night of Revenge - Trap Orgasm:
+    regex: \[Info   . NoRLogger\] Trap Orgasm
+    function: generic_random_vibrate
+    params:
+        duration: 30
+        strength: 100
+- Night of Revenge - First Penetration:
+    regex: \[Info   . NoRLogger\] First Penetration
+    function: generic_random_shock
+    params:
+        duration: 10
+        strength: 80
+- Night of Revenge - Player Orgasm:
+    regex: \[Info   . NoRLogger\] Player Orgasm
+    function: generic_random_vibrate
+    params:
+        duration: 30
+        strength: 100
+- Night of Revenge - Player Damage:
+    regex: \[Info   . NoRLogger\] Player Damage
+    function: generic_random_shock
+    params:
+        duration: 1
+        strength: 100
+- Night of Revenge - Player Death:
+    regex: \[Info   . NoRLogger\] Player Death
+    function: generic_random_shock
+    params:
+        duration: 10
+        strength: 100
+- Night of Revenge - Ero Animation Start:
+    regex: \[Info   . NoRLogger\] Ero Animation Start
+    function: generic_random_vibrate
+    params:
+        duration: 300
+        min_strength: 40
+        max_strength: 70
+- Night of Revenge - Ero Animation End:
+    regex: \[Info   . NoRLogger\] Ero Animation End
+    function: stop_vibrate
+- Night of Revenge - Game Over Start:
+    regex: \[Info   . NoRLogger\] GameOver Start
+    function: generic_random_vibrate
+    params:
+        duration: 600
+        strength: 80
+- Night of Revenge - Game Over End:
+    regex: \[Info   . NoRLogger\] GameOver End
+    function: stop_vibrate

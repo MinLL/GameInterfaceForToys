@@ -26,3 +26,7 @@ GUI_CONFIG_DISABLE_ALL = 'Disable All'
 
 EVENTS_PATH = "data/events"
 EVENTS_YAML = EVENTS_PATH + "/events.yaml"
+
+INTERFACE_LOG_READER = 'Log Reader'
+INTERFACE_SCREEN_READER = 'Screen Reader'
+INTERFACE_MEMORY_READER = 'Memory Reader'

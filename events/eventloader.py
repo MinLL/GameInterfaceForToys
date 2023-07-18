@@ -27,10 +27,10 @@ class EventLoader:
             fail("    Function {} is not defined in interface {}.".format(function, self.interface.name))
             return None
         function = getattr(self.interface, function)
-        if not 'regex' in event[name]:
-            fail("    Could not load event {}: Missing regex".format(name))
-            return None
-        regex = self._parse_arg(event[name]['regex'])
+        if 'regex' in event[name]:
+            regex = self._parse_arg(event[name]['regex'])
+        else:
+            regex = None
         group = 'group' in event[name] and event[name]['group'] or 'default'
         case_sensitive = 'case_sensitive' in event[name] and event[name]['case_sensitive'] or True
         params = 'params' in event[name] and event[name]['params'] or None

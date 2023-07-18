@@ -10,3 +10,5 @@ requests-oauthlib
 cv2
 dxcam
 readwritememory
+pillow
+win32gui

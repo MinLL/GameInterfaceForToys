@@ -1,6 +1,7 @@
 from settings import WARN_ON_STACK_DUMP_SOUND
 import types
 import asyncio
+import time
 
 if WARN_ON_STACK_DUMP_SOUND: import winsound
 
@@ -60,3 +61,6 @@ async def run_task(foo, run_async=False, window=False):
     else:
         # No need to do anything if the task was not async.
         return foo
+
+def get_time_ms():
+    return time.time_ns() // 1000000

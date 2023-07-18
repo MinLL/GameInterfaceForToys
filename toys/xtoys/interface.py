@@ -3,9 +3,9 @@ from common.util import *
 import requests
 import json
 import random
+import settings
 
 # Will move these to config later.
-xtoys_webhookid = "EYcAMkQT3cQ0"
 xtoys_base_url = "https://xtoys.app/webhook"
 
 class XToysInterface(Toy):
@@ -38,16 +38,25 @@ class XToysInterface(Toy):
             return self.shock(params['duration'], params['strength'], pattern, params['toys'])
 
     def vibrate(self, duration, strength, pattern="", toys=[]):
-        # Not including toy selection yet. 
-        return self._invoke_webhook(xtoys_webhookid, "vibrate", {"duration": duration, "strength": strength, "pattern": pattern})
+        if len(toys) == 0:
+            action = 'vib_vaginal'
+            return self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, action, {"time": duration, "intensity": strength, "pattern": pattern})
+        ret = []
+        for toy in toys:
+            ret += [self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, toy['id'], {"time": duration, "intensity": strength, "pattern": pattern})]
+        return ret
 
     def vibrate_plus(self, duration, strength, pattern="", toys=[]):
-        # Not including toy selection yet. 
-        return self._invoke_webhook(xtoys_webhookid, "vibrate_plus", {"duration": duration, "strength": strength, "pattern": pattern})
+        return self.vibrate(duration, strength, pattern, toys)
 
-    def shock(self, duration, strength, pattern=""):
-        # Not including toy selection yet. 
-        return self._invoke_webhook(xtoys_webhookid, "shock", {"duration": duration, "strength": strength, "pattern": pattern})
+    def shock(self, duration, strength, pattern="", toys=[]):
+        if len(toys) == 0:
+            action = 'shock_a'
+            return self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, action, {"time": duration, "intensity": strength, "pattern": pattern})
+        ret = []
+        for toy in toys:
+            ret += [self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, toy['id'], {"time": duration, "intensity": strength, "pattern": pattern})]
+        return ret
 
     def _invoke_webhook(self, webhook, action, params):
         url = "{}?id={}&action={}".format(xtoys_base_url, webhook, action)
@@ -62,11 +71,53 @@ class XToysInterface(Toy):
         return r
         
     def stop(self):
-        return self._invoke_webhook(xtoys_webhookid, "stop")
+        return self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, "stop", {})
 
     def get_toys(self):
-        # TODO
-        return {}
+        return {
+            "Vib Vaginal": {
+                'interface': self.properties['name'],
+                'name': 'Vib Vaginal',
+                'id': 'vib_vaginal',
+                'battery': -1,
+                'enabled': True
+            },
+            "Vib Anal": {
+                'interface': self.properties['name'],
+                'name': 'Vib Anal',
+                'id': 'vib_anal',
+                'battery': -1,
+                'enabled': True
+            },
+            "Vib Clit": {
+                'interface': self.properties['name'],
+                'name': 'Vib Clit ',
+                'id': 'vib_clit',
+                'battery': -1,
+                'enabled': True
+            },
+            "Vib Nipples": {
+                'interface': self.properties['name'],
+                'name': 'Vib Nipples',
+                'id': 'vib_nipples',
+                'battery': -1,
+                'enabled': True
+            },
+            "Shock A": {
+                'interface': self.properties['name'],
+                'name': 'Shock A',
+                'id': 'shock_a',
+                'battery': -1,
+                'enabled': True
+            },
+            "Shock B": {
+                'interface': self.properties['name'],
+                'name': 'Shock B',
+                'id': 'shock_b',
+                'battery': -1,
+                'enabled': True
+            }
+        }
 
     def connect(self):
         return

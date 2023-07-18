@@ -22,7 +22,23 @@ import PySimpleGUI as sg
 from interfaces.interface import Interface
 
 MAX_VIBRATE_STRENGTH = 100
+on_hit_patterns = {
+    "bow": "arrow",
+    "axe": "axe",
+    "hammer": "blunt",
+    "mace": "blunt",
+    "fist": "unarmed",
+    "unarmed": "unarmed",
+    "sword": "blade",
+    "dagger": "blade",
+    "knife": "blade",
+    "spear": "blade"
+}
 
+sex_animation_patterns = {
+
+
+}
 class LogReaderInterface(Interface):
     SEX_STAGE_STRENGTH_MULTIPLIER = 20
 
@@ -52,11 +68,11 @@ class LogReaderInterface(Interface):
     def submissive_lola_punish_add_time(self, match, event):
         # Todo: Incorporate number of days added as part of the chaster scaling? This is already in the regex match.
         # Need to see how this works in Submissive Lola first.
-        self.chaster.update_time(random.randint(settings.CHASTER_PUNISH_MIN, settings.CHASTER_PUNISH_MAX))
+        self.chaster.update_time(random.randint(int(settings.CHASTER_PUNISH_MIN), int(settings.CHASTER_PUNISH_MAX)))
 
     def player_defeated(self, match, event):
         self.chaster.spin_wheel()
-        self.chaster.update_time(random.randint(settings.CHASTER_DEFEAT_MIN, settings.CHASTER_DEFEAT_MAX))
+        self.chaster.update_time(random.randint(int(settings.CHASTER_DEFEAT_MIN), int(settings.CHASTER_DEFEAT_MAX)))
 
 
     def _parse_param(self, match, param):

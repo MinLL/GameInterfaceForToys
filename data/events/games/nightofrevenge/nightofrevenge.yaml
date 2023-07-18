@@ -1,0 +1,52 @@
+- Night Of Revenge - On Hit:
+    function: generic_pixel_gauge
+    params:
+        capture_type: 'pixel_gauge'
+        toy_type: estim
+        duration: 1
+        cooldown: 1
+        variable_strength: True
+        coordinates:
+            range_x:
+                start: 540
+                end: 1200
+            range_y:
+                 start: 200
+                 end: 201
+        target_value:
+            b: 7
+            g: 132
+            r: 170
+
+- Night Of Revenge - H-Scene:
+    function: generic_ramping_vibration
+    params:
+        toy_type: vibrator
+        duration: 10
+        cooldown: 5
+        capture_type: 'pixel_match_all'
+        ramp_duration: 90
+        coordinates:
+            - [3112, 1796]
+            - [3275, 1788]
+            - [3499, 1799]
+        target_value:
+            b: 255
+            g: 255
+            r: 255
+
+- Night Of Revenge - Game Over:
+    function: generic_ramping_vibration
+    params:
+        toy_type: vibrator
+        duration: 10
+        cooldown: 5
+        capture_type: 'pixel_match_all'
+        ramp_duration: 60
+        coordinates:
+            - [3341, 2025]
+        target_value:
+            b: 185
+            g: 195
+            r: 201
+

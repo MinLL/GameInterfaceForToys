@@ -25,6 +25,7 @@ from interfaces.pixel_reader import PixelReaderInterface
 
 
 config_fields = {
+    'Enabled Interfaces': 'ENABLED_INTERFACES',
     'Log Path': 'LOG_PATH',
     'Is the OS Windows?': 'IS_WINDOWS',
     'Character Name': 'CHARACTER_NAME',
@@ -54,26 +55,9 @@ config_fields = {
     'Lovense Strength Max': 'LOVENSE_STRENGTH_SCALE',
     'Lovense Use New API': 'LOVENSE_USE_NEW_API',
     'Print Log Lines': 'PRINT_LOG_LINES',
-    'Window Update Frequency': 'WINDOW_UPDATE_FREQUENCY',    
-}
-
-
-on_hit_patterns = {
-    "bow": "arrow",
-    "axe": "axe",
-    "hammer": "blunt",
-    "mace": "blunt",
-    "fist": "unarmed",
-    "unarmed": "unarmed",
-    "sword": "blade",
-    "dagger": "blade",
-    "knife": "blade",
-    "spear": "blade"
-}
-
-sex_animation_patterns = {
-
-
+    'Window Update Frequency': 'WINDOW_UPDATE_FREQUENCY',
+    'Target Monitor for Screen Capture': 'OUTPUT_IDX',
+    'XToys Webhook ID': 'XTOYS_WEBHOOK_ID'
 }
 
 
@@ -265,7 +249,12 @@ def open_toy_event_modal(ssi):
 def open_config_modal():
     config_layout = []
     for k, v in config_fields.items():
-        if v == 'LOG_PATH':
+        if v == 'ENABLED_INTERFACES':
+            config_layout.append([sg.Text('Enabled Interfaces:'), sg.Radio(INTERFACE_LOG_READER, 'interfaces', key=INTERFACE_LOG_READER, default=INTERFACE_LOG_READER in settings.ENABLED_INTERFACES),
+                                  sg.Radio(INTERFACE_SCREEN_READER, 'interfaces', key=INTERFACE_SCREEN_READER, default=INTERFACE_SCREEN_READER in settings.ENABLED_INTERFACES),
+                                  sg.Radio(INTERFACE_MEMORY_READER, 'interfaces', key=INTERFACE_MEMORY_READER, default=INTERFACE_MEMORY_READER in settings.ENABLED_INTERFACES),
+                                  ])
+        elif v == 'LOG_PATH':
             config_layout.append([sg.Text('Path to Log File'), sg.FileBrowse('Select Log File', key=v)])
             config_layout.append([sg.Text('Old Log File Path: {}'.format(settings.LOG_PATH))])
         elif v == 'IS_WINDOWS':
@@ -324,6 +313,15 @@ def open_config_modal():
                     if values[TOY_XTOYS] == True:
                         toys += [TOY_XTOYS]
                     settings.TOY_TYPE = toys
+                elif x == 'ENABLED_INTERFACES':
+                    interfaces = []
+                    if values[INTERFACE_LOG_READER] == True:
+                        interfaces += [INTERFACE_LOG_READER]
+                    elif values[INTERFACE_SCREEN_READER] == True:
+                        interfaces += [INTERFACE_SCREEN_READER]
+                    elif values[INTERFACE_MEMORY_READER] == True:
+                        interfaces += [INTERFACE_MEMORY_READER]
+                    settings.ENABLED_INTERFACES = interfaces
                 else:
                     setattr(settings, x, values[x])
             save_config()
@@ -365,8 +363,14 @@ if __name__ == "__main__":
     load_config()
     loop = asyncio.get_event_loop()
     while True:
-        # ssi = PixelReaderInterface(toy_type=settings.TOY_TYPE)
-        ssi = LogReaderInterface(toy_type=settings.TOY_TYPE)
+        for interface in settings.ENABLED_INTERFACES:
+            if interface == INTERFACE_LOG_READER:
+                ssi = LogReaderInterface(toy_type=settings.TOY_TYPE)
+            elif interface == INTERFACE_SCREEN_READER:
+                ssi = PixelReaderInterface(toy_type=settings.TOY_TYPE)
+            elif interface == INTERFACE_MEMORY_READER:
+                ssi = MemoryReaderInterface(toy_type=settings.TOY_TYPE)
+
         try:
             loop.run_until_complete(main())
         except ReloadException as e:

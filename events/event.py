@@ -5,10 +5,13 @@ class Event:
         self.shortname = shortname
         self.origin = origin
         self.name = name
-        if case_sensitive:
-            self.regex = re.compile(regex, re.I)
+        if regex is not None:
+            if case_sensitive:
+                self.regex = re.compile(regex, re.I)
+            else:
+                self.regex = re.compile(regex)
         else:
-            self.regex = re.compile(regex)
+            self.regex = None
         self.function = function
         self.group = group
         self.params = params

@@ -215,7 +215,10 @@ def open_toy_event_modal(ssi):
             toy_layout[i].append(sg.Checkbox("", size=(15, 1), key="{}:{}".format(event.name, toy), default=toy in ssi.toys.toy_event_map[event.name]))
         i += 1
     toy_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT), sg.Button(GUI_CONFIG_ENABLE_ALL), sg.Button(GUI_CONFIG_DISABLE_ALL)])
-    toy_window = sg.Window('GIFT Toy:Event Map Configuration', [[sg.Column(toy_layout, scrollable=True)]], modal=True)
+    scrollable = False
+    if len(ssi.event_loader.events) > 12:
+        scrollable = True
+    toy_window = sg.Window('GIFT Toy:Event Map Configuration', [[sg.Column(toy_layout, scrollable=scrollable)]], modal=True)
     while True:
         event, values = toy_window.read()
         if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:

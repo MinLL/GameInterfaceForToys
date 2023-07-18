@@ -65,7 +65,7 @@ class XToysInterface(Toy):
         info("Invoking webhook: {}".format(url))
         r = requests.get(url)
         if r.status_code != 200 or r.text != 'OK':
-            fail(r)
+            fail(r.text)
             raise Exception("Call to XToys failed: Error code {}".format(r.status_code))
         success("Webhook invocation complete. Status code={}, response={}".format(r.status_code, r.text))
         return r

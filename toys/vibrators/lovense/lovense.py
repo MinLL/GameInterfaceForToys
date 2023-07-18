@@ -64,12 +64,12 @@ class LovenseInterface(Vibrator):
         return
 
     def scale_strength(self, strength, original_strength, scale_intensity):
-        ret = math.ceil(strength * (float(settings.LOVENSE_STRENGTH_SCALE) / 100))
+        ret = strength * (float(settings.LOVENSE_STRENGTH_SCALE) / 100)
         if scale_intensity:
             ret *= math.ceil(original_strength/5)
         if ret >= 20:
             ret = 20
-        return ret
+        return math.ceil(ret)
     
     def vibrate(self, duration, strength, pattern="", toys=[]):
         if len(toys) > 0 and type(toys) is list:

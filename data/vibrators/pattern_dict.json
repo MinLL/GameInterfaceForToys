@@ -15,5 +15,6 @@
     "animation_walking": [[1, 2]],
     "animation_sprinting": [[1, 2, 3]],
     "animation_jumping": [[5, 4, 3, 2, 1]],
-    "sex_simple": [[20, 15, 18], [20, 19], [15, 16, 17, 18, 19, 20]]
+    "sex_simple": [[20, 15, 18], [20, 19], [15, 16, 17, 18, 19, 20]],
+    "low_intensity_scaled": [[1, 1.5, 2], [1.5, 2, 1], [2, 1.5, 1]]
 }

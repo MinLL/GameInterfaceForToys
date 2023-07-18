@@ -11,7 +11,6 @@ import math
 class PixelReaderInterface(Interface):
     def __init__(self, toy_type):
         Interface.__init__(self, "Pixel Reader", toy_type)
-        print(dxcam.device_info())
         self.frame_grabber = dxcam.create(device_idx=0, output_idx=int(settings.OUTPUT_IDX), output_color="BGR")
         frame = self.frame_grabber.grab()
         self.height = frame.shape[0]
@@ -52,6 +51,8 @@ class PixelReaderInterface(Interface):
 
     def setup(self):
         info("Initializing pixel reader (h{} / w{})".format(self.height, self.width))
+        info("Available Devices:")
+        info(dxcam.device_info())
         self.start_cam()
         self.vibrate_ramp_start = 0
         self.vibrate_ramp_last = 0
@@ -102,23 +103,25 @@ class PixelReaderInterface(Interface):
             if self.event_is_type(event, 'pixel_gauge'):
                 coords = self._match_pixel_range_any(event)
                 if coords != (-1, -1):
+                    success("Matched Event: " + event.name)
                     ret += [event.function(event, coords)]
                     event.last_executed = current_time
             elif self.event_is_type(event, 'pixel_match_all') and self._match_pixel_all(event):
                 ret += [event.function(event)]
                 event.last_executed = current_time
+                success("Matched Event: " + event.name)
         self.last_screen_cap = current_time
         return ret
 
     def generic_pixel_gauge(self, event, coords):
         start_x = event.params['coordinates']['range_x']['start']
         end_x = event.params['coordinates']['range_x']['end']
-        percentage = int(float(coords[0]) / (start_x + end_x) * 100)
+        strength = int(((end_x - float(coords[0])) / start_x) * 100)
+        success("generic_pixel_gauge: Left most coordinate: {} (start={}, end={})".format(coords[0], start_x, end_x))
         if 'toy_type' in event.params and event.params['toy_type'] == 'estim':
             foo = self.toys.shock
         else:
             foo = self.toys.vibrate
-        strength = 100 - percentage
         pattern = ''
         if 'pattern' in event.params:
             pattern = event.params['pattern']

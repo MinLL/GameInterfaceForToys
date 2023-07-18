@@ -4,11 +4,11 @@
         capture_type: 'pixel_gauge'
         toy_type: estim
         duration: 1
-        cooldown: 1
+        cooldown: 6
         variable_strength: True
         coordinates:
             range_x:
-                start: 540
+                start: 610
                 end: 1200
             range_y:
                  start: 200
@@ -22,6 +22,7 @@
     function: generic_ramping_vibration
     params:
         toy_type: vibrator
+        pattern: low_intensity_scaled;scale_intensity
         duration: 10
         cooldown: 5
         capture_type: 'pixel_match_all'
@@ -39,6 +40,7 @@
     function: generic_ramping_vibration
     params:
         toy_type: vibrator
+        pattern: low_intensity_scaled;scale_intensity
         duration: 10
         cooldown: 5
         capture_type: 'pixel_match_all'

@@ -1,16 +1,18 @@
 from toys.base import Toy, FEATURE_VIBRATOR, FEATURE_ESTIM
 from common.util import *
-import requests
+import asyncio
 import json
 import random
 import settings
+import httpx
 
 # Will move these to config later.
-xtoys_base_url = "https://xtoys.app/webhook"
+xtoys_base_url = "https://webhook.xtoys.app"
 
 class XToysInterface(Toy):
     def __init__(self, tags=[]):
         self.patterns = self.load_patterns()
+        self.client = httpx.AsyncClient()
         super().__init__("XToys Interface", [FEATURE_VIBRATOR, FEATURE_ESTIM] + tags)
 
     def load_patterns(self):
@@ -37,40 +39,40 @@ class XToysInterface(Toy):
         elif params['action'] == 'shock':
             return self.shock(params['duration'], params['strength'], pattern, params['toys'])
 
-    def vibrate(self, duration, strength, pattern="", toys=[]):
+    async def vibrate(self, duration, strength, pattern="", toys=[]):
         if len(toys) == 0:
             action = 'vib_vaginal'
-            return self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, action, {"time": duration, "intensity": strength, "pattern": pattern})
+            return await self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, action, {"time": duration, "intensity": strength, "pattern": pattern})
         ret = []
         for toy in toys:
-            ret += [self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, toy['id'], {"time": duration, "intensity": strength, "pattern": pattern})]
+            ret += [await self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, toy['id'], {"time": duration, "intensity": strength, "pattern": pattern})]
         return ret
 
-    def vibrate_plus(self, duration, strength, pattern="", toys=[]):
-        return self.vibrate(duration, strength, pattern, toys)
+    async def vibrate_plus(self, duration, strength, pattern="", toys=[]):
+        return await self.vibrate(duration, strength, pattern, toys)
 
-    def shock(self, duration, strength, pattern="", toys=[]):
+    async def shock(self, duration, strength, pattern="", toys=[]):
         if len(toys) == 0:
             action = 'shock_a'
-            return self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, action, {"time": duration, "intensity": strength, "pattern": pattern})
+            return await self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, action, {"time": duration, "intensity": strength, "pattern": pattern})
         ret = []
         for toy in toys:
-            ret += [self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, toy['id'], {"time": duration, "intensity": strength, "pattern": pattern})]
+            ret += [await self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, toy['id'], {"time": duration, "intensity": strength, "pattern": pattern})]
         return ret
 
-    def _invoke_webhook(self, webhook, action, params):
+    async def _invoke_webhook(self, webhook, action, params):
         url = "{}?id={}&action={}".format(xtoys_base_url, webhook, action)
         for k, v in params.items():
             url += "&{}={}".format(k, v)
         info("Invoking webhook: {}".format(url))
-        r = requests.get(url)
+        r = await self.client.get(url)
         if r.status_code != 200 or r.text != 'OK':
             fail(r.text)
             raise Exception("Call to XToys failed: Error code {}".format(r.status_code))
         success("Webhook invocation complete. Status code={}, response={}".format(r.status_code, r.text))
         return r
         
-    def stop(self):
+    async def stop(self):
         return self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, "stop", {})
 
     def get_toys(self):

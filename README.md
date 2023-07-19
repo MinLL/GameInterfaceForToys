@@ -94,21 +94,21 @@ There are two ways of interfacing with this game.
 2) Alternatively, change the interface to "Screen reader". This will only work if you are playing in 4k resolution, and has higher latency and less precision than the other approach.
 
 If using the plugin, I recommend the following settings for event configuration:
-Enemy Orgasm: Configured to use your estim device.
-Trap Orgasm: Configured to use vibrators/other toys.
-First Penetration: Configured to use your estim device.
-Player Orgasm: Configured to use vibrators/other toys.
-Player Damage: Configured to use your estim device.
-Player Death: Configured to use your estim device.
-Ero Animation Start: Configured to use vibrators/other toys.
-Ero Animation End: Configured to use vibrators/other toys.
-Game Over Start: Configured to use vibrators/other toys.
-Game Over End: Configured to use vibrators/other toys.
+- Enemy Orgasm: Configured to use your estim device.
+- Trap Orgasm: Configured to use vibrators/other toys.
+- First Penetration: Configured to use your estim device.
+- Player Orgasm: Configured to use vibrators/other toys.
+- Player Damage: Configured to use your estim device.
+- Player Death: Configured to use your estim device.
+- Ero Animation Start: Configured to use vibrators/other toys.
+- Ero Animation End: Configured to use vibrators/other toys.
+- Game Over Start: Configured to use vibrators/other toys.
+- Game Over End: Configured to use vibrators/other toys.
 
 The following are relevant if you're using @btg's Ero mod (Which I recommend for the best experience):
-Struggle HP Damage: Configured to use your estim device.
-Struggle Good Struggle: Configured to use your estim device.
-Struggle Bad Struggle: Configured to use your estim device.
+- Struggle HP Damage: Configured to use your estim device.
+- Struggle Good Struggle: Configured to use your estim device.
+- Struggle Bad Struggle: Configured to use your estim device.
 
 
 # Advanced Configuration

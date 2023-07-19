@@ -80,14 +80,6 @@ For all versions of Skyrim and Fallout, you will need to enable papyrus logging 
 
 GIFT contains a plugin and several scripts to enhance it's ability to integrate with Skyrim. Under the "games" folder of the download, install the files contained under "skyrim" or "fallout" using your mod manager of choice.
 
-
-# Running the project via Python
-I've tried to make this as painless as possible.
-- Clone the repository.
-- Run `pip install -r requirements.txt`
-- The project lazy-loads dependencies for each toy type. Some toys have more involved setup processes (Like the Kizuna). Install any missing dependencies that were not in requirements.txt.
-- Run `python GameInterfaceForToys.py`. 
-
 ### Night of Revenge
 There are two ways of interfacing with this game.
 1) Install the included plugin, and make sure that the interface is set to use the log reader in the settings. This is the preferred method, and provides the best support.
@@ -112,6 +104,12 @@ The following are relevant if you're using @btg's Ero mod (Which I recommend for
 - Struggle Good Struggle: Configured to use your estim device.
 - Struggle Bad Struggle: Configured to use your estim device.
 
+# Running the project via Python
+I've tried to make this as painless as possible.
+- Clone the repository.
+- Run `pip install -r requirements.txt`
+- The project lazy-loads dependencies for each toy type. Some toys have more involved setup processes (Like the Kizuna). Install any missing dependencies that were not in requirements.txt.
+- Run `python GameInterfaceForToys.py`. 
 
 # Advanced Configuration
 GIFT exposes a number of files in the "data" folder, which can be manipulated in order to change how the application functions. 

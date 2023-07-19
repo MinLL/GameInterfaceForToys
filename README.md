@@ -11,10 +11,13 @@ This project also integrates with Chaster, allowing games to manipulate a user's
 - XBox controllers
 - DG-Lab E-Stim
 - All physical chastity devices utilizing a key (Via Chaster)
+- All toys that XToys supports.
 
 ## Supported Games
 - Skyrim - All versions (Best Supported)
-- Fallout 4
+- Fallout 4 (Mod dependent)
+- Mount and Blade: Bannerlord (Very basic)
+- Night of Revenge: (Good support with included plugin)
 
 ## How does it work?
 Upon launching the GIFT executable, the script actively watches for changes to the specified log (Papyrus.0.log for Skyrim and Fallout). Upon seeing a change to the log, it reads the latest content, and checks for any lines that match any events. If, for instance, the player starts having sex, the script will trigger any configured toys to activate (Vibrators vibrating, etc).
@@ -84,6 +87,28 @@ I've tried to make this as painless as possible.
 - Run `pip install -r requirements.txt`
 - The project lazy-loads dependencies for each toy type. Some toys have more involved setup processes (Like the Kizuna). Install any missing dependencies that were not in requirements.txt.
 - Run `python GameInterfaceForToys.py`. 
+
+### Night of Revenge
+There are two ways of interfacing with this game.
+1) Install the included plugin, and make sure that the interface is set to use the log reader in the settings. This is the preferred method, and provides the best support.
+2) Alternatively, change the interface to "Screen reader". This will only work if you are playing in 4k resolution, and has higher latency and less precision than the other approach.
+
+If using the plugin, I recommend the following settings for event configuration:
+Enemy Orgasm: Configured to use your estim device.
+Trap Orgasm: Configured to use vibrators/other toys.
+First Penetration: Configured to use your estim device.
+Player Orgasm: Configured to use vibrators/other toys.
+Player Damage: Configured to use your estim device.
+Player Death: Configured to use your estim device.
+Ero Animation Start: Configured to use vibrators/other toys.
+Ero Animation End: Configured to use vibrators/other toys.
+Game Over Start: Configured to use vibrators/other toys.
+Game Over End: Configured to use vibrators/other toys.
+
+The following are relevant if you're using @btg's Ero mod (Which I recommend for the best experience):
+Struggle HP Damage: Configured to use your estim device.
+Struggle Good Struggle: Configured to use your estim device.
+Struggle Bad Struggle: Configured to use your estim device.
 
 
 # Advanced Configuration

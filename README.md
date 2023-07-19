@@ -46,10 +46,17 @@ If using the Lovense interface, you have several options to control your toys.
 
 You can restrict the maximum strength of Lovense vibrations with the "Lovense Strength Max" field. 100 = full strength, 50 = half strength, etc.
 
+This interface offers the best support for Lovense devices in particular.
+
 ### Buttplug.io
 If using buttplug.io, set the "Buttplug.io Server Address" to the IP of the device running initface connect. If this is running on your local PC, leave this at the default.
 Like Lovense, you can also restrict the maximum strength of Buttplug.io vibrations here. 100 = full strength, 50 = half strength, etc.
 
+### XToys
+If using the XToys interface, you must load this script, and connect your toys: https://xtoys.app/scripts/-N_a05xsR9ehhX1aD1VQ
+The script will provide a webhook ID - Enter this into the "XToys Webhook ID" field in settings. GIFT will now utilize XToys.
+
+This interface offers the best compatibility with toys, but has a bit higher latency than the other interfaces.
 
 ### DG-Lab Coyote (E-Stim)
 First, play responsibly! Never use E-Stim above the waist, and do not use if you have a pacemaker or other medical condition. By using this feature you take full responsibility for any injury or mishap resulting from the use of this software.

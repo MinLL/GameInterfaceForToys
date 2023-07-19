@@ -1,0 +1,1 @@
+To install, copy the BepIInEx folder to your Night of Revenge installation. You do not need the "NoRLogger_Source" folder. This is the source code for the plugin, and is included for reference.

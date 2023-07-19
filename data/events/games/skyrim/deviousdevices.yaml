@@ -1,35 +1,45 @@
 - DD Vibrate:
     regex: .+VibrateEffect.([0-9]+) for ([0-9]+).+
     function: vibrate
+    toy_class: vibrator
 - DD Stop Vibrate:
     regex: ".*\\[SkyrimToyInterface\\]: OnVibrateStop().*"
     function: stop_vibrate
+    toy_class: vibrator
 - DD Player Orgasmed:
     regex: ".*\\[SkyrimToyInterface\\]: OnDeviceActorOrgasm().*"
     function: player_orgasmed
+    toy_class: vibrator
 - DD Player Edged:
     regex: ".*\\[SkyrimToyInterface\\]: OnDeviceEdgedActor().*"
     function: player_edged
+    toy_class: vibrator
 - DD Player Sit With Plugs:
     regex: ".*\\[SkyrimToyInterface\\]: OnSitDevious().*"
     function: player_sit
+    toy_class: vibrator
 - DD Third Person Animation:
     regex: .*StartThirdPersonAnimation\({GIFT_ACTOR_NAME},(.+)\)
     function: dd_anim
     case_sensitive: False
+    toy_class: vibrator
 - DD End Third Person Animation:
     regex: .*EndThirdPersonAnimation\({GIFT_ACTOR_NAME}.+
     function: dd_anim_stop
+    toy_class: vibrator
     case_sensitive: False
 - DD Random Event:
     regex: .*Processing \[(.+)\].*
+    toy_class: vibrator
     function: dd_event
 - DD On Animation Event:
     regex: ".*\\[SkyrimToyInterface\\]: OnAnimationEvent\\((.+)\\) \\[wornVagPlug='(.+)', wornAnalPlug='(.+)', wornVagPiercing='(.+)', wornNipplePiercing = '(.+)'\\].*"
     function: on_animation_event
+    toy_class: vibrator
 - DD Shock Event:
     regex: ".*\\[Zad\\]: zadShockVibEffect: ShockActor.*"
     function: generic_random_shock
+    toy_class: estim
     params:
         pattern: device_shock
         min_duration: 1

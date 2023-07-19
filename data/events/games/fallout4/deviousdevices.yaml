@@ -1,9 +1,11 @@
 - Player Defeated:
     regex: ".+AFV Report: Player is bleeding out in surrender.*"
     function: player_defeated
+    toy_class: vibrator
 - Plug Shocks:
     regex: .+Your plug gives a painfull shock.+
     function: generic_random_shock
+    toy_class: estim
     params:
         min_duration: 1
         max_duration: 5
@@ -12,6 +14,7 @@
 - Multiple Plug Shocks:
     regex: .+Your plug gives multiple painfull shocks.*
     function: generic_random_shock
+    toy_class: estim
     params:
         min_duration: 5
         max_duration: 10
@@ -20,6 +23,7 @@
 - Bump Pump Plug:
     regex: .+You acidentally bump your .+ plug pumpbulb and it inflates.*
     function: generic_random_vibrate
+    toy_class: vibrator
     params:
         min_duration: 5
         max_duration: 10
@@ -27,6 +31,7 @@
 - Pump Plug Inflate:
     regex: .+You hear your .+ plug pump whirr and inflating.*
     function: generic_random_vibrate
+    toy_class: vibrator
     params:
         min_duration: 10
         max_duration: 20
@@ -34,6 +39,7 @@
 - Plug Move:
     regex: .+Your .+ plug moves, sending pleasure trough your body.*
     function: generic_random_vibrate
+    toy_class: vibrator
     params:
         min_duration: 5
         max_duration: 10
@@ -41,12 +47,16 @@
 - Plug Stop Vibrate:
     regex: .+Your plugs stops vibrating.*
     function: stop_vibrate
+    toy_class: vibrator
 - Plug Orgasm:
     regex: .+Your plug sends you into an uncontrollable orgasm.*
     function: player_orgasmed
+    toy_class: vibrator
 - Plug Edge:
     regex: .+Your plug stops vibrating just before you can orgasm.*
     function: player_edged
+    toy_class: vibrator
 - Plug Vibrate:
     regex: .+Your .+ plug.* start.* to vibrate ?(.*)
     function: fallout_dd_vibrate
+    toy_class: vibrator

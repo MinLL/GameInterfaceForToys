@@ -226,7 +226,7 @@ def open_toy_event_modal(ssi):
         for toy in ssi.toys.available_toys:
             toy_layout[i].append(sg.Checkbox("", size=(15, 1), expand_x=True, key="{}:{}".format(event.name, toy), default=toy in ssi.toys.toy_event_map[event.name]))
         i += 1
-    toy_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT), sg.Button(GUI_CONFIG_ENABLE_ALL), sg.Button(GUI_CONFIG_DISABLE_ALL)])
+    toy_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT), sg.Button(GUI_CONFIG_ENABLE_ALL), sg.Button(GUI_CONFIG_DISABLE_ALL), sg.Button(GUI_CONFIG_DEFAULTS)])
     scrollable = False
     if len(ssi.event_loader.events) > 12:
         scrollable = True
@@ -246,6 +246,24 @@ def open_toy_event_modal(ssi):
             for event in ssi.event_loader.events:
                 for toy in ssi.toys.available_toys:
                     ssi.toys.toy_event_map[event.name] = []
+            toy_window.close()
+            return False
+        if event == GUI_CONFIG_DEFAULTS:
+            for event in ssi.event_loader.events:
+                for toy, v in ssi.toys.available_toys.items():
+                    # Xtoys provides both features. Check for this.
+                    both_estim_and_vib = (v['interface'] in [x.properties['name'] for x in ssi.toys.vibrators] and v['interface'] in [x.properties['name'] for x in ssi.toys.vibrators])
+                    if both_estim_and_vib:
+                        # This is a hacky workaround. Fix this later.
+                        if event.toy_class is not None and event.toy_class == "vibrator" and not 'Shock' in toy:
+                            ssi.toys.toy_event_map[event.name].append(toy)
+                        elif event.toy_class is not None and event.toy_class == "estim" and 'Shock' in toy:
+                            ssi.toys.toy_event_map[event.name].append(toy)
+                    else:
+                        if event.toy_class is not None and event.toy_class == "vibrator" and v['interface'] in [x.properties['name'] for x in ssi.toys.vibrators]:
+                            ssi.toys.toy_event_map[event.name].append(toy)
+                        elif event.toy_class is not None and event.toy_class == "estim" and v['interface'] in [x.properties['name'] for x in ssi.toys.estim]:
+                            ssi.toys.toy_event_map[event.name].append(toy)
             toy_window.close()
             return False
         if event == GUI_CONFIG_SAVE:

@@ -1,6 +1,8 @@
 - GIFT On Hit:
     regex: ".*\\[SkyrimToyInterface\\]: OnHit\\(akSource='(.*?)', akProjectile='.*?', abPowerAttack='(TRUE|False)', abBashAttack='(TRUE|False)', abSneakAttack='(TRUE|False)', abHitBlocked='(TRUE|False)'\\): \\[health='([0-9.]+)\\/([0-9.]+)', magicka='([0-9.]+)\\/([0-9.]+)', stamina='([0-9.]+)\\/([0-9.]+)'\\].*"
     function: on_hit
+    toy_class: estim
 - GIFT Stack Overflow:
     regex: ^.+Suspended stack count is over our warning threshold.+
     function: stack_overflow
+    toy_class: vibrator

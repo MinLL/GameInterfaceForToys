@@ -39,7 +39,8 @@ class EventLoader:
                 params[k] = self._parse_arg(v)
         origin = " ".join(path.split("_")[3:])
         shortname = list(event.keys())[0]
-        return Event(name_key, regex, function, group, case_sensitive, params, origin, shortname)
+        toy_class = 'toy_class' in event[name] and event[name]['toy_class'] or None
+        return Event(name_key, regex, function, group, case_sensitive, params, origin, shortname, toy_class)
 
 
     def _load_events(self, path):

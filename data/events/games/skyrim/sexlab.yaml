@@ -3,17 +3,21 @@
     function: sex_start
     group: default
     case_sensitive: False
+    toy_class: vibrator
 - Sex End:
     regex: .+SEXLAB - ActorAlias\[{GIFT_ACTOR_NAME}\]  - Resetting!+
     function: sex_end
     group: default
     case_sensitive: False
+    toy_class: vibrator
 - Sex Stage Start:
     regex: .+SEXLAB - Thread\[[0-9]+\] Event Hook - StageStart$
     function: sex_stage_start
+    toy_class: vibrator
 - Animation Set:
     regex: .+OnSexlabAnimationStart\(boobjob='(.+)', vaginal='(.+)', fisting='(.+)', masturbation='(.+)', anal='(.+)', oral='(.+)'\).*
     function: sex_animation_set
+    toy_class: vibrator
 
 
 
@@ -22,11 +26,14 @@
     function: sex_start
     group: default
     case_sensitive: False
+    toy_class: vibrator
 - Sex Stage Start PPLUS:
     regex: .+SEXLAB - Thread\[[0-9]+\]  - Going to Stage.*$
     function: sex_stage_start
+    toy_class: vibrator
 - Sex End PPLUS:
     regex: .+SEXLAB - Thread\[[0-9]+] ActorAlias\[.+\]  - UnplaceActor on \[Actor < \(00000014\)>\].*
     function: sex_end
     group: default
     case_sensitive: False
+    toy_class: vibrator

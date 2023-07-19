@@ -1,5 +1,6 @@
 - On Hit:
     function: generic_pixel_gauge
+    toy_class: estim
     params:
         capture_type: 'pixel_gauge'
         toy_type: estim
@@ -20,6 +21,7 @@
 
 - H-Scene:
     function: generic_ramping_vibration
+    toy_class: vibrator
     params:
         toy_type: vibrator
         pattern: low_intensity_scaled;scale_intensity
@@ -38,6 +40,7 @@
 
 - Game Over:
     function: generic_ramping_vibration
+    toy_class: vibrator
     params:
         toy_type: vibrator
         pattern: low_intensity_scaled;scale_intensity
@@ -56,12 +59,14 @@
 - Enemy Orgasm:
     regex: \[Info   . NoRLogger\] Enemy Orgasm
     function: generic_random_shock
+    toy_class: estim
     params:
         duration: 10
         strength: 50
 - Trap Orgasm:
     regex: \[Info   . NoRLogger\] Trap Orgasm
     function: generic_random_vibrate
+    toy_class: vibrator
     params:
         pattern: low_intensity_scaled;scale_intensity
         duration: 300
@@ -69,18 +74,21 @@
 - First Penetration:
     regex: \[Info   . NoRLogger\] First Penetration
     function: generic_random_shock
+    toy_class: estim
     params:
         duration: 10
         strength: 60
 - Player Orgasm:
     regex: \[Info   . NoRLogger\] Player Orgasm
     function: generic_random_vibrate
+    toy_class: vibrator
     params:
         pattern: low_intensity_scaled;scale_intensity
         duration: 300
         strength: 100
 - Player Damage:
     regex: \[Info   . NoRLogger\] Player Damage
+    toy_class: estim
     function: generic_random_shock
     params:
         duration: 1
@@ -88,12 +96,14 @@
 - Player Death:
     regex: \[Info   . NoRLogger\] Player Death
     function: generic_random_shock
+    toy_class: estim
     params:
         duration: 5
         strength: 100
 - Ero Animation Start:
     regex: \[Info   . NoRLogger\] Ero Animation Start
     function: generic_random_vibrate
+    toy_class: vibrator
     params:
         pattern: low_intensity_scaled;scale_intensity
         duration: 300
@@ -102,30 +112,36 @@
 - Ero Animation End:
     regex: \[Info   . NoRLogger\] Ero Animation End
     function: nor_ero_stop
+    toy_class: vibrator
 - Game Over Start:
     regex: \[Info   . NoRLogger\] GameOver Start
     function: nor_gameover_start
+    toy_class: vibrator
     params:
         duration: 600
         strength: 80
 - Game Over End:
     regex: \[Info   . NoRLogger\] GameOver End
     function: nor_gameover_stop
+    toy_class: vibrator
 - Struggle HP Damage:
     regex: \[Info   . NoREroMod\] Struggle HP Damage
     function: generic_random_shock
+    toy_class: estim
     params:
         duration: 2
         strength: 80
 - Struggle Good Struggle:
     regex: \[Info   . NoREroMod\] Struggle Good Struggle
     function: generic_random_shock
+    toy_class: estim
     params:
         duration: 1
         strength: 35
 - Struggle Bad Struggle:
     regex: \[Info   . NoREroMod\] Struggle Bad Struggle
     function: generic_random_shock
+    toy_class: estim
     params:
         duration: 1
         strength: 90

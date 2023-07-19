@@ -1,7 +1,7 @@
 import re
 
 class Event:
-    def __init__(self, name, regex, function, group, case_sensitive, params, origin, shortname):
+    def __init__(self, name, regex, function, group, case_sensitive, params, origin, shortname, toy_class):
         self.shortname = shortname
         self.origin = origin
         self.name = name
@@ -15,6 +15,7 @@ class Event:
         self.function = function
         self.group = group
         self.params = params
+        self.toy_class = toy_class
 
         
 

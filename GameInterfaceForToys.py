@@ -86,7 +86,11 @@ async def main():
         buttonColumn = [
             [sg.Text("Test Functions")],
             [sg.Button(GUI_TEST_VIBRATE)],
-             [sg.Button(GUI_TEST_SHOCK)],
+             [sg.Button(GUI_TEST_SHOCK_10)],
+             [sg.Button(GUI_TEST_SHOCK_30)],
+             [sg.Button(GUI_TEST_SHOCK_50)],
+             [sg.Button(GUI_TEST_SHOCK_80)],
+             [sg.Button(GUI_TEST_SHOCK_100)],
              [sg.Button(GUI_TEST_SEX)],
              [sg.Button(GUI_TEST_PLUG_VIBRATE)],
              [sg.Text("Configuration")],
@@ -136,8 +140,16 @@ async def main():
                     await run_task(test_plugs(window, ssi), run_async=True)
                 if event == GUI_TEST_SEX:
                     await run_task(test_sex(window, ssi), run_async=True)
-                if event == GUI_TEST_SHOCK:
+                if event == GUI_TEST_SHOCK_10:
                     await run_task(ssi.toys.shock(2, 10, "random"), run_async=True)
+                if event == GUI_TEST_SHOCK_30:
+                    await run_task(ssi.toys.shock(2, 30, "random"), run_async=True)
+                if event == GUI_TEST_SHOCK_50:
+                    await run_task(ssi.toys.shock(2, 50, "random"), run_async=True)
+                if event == GUI_TEST_SHOCK_80:
+                    await run_task(ssi.toys.shock(2, 80, "random"), run_async=True)
+                if event == GUI_TEST_SHOCK_100:
+                    await run_task(ssi.toys.shock(2, 100, "random"), run_async=True)
                 if event == GUI_CHASTER_SPIN_WHEEL:
                     await run_task(ssi._chaster_spin_wheel(False, event=None), run_async=True)
                 if event == GUI_CHASTER_AUTHENTICATE:
@@ -202,23 +214,23 @@ def open_toy_event_modal(ssi):
     toy_layout = []
     toy_layout.append([sg.Text('Event Name', size=(25, 1))])
     for toy in ssi.toys.available_toys:
-        toy_layout[0].append(sg.Text(toy, size=(15, 1)))
+        toy_layout[0].append(sg.Text(toy, size=(15, 1), expand_x=True))
     i = 1
     last_origin = None
     for event in ssi.event_loader.events:
         if last_origin != event.origin:
-            toy_layout.append([sg.HorizontalSeparator(), sg.Text(event.origin), sg.HorizontalSeparator()])
+            toy_layout.append([sg.HorizontalSeparator(), sg.Text(event.origin, expand_x=True), sg.HorizontalSeparator()])
             last_origin = event.origin
             i += 1
-        toy_layout.append([sg.Text(event.shortname, size=(25, 1))])
+        toy_layout.append([sg.Text(event.shortname, size=(25, 1), expand_x=True)])
         for toy in ssi.toys.available_toys:
-            toy_layout[i].append(sg.Checkbox("", size=(15, 1), key="{}:{}".format(event.name, toy), default=toy in ssi.toys.toy_event_map[event.name]))
+            toy_layout[i].append(sg.Checkbox("", size=(15, 1), expand_x=True, key="{}:{}".format(event.name, toy), default=toy in ssi.toys.toy_event_map[event.name]))
         i += 1
     toy_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT), sg.Button(GUI_CONFIG_ENABLE_ALL), sg.Button(GUI_CONFIG_DISABLE_ALL)])
     scrollable = False
     if len(ssi.event_loader.events) > 12:
         scrollable = True
-    toy_window = sg.Window('GIFT Toy:Event Map Configuration', [[sg.Column(toy_layout, scrollable=scrollable)]], modal=True)
+    toy_window = sg.Window('GIFT Toy:Event Map Configuration', [[sg.Column(toy_layout, scrollable=scrollable, expand_y=True, expand_x=True)]], modal=True, resizable=True)
     while True:
         event, values = toy_window.read()
         if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:

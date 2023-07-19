@@ -93,6 +93,8 @@ There are two ways of interfacing with this game.
 1) Install the included plugin, and make sure that the interface is set to use the log reader in the settings. This is the preferred method, and provides the best support.
 2) Alternatively, change the interface to "Screen reader". This will only work if you are playing in 4k resolution, and has higher latency and less precision than the other approach.
 
+If using the plugin, you should set the log path to `\NightofRevenge_Data\output_log.txt`.
+
 If using the plugin, I recommend the following settings for event configuration:
 - Enemy Orgasm: Configured to use your estim device.
 - Trap Orgasm: Configured to use vibrators/other toys.

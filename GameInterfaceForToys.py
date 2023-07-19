@@ -252,7 +252,7 @@ def open_toy_event_modal(ssi):
             for event in ssi.event_loader.events:
                 for toy, v in ssi.toys.available_toys.items():
                     # Xtoys provides both features. Check for this.
-                    both_estim_and_vib = (v['interface'] in [x.properties['name'] for x in ssi.toys.vibrators] and v['interface'] in [x.properties['name'] for x in ssi.toys.vibrators])
+                    both_estim_and_vib = (v['interface'] in [x.properties['name'] for x in ssi.toys.vibrators] and v['interface'] in [x.properties['name'] for x in ssi.toys.estim])
                     if both_estim_and_vib:
                         # This is a hacky workaround. Fix this later.
                         if event.toy_class is not None and event.toy_class == "vibrator" and not 'Shock' in toy:

@@ -48,6 +48,7 @@ class LogReaderInterface(Interface):
         self.file_pointer = 0
         self.sex_stage = None
         self.dd_vibrating = False
+        self.is_game_over = False
         Interface.__init__(self, "Log Reader", toy_type)
         
     def _chaster_spin_wheel(self, match, event):
@@ -115,7 +116,7 @@ class LogReaderInterface(Interface):
         (duration, strength, pattern) = self._parse_generic_params(match, event.params)
         if not duration or not strength:
             return
-        return self.toys.shock(duration, math.ceil(strength * float(settings.COYOTE_PLUG_MULT)), pattern, event=event, shock_only=True)
+        return self.toys.shock(duration, strength, pattern, event=event, shock_only=True)
     
     def setup(self):
         try: 
@@ -320,7 +321,24 @@ class LogReaderInterface(Interface):
         if masturbation:
             self.sex_animation = "masturbation"
         success("Set sex animation type to " + self.sex_animation)
-    
+
+    def nor_ero_stop(self, match, event):
+        info("NoR Ero Stop")
+        if self.is_game_over:
+            fail("Not stopping toys - Game Over event playing")
+            return
+        self.toys.stop()
+
+    def nor_gameover_start(self, match, event):
+        info("NoR GameOver Start")
+        self.is_game_over = True
+        self.generic_random_vibrate(match, event)
+
+    def nor_gameover_stop(self, match, event):
+        info("NoR GameOver Stop")
+        self.is_game_over = False
+        self.toys.stop()
+        
     def execute(self):
         stamp = os.stat(self.filename).st_mtime
         ret = None

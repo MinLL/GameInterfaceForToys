@@ -31,10 +31,20 @@ class LogPatches {
 
   [HarmonyPatch(typeof(playercon), "fun_damage")]
   [HarmonyPatch(typeof(playercon), "fun_damage_Improvement")]
+  [HarmonyPrefix]
+  static void LogDamage(playercon __instance, PlayerStatus ___playerstatus, bool ___stabnow, bool ___parrynow, float ___guradcount) {
+    if (!__instance.stepfrag && !___stabnow) {
+      if (__instance.guard && ___playerstatus.Sp > 0f && __instance.justguard >= ___playerstatus._GuardCutTime && ___guradcount == 0f) {
+        Plugin.Log.LogInfo("Player Block Damage");
+      } else if (!__instance.guard && !___parrynow && !__instance.mutekitime) {
+        Plugin.Log.LogInfo("Player Damage");
+      }
+    }
+  }
+
   [HarmonyPatch(typeof(playercon), "SpDeath")]
   [HarmonyPostfix]
-  static void LogDamageAndDeath(bool ___Death) {
-    Plugin.Log.LogInfo("Player Damage");
+  static void LogDeath(bool ___Death) {
     if (___Death) {
       Plugin.Log.LogInfo("Player Death");
     }

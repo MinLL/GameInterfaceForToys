@@ -118,6 +118,7 @@
     function: nor_gameover_start
     toy_class: vibrator
     params:
+        pattern: low_intensity_scaled;scale_intensity
         duration: 600
         strength: 80
 - Game Over End:
@@ -137,7 +138,7 @@
     toy_class: estim
     params:
         duration: 1
-        strength: 35
+        strength: 50
 - Struggle Bad Struggle:
     regex: \[Info   . NoREroMod\] Struggle Bad Struggle
     function: generic_random_shock

@@ -4,11 +4,11 @@ requests
 pysimplegui
 buttplug
 pyserial
-pybluez
+git+https://github.com/pybluez/pybluez.git#egg=pybluez
 flask
 requests-oauthlib
-cv2
+opencv-contrib-python
 dxcam
 readwritememory
 pillow
-win32gui
+pywin32

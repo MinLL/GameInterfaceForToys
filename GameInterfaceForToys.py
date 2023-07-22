@@ -104,9 +104,9 @@ async def main():
             buttonColumn.append([sg.Button(GUI_CHASTER_AUTHENTICATE)])
         layout = [
             [sg.Column(buttonColumn),
-             sg.Column([[sg.Output(size=(120,60), background_color='black', text_color='white')]])
+             sg.Column([[sg.Output(size=(120,60), background_color='black', text_color='white', expand_x=True, expand_y=True)]], expand_x=True, expand_y=True)
         ]]
-        window = sg.Window('Game Interface For Toys', layout)
+        window = sg.Window('Game Interface For Toys', layout, resizable=True)
         window.read(timeout=1)
         load_config()
         try:
@@ -316,7 +316,7 @@ def open_config_modal():
         else:
             config_layout.append([sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)])
     config_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT)])
-    config_window = sg.Window('GIFT Configuration', config_layout, modal=True)
+    config_window = sg.Window('GIFT Configuration', [[sg.Column(config_layout, scrollable=True, expand_y=True, expand_x=True)]], modal=True, resizable=True)
     while True:
         event, values = config_window.read()
         if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:

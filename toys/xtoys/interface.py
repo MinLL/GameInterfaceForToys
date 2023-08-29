@@ -73,7 +73,7 @@ class XToysInterface(Toy):
         return r
         
     async def stop(self):
-        return self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, "stop", {})
+        return await self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, "stop", {})
 
     def get_toys(self):
         return {

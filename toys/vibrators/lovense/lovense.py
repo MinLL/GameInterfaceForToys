@@ -24,7 +24,7 @@ class LovenseInterface(Vibrator):
         }
         if toy is not None:
             params['toy'] = toy
-        return requests.post(self.COMMAND_URL, verify=False, json=params)
+        return requests.post(self.COMMAND_URL, verify=False, json=params, timeout=5)
 
     def _send_pattern(self, duration, pattern, strength, toy=None):
         pattern = pattern.split(";")
@@ -55,7 +55,7 @@ class LovenseInterface(Vibrator):
         }
         if toy is not None and type(toy) is not list:
             params['toy'] = toy
-        return requests.post(self.COMMAND_URL, verify=False, json=params)
+        return requests.post(self.COMMAND_URL, verify=False, json=params, timeout=5)
     
     def connect(self):
         return
@@ -104,7 +104,7 @@ class LovenseInterface(Vibrator):
         params = {
             'command':"GetToys",
         }
-        r = requests.post(self.COMMAND_URL, verify=False, json=params)
+        r = requests.post(self.COMMAND_URL, verify=False, json=params, timeout=5)
         ret = {}
         if r.json()['code'] != 200:
             fail("Warning: Got non-200 response when fetching list of toys: " + str(r))

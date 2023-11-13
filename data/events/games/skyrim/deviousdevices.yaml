@@ -24,7 +24,7 @@
     case_sensitive: False
     toy_class: vibrator
 - DD End Third Person Animation:
-    regex: .*EndThirdPersonAnimation\({GIFT_ACTOR_NAME}.+
+    regex: .*EndThirdPersonAnimation\(\s*{GIFT_ACTOR_NAME}.+
     function: dd_anim_stop
     toy_class: vibrator
     case_sensitive: False

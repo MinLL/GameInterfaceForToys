@@ -57,7 +57,9 @@ config_fields = {
     'Print Log Lines': 'PRINT_LOG_LINES',
     'Window Update Frequency': 'WINDOW_UPDATE_FREQUENCY',
     'Target Monitor for Screen Capture': 'OUTPUT_IDX',
-    'XToys Webhook ID': 'XTOYS_WEBHOOK_ID'
+    'XToys Webhook ID': 'XTOYS_WEBHOOK_ID',
+    'XToys Shock Min Strength %': 'XTOYS_SHOCK_MIN',
+    'XToys Shock Max Strength %': 'XTOYS_SHOCK_MAX'
 }
 
 

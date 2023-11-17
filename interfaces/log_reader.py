@@ -262,10 +262,10 @@ class LogReaderInterface(Interface):
                 pattern = v
                 break
         if source == "zbf punishment cane":
-            info("Detected punishment cane - Strength set to 50")
+            info("Detected punishment cane - Strength set to 50~100")
             strength = random.randint(50, 100)
-        elif strength <= 0 or health >= health_max:
-            info("Too weak - Not shocking")
+        elif strength <= 0 or float(health) >= float(health_max):
+            info("Too weak - Not shocking (strength={}, health={}, health_max={})".format(strength, health, health_max))
             return
         if len(self.toys.estim) == 0:
             return self.toys.vibrate(2, strength, event=event)

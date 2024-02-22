@@ -1,7 +1,7 @@
 pyyaml
 bleak
 requests
-pysimplegui
+PySimpleGUI==4.60.5
 buttplug
 pyserial
 git+https://github.com/pybluez/pybluez.git#egg=pybluez

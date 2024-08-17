@@ -18,7 +18,7 @@ import settings
 from toys.base import FEATURE_VIBRATOR, FEATURE_ESTIM
 from events.eventloader import EventLoader
 import toys.chastity.chaster.chaster
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 from interfaces.log_reader import LogReaderInterface
 from interfaces.memory_reader import MemoryReaderInterface
 from interfaces.pixel_reader import PixelReaderInterface

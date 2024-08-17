@@ -37,12 +37,12 @@ jobs:
       with:
         path: "dist"
         type: "zip"
-        filename: "release.zip"
+        filename: "GIFT-${{github.ref_name}}:.zip"
 
     - name: Upload Release
       uses: ncipollo/release-action@v1.14.0
       with:
-        artifacts: "release.zip"
+        artifacts: "GIFT-${{github.ref_name}}:.zip"
         token: ${{ secrets.RELEASE_TOKEN }}
         generateReleaseNotes: true
         prerelease: true

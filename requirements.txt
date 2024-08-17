@@ -12,3 +12,4 @@ dxcam
 readwritememory
 pillow
 pywin32
+httpx

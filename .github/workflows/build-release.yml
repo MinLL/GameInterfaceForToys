@@ -35,12 +35,12 @@ jobs:
     - name: Zip the files
       uses: TheDoctor0/zip-release@0.7.6
       with:
+        path: "dist"
         type: "zip"
         filename: "release.zip"
 
     - name: Upload Release
       uses: ncipollo/release-action@v1.12.0
       with:
-        path: "dist"
         artifacts: "release.zip"
         token: ${{ secrets.RELEASE_TOKEN }}

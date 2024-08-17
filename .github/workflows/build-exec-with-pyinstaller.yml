@@ -28,6 +28,11 @@ jobs:
       run: |
         pyinstaller --onefile --windowed GameInterfaceForToys.py
 
+    - name: Include configuration data
+      run: |
+        cp data dist/data
+        cp games dist/games
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:

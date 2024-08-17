@@ -30,8 +30,8 @@ jobs:
 
     - name: Include configuration data
       run: |
-        cp data dist/data
-        cp games dist/games
+        Copy "data" "dist\data\"
+        Copy "games" "dist\games\"
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2

@@ -1,4 +1,3 @@
-yaml
 name: Build app executable with Pyinstaller
 
 on:

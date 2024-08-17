@@ -2,8 +2,9 @@ name: Build release
 
 on:
   push:
-    tags:
-    - '*'
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
   build:
@@ -40,7 +41,10 @@ jobs:
         filename: "release.zip"
 
     - name: Upload Release
-      uses: ncipollo/release-action@v1.12.0
+      uses: ncipollo/release-action@v1.14.0
       with:
         artifacts: "release.zip"
         token: ${{ secrets.RELEASE_TOKEN }}
+        generateReleaseNotes: true
+        prerelease: true
+

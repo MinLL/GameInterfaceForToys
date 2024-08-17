@@ -35,7 +35,7 @@ jobs:
     - name: Zip the files
       uses: TheDoctor0/zip-release@0.7.6
       with:
-        path: "dist"
+        path: "./dist/*"
         type: "zip"
         filename: "GIFT-${{github.ref_name}}:.zip"
 

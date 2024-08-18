@@ -450,7 +450,7 @@ def open_config_modal():
     for k, v in config_fields["buttplugio"].items():
         match v:
             case _:
-                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v, disabled=not TOY_BUTTPLUG in settings.TOY_TYPE)]
 
         buttplugio_frame.append(field)
 
@@ -458,7 +458,7 @@ def open_config_modal():
     chaster_frame = []
 
     # Iterate over Chaster related settings, with special handling for fields that require it.
-    # fixme: This should be under toys/integrations, not a separate checkbox.
+    # fixme: This should probably be listed under toys/integrations, not a separate section.
     for k, v in config_fields["chaster"].items():
         match v:
             case "CHASTER_ENABLED":
@@ -476,7 +476,7 @@ def open_config_modal():
     for k, v in config_fields["coyote"].items():
         match v:
             case _:
-                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v, disabled=not TOY_COYOTE in settings.TOY_TYPE)]
 
         coyote_frame.append(field)
 
@@ -497,12 +497,12 @@ def open_config_modal():
     # XToys related settings
     xtoys_frame = []
 
-    # Iterate over XToys related settings, with special handling for fields that require it.
+    # Iterate over XToys related settings. No special case handling necessary.
     for k, v in config_fields["xtoys"].items():
         match v:
 
             case _:
-                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v, disabled=not TOY_XTOYS in settings.TOY_TYPE)]
 
         xtoys_frame.append(field)
 
@@ -513,7 +513,7 @@ def open_config_modal():
     for k, v in config_fields["maustec"].items():
         match v:
             case _:
-                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v, disabled=not TOY_EDGEOMATIC in settings.TOY_TYPE)]
 
         maustec_frame.append(field)
 
@@ -528,17 +528,13 @@ def open_config_modal():
                           [sg.Frame(title="Screen reader settings", expand_x=True, layout=screen_reader_frame)],
 
                           [sg.VPush()],
-
                           [sg.HorizontalSeparator()],
-
                           [sg.VPush()],
 
                           [sg.Frame(title="Chaster settings", expand_x=True, layout=chaster_frame)],
 
                           [sg.VPush()],
-
                           [sg.HorizontalSeparator()],
-
                           [sg.VPush()],
 
                           [sg.Frame(title="General settings", expand_x=True, layout=general_frame)],
@@ -554,7 +550,7 @@ def open_config_modal():
 
             sg.Column(vertical_alignment="top", expand_x=True, expand_y=True, layout=
                       [
-                          [sg.Frame(title="Toy integration ('Output')", expand_x=True, layout=toys_frame)],
+                          [sg.Frame(title="Toy integrations ('Output')", expand_x=True, layout=toys_frame)],
                           [sg.Frame(title="Lovense settings", expand_x=True, layout=lovense_frame)],
                           [sg.Frame(title="Buttplug.io settings", expand_x=True, layout=buttplugio_frame)],
                           [sg.Frame(title="XToys settings", expand_x=True, layout=xtoys_frame)],
@@ -569,16 +565,21 @@ def open_config_modal():
 
     config_layout.append([sg.Button(GUI_CONFIG_SAVE, expand_x=True), sg.Push(), sg.Button(GUI_CONFIG_EXIT, expand_x=True)])
 
-    config_window = sg.Window('GIFT Configuration', [[sg.Column(config_layout, scrollable=False, expand_y=True, expand_x=True)]], modal=True, resizable=True)
+    config_window = sg.Window('GIFT Configuration', [
+        [sg.Column(config_layout, scrollable=False, expand_y=True, expand_x=True)]
+    ], modal=True, resizable=True)
+
     while True:
         event, values = config_window.read()
 
-        info(f"Matching event: {event}")
-        info(f"Values: {values}")
+        # info(f"Matching event: {event}")
+        # info(f"Values: {values}")
 
         if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:
             info('Exited configuration menu without saving.')
             break
+
+        ### This section handles instant GUI updates ###
 
         # Detect change to interface choice, grey out invalid options, allow relevant options.
         if event in [INTERFACE_LOG_READER, INTERFACE_MEMORY_READER, INTERFACE_SCREEN_READER]:
@@ -631,15 +632,17 @@ def open_config_modal():
         if event in [TOY_LOVENSE, TOY_BUTTPLUG, TOY_COYOTE, TOY_KIZUNA, TOY_EDGEOMATIC, TOY_XBOXCONTROLLER, TOY_XTOYS]:
             print(f"TOY EVENT DETECTED {event}")
 
-            # todo:
-            #
-            # Also todo: This could totally be reduced to a for loop iterating over each toy's frames.
+            # We don't need to handle each toy config section individually, just iterate through a zip list mapping config categories to toy IDs.
+            toy_settings_mapping = zip(
+                ["buttplugio", "lovense", "xtoys", "coyote", "maustec"],
+                [TOY_BUTTPLUG, TOY_LOVENSE, TOY_XTOYS, TOY_COYOTE, TOY_EDGEOMATIC]
+            )
 
+            for settings_frame, toy_id in toy_settings_mapping:
+                for _, v in config_fields[settings_frame].items():
+                    config_window[v].update(disabled=not values[toy_id])
 
-
-
-
-
+        ###
 
         if event == GUI_CONFIG_SAVE:
             for category in config_fields.keys():
@@ -713,394 +716,10 @@ def load_config():
     except FileNotFoundError:
         fail("Could not load configuration file - using defaults.")
         save_config()
-#
-#
-# #####################
-#
-# def make_startup_window():
-#     # Define the window's contents
-#     layout = [[sg.Image(filename="media/coyote_egg.png", subsample=4)], [
-#         sg.Button('Connect and play with DG-Lab Coyote', size=(40, 5), enable_events=True, bind_return_key=True,
-#                   tooltip="Start local websockets server and connect with device from your machine."),
-#         # sg.VerticalSeparator(),
-#         sg.Button("Try out program\nwithout device", size=(20, 5),
-#                   tooltip="Explore the program without connecting to a device."), sg.Button('Quit', size=(20, 5))]]
-#
-#     # Create the window
-#     window = sg.Window('DG-Lab Coyote Control Application - Start', layout, element_justification="centered")
-#     return window
-#
-#
-# ## On-boarding flow
-# def create_text_message(input_text="Hello world", font=None, color=None, bg_color=None):
-#     return sg.Text(text=input_text, font=font,  # background_color="#43414e", text_color="#FFFFFF",
-#                    text_color=color if color else None, background_color=bg_color if bg_color else None, expand_x=False,
-#                    expand_y=True, pad=(0, 0))
-#
-#
-# def ctm(input_text="Hello world", font="", color=None, bg_color=None):
-#     return create_text_message(input_text=input_text, font=font, color=color, bg_color=bg_color)
-#
-#
-# def make_flow_window_one():
-#     text_messages = [ctm("Welcome to PyCoyote (working title)!", font="bold", color=flow_text_color, bg_color=flow_background_color),
-#                      # ctm("* Talk natively over Bluetooth with the DG-Lab Coyote from"),
-#                      # ctm("  your Windows, MacOS or Linux PC."),
-#                      # ctm("* Try out stimulating default patterns, or"),
-#                      # ctm("  setup custom patterns by hand or from imported audio files."),
-#                      # ctm("* Automate increases and decreases in intensity, and more!"),
-#                      ctm("", color=flow_text_color, bg_color=flow_background_color),  # <br>
-#                      ctm("First, turn on your DG-Lab Coyote and click continue.", color=flow_text_color, bg_color=flow_background_color), ctm("", color=flow_text_color, bg_color=flow_background_color), ctm("", color=flow_text_color, bg_color=flow_background_color)]
-#
-#     # "\n\nE-stim safely.\nThe developers disavow any liability\nstemming"
-#     #     " from the use of this software.\n\nNEVER E-STIM ABOVE THE CHEST.\nEtc.", "Turn on your Coyote",
-#     #     "Connect to your Coyote via the bluetooth server. If you've already done so, skip to the next step.",
-#     #     "Equip your electrodes."
-#     #     "Done!"
-#
-#     # Create empty column layout list
-#     column_layout = []
-#
-#     # Add the text lines individually as Text (labels)
-#     for text in text_messages:
-#         column_layout.append([text])
-#
-#     # Add buttons
-#     column_layout.append([  # sg.Push(background_color="#43414e"),
-#         sg.Button('Continue', bind_return_key=True, size=(None, 5), expand_x=True, expand_y=True),
-#         # sg.Button('Cancel', size=(None, 2), expand_x=False)
-#     ])
-#
-#     #
-#     # # Add tick box to disable on-boarding for next time
-#     # # todo: Add at the end!
-#     # column_layout.append([
-#     #     sg.CBox(text="Don't show guide next time.", text_color="#FFFFFF", checkbox_color="#43414e", background_color="#43414e")
-#     # ])
-#
-#     # set column element size
-#     width, height = 400, 550
-#
-#     # Set padding for column element
-#     # pad_left, pad_right = 50, 20
-#     # pad_top, pad_bottom = 150, 50
-#
-#     # pad_left, pad_right = 50, 20
-#     # pad_top, pad_bottom = int(height/2), 50
-#
-#     pad_left, pad_right = 20, 20
-#     pad_top, pad_bottom = 50, 20
-#
-#     column = sg.Column(layout=column_layout, pad=((pad_left, pad_right), (pad_top, pad_bottom)),
-#                        vertical_alignment="bottom", expand_x=True, background_color=flow_background_color)
-#
-#     layout = [[sg.Image(filename="media/coyote_3.png", size=(width, height), subsample=4),  # background_color
-#                column]]
-#
-#     # Create the window
-#     window = sg.Window("DG-Lab Coyote Control Application - Flow 1", layout,  # background_color="#43414e",
-#                        margins=(0, 0), element_padding=(0, 0), background_color=flow_background_color,
-#                        no_titlebar=False)  # no_titlebar=True, size=(800, 550), margins=(50, 50)
-#
-#     return window
-#
-#
-# def make_flow_window_two():
-#     text_messages = [ctm("Start the DG-Lab Coyote intermediary server", font="bold", color=flow_text_color, bg_color=flow_background_color),
-#                      # ctm("", font="bold", color=flow_text_color, bg_color=flow_background_color),
-#                      ctm("This program connects to the DG-Lab Coyote via an intermediary server program.\n\nMore specifically, the coyote communicates with the server via Bluetooth, and the\nserver communicates with user GUI (this program) via HTTP/Websocket.\n\nThe server needs to run on a computer with Bluetooth 4.2+ capability.\n\nIf this computer has Bluetooth capability and you intend to connect to the coyote\ndirectly from it, press the 'Start server locally (default)' button below and then click\n'continue'. This is the default use-case for most people.", color=flow_text_color, bg_color=flow_background_color),
-#                      ctm("", color=flow_text_color, bg_color=flow_background_color),
-#                      ctm("If you are a power user and already running the server program on a different device,\nclick 'continue' instead. Be prepared to enter the relevant IP address and port.", color=flow_text_color, bg_color=flow_background_color),
-#                      # ctm("", color=flow_text_color, bg_color=flow_background_color),
-#                      # ctm("", color=flow_text_color, bg_color=flow_background_color),
-#                      # ctm("If you have already started the server separately", color=flow_text_color, bg_color=flow_background_color),
-#                      # ctm("(on another device, for example), press skip this step.", color=flow_text_color, bg_color=flow_background_color),
-#                      ctm("", color=flow_text_color, bg_color=flow_background_color),
-#                      ctm("", color=flow_text_color, bg_color=flow_background_color)]
-#
-#     # "\n\nE-stim safely.\nThe developers disavow any liability\nstemming"
-#     #     " from the use of this software.\n\nNEVER E-STIM ABOVE THE CHEST.\nEtc.", "Turn on your Coyote",
-#     #     "Connect to your Coyote via the bluetooth server. If you've already done so, skip to the next step.",
-#     #     "Equip your electrodes."
-#     #     "Done!"
-#
-#     # Create empty column layout list
-#     column_layout = []
-#
-#     # Add the text lines individually as Text (labels)
-#     for text in text_messages:
-#         column_layout.append([text])
-#
-#     # Add buttons
-#     column_layout.append([  # sg.Push(background_color="#43414e"),
-#         sg.Button('Start server locally (default)', bind_return_key=True, size=(None, 5), expand_x=True, expand_y=True),
-#         sg.Button('(fixme:) Continue', bind_return_key=False, size=(None, 5), expand_x=True, expand_y=True),
-#         # sg.Button('Cancel', size=(None, 2), expand_x=False)
-#     ])
-#
-#     #
-#     # # Add tick box to disable on-boarding for next time
-#     # # todo: Add at the end!
-#     # column_layout.append([
-#     #     sg.CBox(text="Don't show guide next time.", text_color="#FFFFFF", checkbox_color="#43414e", background_color="#43414e")
-#     # ])
-#
-#     # set column element size
-#     width, height = 400, 550
-#
-#     # Set padding for column element
-#     # pad_left, pad_right = 50, 20
-#     # pad_top, pad_bottom = 150, 50
-#
-#     # pad_left, pad_right = 50, 20
-#     # pad_top, pad_bottom = int(height/2), 50
-#
-#     pad_left, pad_right = 20, 20
-#     pad_top, pad_bottom = 50, 20
-#
-#     column = sg.Column(layout=column_layout, pad=((pad_left, pad_right), (pad_top, pad_bottom)),
-#                        vertical_alignment="bottom", expand_x=True, background_color=flow_background_color)
-#
-#     layout = [[sg.Image(filename="media/coyote_3.png", size=(width, height), subsample=4),
-#                column]]  # background_color="#62697B"
-#
-#     # Create the window
-#     window = sg.Window("DG-Lab Coyote Control Application - Flow 2", layout, margins=(0, 0), element_padding=(0, 0),
-#                        background_color=flow_background_color,
-#                        no_titlebar=False)  # no_titlebar=True, size=(800, 550), margins=(50, 50)
-#
-#     return window
-#
-#
-# def make_flow_window_three():
-#     text_messages = [ctm("Electrodes", font="bold", color=flow_text_color, bg_color=flow_background_color), ctm("Put on your e-stim electrodes and connect the cable to the device.", color=flow_text_color, bg_color=flow_background_color),
-#                      ctm("(Don't worry, this program won't zap you without your express permission.)", color=flow_text_color, bg_color=flow_background_color), ctm("", color=flow_text_color, bg_color=flow_background_color),
-#                      ctm("Click continue to continue.", color=flow_text_color, bg_color=flow_background_color), ctm("", color=flow_text_color, bg_color=flow_background_color), ctm("", color=flow_text_color, bg_color=flow_background_color)]
-#
-#     # "\n\nE-stim safely.\nThe developers disavow any liability\nstemming"
-#     #     " from the use of this software.\n\nNEVER E-STIM ABOVE THE CHEST.\nEtc.", "Turn on your Coyote",
-#     #     "Connect to your Coyote via the bluetooth server. If you've already done so, skip to the next step.",
-#     #     "Equip your electrodes."
-#     #     "Done!"
-#
-#     # Create empty column layout list
-#     column_layout = []
-#
-#     # Add the text lines individually as Text (labels)
-#     for text in text_messages:
-#         column_layout.append([text])
-#
-#     # Add buttons
-#     column_layout.append([  # sg.Push(background_color="#43414e"),
-#         sg.Button('Continue', bind_return_key=True, size=(None, 5), expand_x=True, expand_y=True),
-#         # sg.Button('Skip', bind_return_key=False, size=(None, 5), expand_x=True, expand_y=True),
-#         # sg.Button('Cancel', size=(None, 2), expand_x=False)
-#     ])
-#
-#     #
-#     # # Add tick box to disable on-boarding for next time
-#     # # todo: Add at the end!
-#     # column_layout.append([
-#     #     sg.CBox(text="Don't show guide next time.", text_color="#FFFFFF", checkbox_color="#43414e", background_color="#43414e")
-#     # ])
-#
-#     # set column element size
-#     width, height = 400, 550
-#
-#     # Set padding for column element
-#     # pad_left, pad_right = 50, 20
-#     # pad_top, pad_bottom = 150, 50
-#
-#     # pad_left, pad_right = 50, 20
-#     # pad_top, pad_bottom = int(height/2), 50
-#
-#     pad_left, pad_right = 20, 20
-#     pad_top, pad_bottom = 50, 20
-#
-#     column = sg.Column(layout=column_layout, pad=((pad_left, pad_right), (pad_top, pad_bottom)),
-#                        vertical_alignment="bottom", expand_x=True, background_color=flow_background_color)
-#
-#     layout = [[sg.Image(filename="media/eggplant.png", subsample=3, size=(width, height)),
-#                column]]  # background_color="#62697B"
-#
-#     # Create the window
-#     window = sg.Window("DG-Lab Coyote Control Application - Flow 3", layout, margins=(0, 0), element_padding=(0, 0),
-#                        background_color=flow_background_color,
-#                        no_titlebar=False)  # no_titlebar=True, size=(800, 550), margins=(50, 50)
-#
-#     return window
-#
-#
-# def make_connect_window():
-#     # Define the window's contents
-#     layout = [
-#
-#         [sg.Image(filename="media/000232-bluetooth-logo.png", subsample=16, expand_x=True),
-#          # sg.Text("Connection graphic arrows placeholder", expand_x=True),
-#          sg.Image(filename="media/coyote_3.png", subsample=4, expand_x=True, key="-COYOTE_IMG-")],
-#
-#         # [
-#         #     # todo: use sg.Output() instead
-#         #     sg.Multiline(autoscroll=True, auto_refresh=True, expand_x=True,
-#         #                  size=(None, 3), no_scrollbar=True, focus=False, disabled=True, background_color="tan")
-#         # ],
-#
-#         [sg.HorizontalSeparator()],
-#
-#         [sg.Text("Turn on your Coyote and click Connect."), sg.Image(sg.EMOJI_BASE64_HAPPY_THUMBS_UP)],
-#
-#         [sg.Button("Connect automatically", size=(40, 2), bind_return_key=True, key="-CONNECT_BUTTON-"),
-#          sg.Button("Connect manually\nvia UUID", size=(20, 2), bind_return_key=True, key="-CONNECT_MAN_BUTTON-"),
-#          # todo: This really shouldn't be a separate button.
-#          sg.Button("Continue", disabled=True, size=(20, 2), key="-CONNECT_CONTINUE_BUTTON-"),
-#          sg.VerticalSeparator(pad=(20, 0)), sg.Button("Back", size=(20, 2))],
-#
-#     ]
-#
-#     window = sg.Window("DG-Lab Coyote Control Application - Connection Wizard", layout=layout,
-#                        element_justification="left")
-#     return window
-#
-#
-# def make_adv_settings_window():
-#     layout = [[sg.Text("Hey this is the advanced setup section. TODO.")], [sg.Button("Back", bind_return_key=True)]]
-#
-#     window = sg.Window("DG-Lab Coyote Control Application - Advanced Setup", layout=layout, size=(800, 600))
-#
-#     return window
-#
-#
-# def make_main_window():
-#     # layout = [[sg.Text("Hello there lol")],
-#     #           [sg.Button("Back", bind_return_key=True)],
-#     #           [sg.Button("Quit")]]
-#
-#     layout = [[sg.Slider(), sg.Slider()],
-#
-#               [sg.Button("STOP", size=(None, 5))],
-#
-#               [sg.Button("Load audio file (WAV)")],
-#
-#               [sg.Canvas(size=(200, 200))],
-#
-#               [sg.Listbox(values=["placeholder", "placeholder_2"])],
-#
-#               [sg.Button("Quit", size=(20, 2))]
-#
-#               ]
-#
-#     window = sg.Window("DG-Lab Coyote Control Application - Main", layout, size=(800, 600))
-#     return window
-#
-#
-#
-# def onboard_main():
-#     # Create startup window
-#     window = make_startup_window()
-#
-#     # Display and interact with the Window using an Event Loop
-#     # Main loop
-#     # User switches windows by creating new window instances and closing the old ones.
-#     while True:
-#         event, values = window.read()  # timeout=1000
-#         print(event, values)
-#
-#         # Global
-#         # See if user wants to quit or window was closed. This triggers for all "Quit"-named buttons in the program.
-#         if event == sg.WINDOW_CLOSED or event == 'Quit':  # "Quit" button alias just used directly here as command, lol.
-#             # Breaking will end the program.
-#             break
-#
-#         # Startup window
-#         if window.Title == "DG-Lab Coyote Control Application - Start":
-#             if event == "Connect and play with DG-Lab Coyote":
-#                 window.close()
-#                 # window = make_connect_window()
-#                 window = make_flow_window_one()
-#             if event == "Try out program\nwithout device":
-#                 window.close()
-#                 window = make_adv_settings_window()
-#
-#         if window.Title == "DG-Lab Coyote Control Application - Flow 1":
-#             if event == "Continue":
-#                 window.close()
-#                 window = make_flow_window_two()
-#
-#         if window.Title == "DG-Lab Coyote Control Application - Flow 2":
-#             if event == "(fixme:) Continue":
-#                 window.close()
-#                 window = make_flow_window_three()
-#             if event == "Start server locally (default)":
-#                 print("subprocess call to separate server executable here, please!")
-#
-#                 executable = ["python", "../server_gui/server_gui.py"]
-#
-#                 arguments = []
-#
-#                 # Execute the server cli
-#                 pid = subprocess.Popen(executable + arguments, bufsize=1, env=os.environ.copy(),
-#                                        shell=True, cwd="../server_gui/").pid  # for some reason, shell=False yields a modulenotfound error when running the script, probably because the virtual environment isn't being set correctly. Weird.
-#
-#
-#                 # Give process time to start.
-#                 # time.sleep(5)
-#                 # Continue to next step
-#                 # window.close()
-#                 # window = make_flow_window_three()
-#
-#
-#         if window.Title == "DG-Lab Coyote Control Application - Flow 3":
-#             if event == "Continue":
-#                 window.close()
-#                 window = make_main_window()
-#
-#         # Main window  (After successful connection)
-#         if window.Title == "DG-Lab Coyote Control Application - Main":
-#             if event == "Back":
-#                 window.close()
-#                 window = make_startup_window()
-#
-#         # Advanced Setup window
-#         if window.Title == "DG-Lab Coyote Control Application - Advanced Setup":
-#             if event == "Back":
-#                 window.close()
-#                 window = make_startup_window()
-#
-#         # Connection wizard
-#         if window.Title == "DG-Lab Coyote Control Application - Connection Wizard":
-#             if event == "Back":
-#                 window.close()
-#                 window = make_startup_window()
-#             if event == "-CONNECT_BUTTON-":
-#                 window["-COYOTE_IMG-"].update(filename="media/coyote_3_white_2.png", subsample=4)
-#                 # Set button to disabled after pressing once.
-#                 window["-CONNECT_BUTTON-"].update(disabled=True)
-#                 window["-CONNECT_MAN_BUTTON-"].update(disabled=True)
-#
-#                 window["-CONNECT_CONTINUE_BUTTON-"].update(disabled=False)
-#
-#             if event == "-CONNECT_CONTINUE_BUTTON-":
-#                 window.close()
-#                 window = make_main_window()
-#
-#     # Finish up by removing from the screen
-#     window.close()
-#
-#
-#
-#
-# #####################
 
 
 
 if __name__ == "__main__":
-
-    # flow_text_color = "#FFF"
-    # flow_background_color = "#43414e"
-    #
-    # onboard_main()
-    # raise Exception()
-
     load_config()
     loop = asyncio.get_event_loop()
     while True:

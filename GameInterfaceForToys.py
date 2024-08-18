@@ -138,6 +138,8 @@ async def main():
     try:
         # Set up GUI
         sg.theme('DarkGrey12')
+        # sg.theme("GrayGrayGray")
+        # sg.theme("DarkAmber")
         buttonColumn = [
             [sg.Text("Test Functions")],
             [sg.Button(GUI_TEST_VIBRATE)],
@@ -336,7 +338,12 @@ def open_toy_event_modal(ssi):
 
 def open_config_modal():
 
-    # Create individual clusters of related settings by iterating over grouped key/value pairs from config_fields.
+    # Work-around: Temporarily switch to default OS theme to make disabled text fields (always off-gray irrespective
+    # of theme) look less jarring.
+    # Fixme: Default colour for disabled fields needs to be configured globally, but PSG doesn't support this yet.
+    sg.theme("GrayGrayGray")
+
+    # # Create individual clusters of related settings by iterating over grouped key/value pairs from config_fields.
     # Each cluster is finally encapsulated inside a separate sg.Frame().
     # Not very DRY.
 
@@ -506,7 +513,7 @@ def open_config_modal():
 
         xtoys_frame.append(field)
 
-    # # Maustec related settings
+    # Maustec related settings
     maustec_frame = []
 
     # Iterate over Maustec related settings. No special case handling necessary.
@@ -630,7 +637,6 @@ def open_config_modal():
 
         # (Dis-)allow toy settings based in their individual toggle
         if event in [TOY_LOVENSE, TOY_BUTTPLUG, TOY_COYOTE, TOY_KIZUNA, TOY_EDGEOMATIC, TOY_XBOXCONTROLLER, TOY_XTOYS]:
-            print(f"TOY EVENT DETECTED {event}")
 
             # We don't need to handle each toy config section individually, just iterate through a zip list mapping config categories to toy IDs.
             toy_settings_mapping = zip(

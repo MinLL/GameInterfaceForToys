@@ -37,30 +37,31 @@ config_fields = {
         'Toy Type': 'TOY_TYPE'
     },
 
-    # Log reader interface
+    # Log reader interface settings
     "interface_log_reader": {
         'Log Path': 'LOG_PATH',
+        'Character  (Skyrim, Fallout 4)': 'CHARACTER_NAME',
+        'Devious Devices Vibration Multiplier (Skyrim, Fallout 4)': 'DD_VIB_MULT',
         'Print Log Lines': 'PRINT_LOG_LINES'
     },
 
-    # Screen reader interface
+    # Screen reader interface settings
     "interface_screen_reader": {
         'Target Monitor for Screen Capture': 'OUTPUT_IDX'
     },
 
-    # Bethesda games
-    "bethesda": {
-        'Character Name': 'CHARACTER_NAME',
-        'Devious Devices Vib Multiplier': 'DD_VIB_MULT'
+    # Memory reader interface settings
+    "interface_memory_reader": {
+
     },
 
-    # Buttplug.io
+    # Buttplug.io settings
     "buttplugio": {
         'Buttplug.io Strength Max': 'BUTTPLUG_STRENGTH_MAX',
         'Buttplug.io Server Address': 'BUTTPLUG_SERVER_ADDRESS'
     },
 
-    # Chaster
+    # Chaster settings
     "chaster": {
         'Chaster Enabled': 'CHASTER_ENABLED',
         'Chaster Token': 'CHASTER_TOKEN',
@@ -72,7 +73,7 @@ config_fields = {
         'Chaster Punish Event Maximum Time To Add': 'CHASTER_PUNISH_MAX'
     },
 
-    # Coyote (deprecated)
+    # Coyote settings (deprecated)
     "coyote": {
         'Coyote E-Stim UID': 'COYOTE_UID',
         'Coyote E-Stim Multiplier': 'COYOTE_MULTIPLIER',
@@ -84,31 +85,31 @@ config_fields = {
         'Coyote Maximum Power (0-768)': 'COYOTE_MAX_POWER'
     },
 
-    # Lovense
+    # Lovense settings
     "lovense": {
         'Lovense Host': 'LOVENSE_HOST',
         'Lovense Strength Max': 'LOVENSE_STRENGTH_SCALE',
         'Lovense Use New API': 'LOVENSE_USE_NEW_API'
     },
 
-    # XToys
+    # XToys settings
     "xtoys": {
         'XToys Webhook ID': 'XTOYS_WEBHOOK_ID',
         'XToys Shock Min Strength %': 'XTOYS_SHOCK_MIN',
         'XToys Shock Max Strength %': 'XTOYS_SHOCK_MAX'
     },
 
-    # Edge-o-Matic
+    # Edge-o-Matic settings
     "maustec": {
         "Maustec host": "MAUSTEC_HOST"
     },
 
-    # General
+    # General settings
     "general": {
         'Is the OS Windows?': 'IS_WINDOWS',
-        'Window Update Frequency': 'WINDOW_UPDATE_FREQUENCY',
         'Warn On Stack Dump': 'WARN_ON_STACK_DUMP',
-        'Warn On Stack Dump SOUND': 'WARN_ON_STACK_DUMP_SOUND'
+        'Warn On Stack Dump SOUND': 'WARN_ON_STACK_DUMP_SOUND',
+        'UI Window Update Frequency': 'WINDOW_UPDATE_FREQUENCY'
     },
 
 }
@@ -420,14 +421,14 @@ def open_config_modal():
                 field = [
                             sg.Column(layout=[
                             [sg.Text('Current log file: {}'.format(settings.LOG_PATH), tooltip="This lets you specify the log file required to interface with games including Skyrim, FO4 and M&B Bannerlords 2. The default value is ../Documents/My Games/Fallout4/Logs/Script/Papyrus.0.log")],
-                            [sg.FileBrowse('Select new log file', key=v)]])
+                            [sg.FileBrowse('Select new log file', key=v, disabled=not INTERFACE_LOG_READER in settings.ENABLED_INTERFACES)]])
                         ]
 
             case "PRINT_LOG_LINES":
-                field = [sg.Checkbox(k, key=v, default=settings.PRINT_LOG_LINES)]
+                field = [sg.Checkbox(k, key=v, default=settings.PRINT_LOG_LINES, disabled=not INTERFACE_LOG_READER in settings.ENABLED_INTERFACES)]
 
             case _:
-                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v, disabled=not INTERFACE_LOG_READER in settings.ENABLED_INTERFACES)]
 
         log_reader_frame.append(field)
 
@@ -438,20 +439,9 @@ def open_config_modal():
     for k, v in config_fields["interface_screen_reader"].items():
         match v:
             case _:
-                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v, disabled=not INTERFACE_SCREEN_READER in settings.ENABLED_INTERFACES)]
 
         screen_reader_frame.append(field)
-
-    # Bethesda game related settings
-    bethesda_frame = []
-
-    # Iterate over bethesda game related settings. No special case handling necessary.
-    for k, v in config_fields["bethesda"].items():
-        match v:
-            case _:
-                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
-
-        bethesda_frame.append(field)
 
     # Buttplug-io related settings
     buttplugio_frame = []
@@ -472,10 +462,10 @@ def open_config_modal():
     for k, v in config_fields["chaster"].items():
         match v:
             case "CHASTER_ENABLED":
-                field = [sg.Checkbox(k, key=v, default=settings.CHASTER_ENABLED)]
+                field = [sg.Checkbox(k, key=v, default=settings.CHASTER_ENABLED, enable_events=True)]
 
             case _:
-                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v, disabled=not settings.CHASTER_ENABLED)]
 
         chaster_frame.append(field)
 
@@ -536,7 +526,7 @@ def open_config_modal():
     # # Maustec related settings
     maustec_frame = []
 
-    # Iterate over Maustec related settings related settings. No special case handling necessary.
+    # Iterate over Maustec related settings. No special case handling necessary.
     for k, v in config_fields["maustec"].items():
         match v:
             case _:
@@ -558,30 +548,28 @@ def open_config_modal():
         [
             sg.Column(vertical_alignment="top", expand_x=True, expand_y=True, layout=
                       [
-                          [sg.Frame(title="Interface", expand_x=True, vertical_alignment="top", layout=interface_frame)],
+                          [sg.Frame(title="Game interface ('input')", expand_x=True, vertical_alignment="top", layout=interface_frame)],
                           [sg.Frame(title="Log reader settings", expand_x=True, layout=log_reader_frame)],
                           [sg.Frame(title="Screen reader settings", expand_x=True, layout=screen_reader_frame)],
 
                           [sg.VPush()],
 
-                          [sg.Frame(title="Bethesda game settings", expand_x=True, layout=bethesda_frame)],
-
-                          [sg.Frame(title="General settings", expand_x=True, layout=general_frame)],
+                          [sg.Frame(title="Chaster settings", expand_x=True, layout=chaster_frame)],
 
                           [sg.VPush()],
 
-                          [sg.Frame(title="Chaster settings", expand_x=True, layout=chaster_frame)]
-
+                          [sg.Frame(title="General settings", expand_x=True, layout=general_frame)]
 
                       ]
             ),
 
+            sg.Push(),
             sg.VerticalSeparator(),
-            # sg.VPush(),
+            sg.Push(),
 
             sg.Column(vertical_alignment="top", expand_x=True, expand_y=True, layout=
                       [
-                          [sg.Frame(title="Toys", expand_x=True, layout=toys_frame)],
+                          [sg.Frame(title="Toy integration ('output')", expand_x=True, layout=toys_frame)],
                           [sg.Frame(title="Buttplug.io settings", expand_x=True, layout=buttplugio_frame)],
                           [sg.Frame(title="DG-Lab Coyote settings", expand_x=True, layout=coyote_frame)],
                           [sg.Frame(title="Lovense settings", expand_x=True, layout=lovense_frame)],
@@ -589,77 +577,67 @@ def open_config_modal():
                           [sg.Frame(title="Maustec settings", expand_x=True, layout=maustec_frame)],
                       ]
             ),
-
-            # sg.VPush(),
-            #
-            # sg.Column(vertical_alignment="top", expand_x=True, expand_y=True, layout=
-            # [
-            #     [sg.Frame(title="Chaster settings", layout=chaster_frame)]
-            # ]
-            # ),
-
         ]
     )
 
-
-    # config_layout.append([sg.Frame(title="Interface", layout=interface_frame)])
-    # config_layout.append([sg.Frame(title="Toys", layout=toys_frame)])
-    # config_layout.append([sg.Frame(title="Log reader settings", layout=log_reader_frame)])
-    # config_layout.append([sg.Frame(title="General settings", layout=general_frame)])
-    # # config_layout.append([sg.Frame(title="General settings", layout=general_frame, expand_x=True)])
-    # config_layout.append([sg.Frame(title="Screen reader settings", layout=screen_reader_frame)])
-    # config_layout.append([sg.Frame(title="Bethesda game settings", layout=bethesda_frame)])
-    # config_layout.append([sg.Frame(title="Buttplug.io settings", layout=buttplugio_frame)])
-    # config_layout.append([sg.Frame(title="Chaster settings", layout=chaster_frame)])
-    # config_layout.append([sg.Frame(title="DG-Lab Coyote settings", layout=coyote_frame)])
-    # config_layout.append([sg.Frame(title="Lovense settings", layout=lovense_frame)])
-    # config_layout.append([sg.Frame(title="XToys settings", layout=xtoys_frame)])
-    # config_layout.append([sg.Frame(title="Maustec settings", layout=maustec_frame)])
-
     config_layout.append([sg.HorizontalSeparator()])
-
-    config_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT)])
+    config_layout.append([sg.Button(GUI_CONFIG_SAVE, expand_x=True), sg.Push(), sg.Button(GUI_CONFIG_EXIT, expand_x=True)])
 
     config_window = sg.Window('GIFT Configuration', [[sg.Column(config_layout, scrollable=False, expand_y=True, expand_x=True)]], modal=True, resizable=True)
     while True:
         event, values = config_window.read()
+
+        info(f"Matching event: {event}")
+        info(f"Values: {values}")
+
         if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:
             info('Exited configuration menu without saving.')
             break
 
-        # On the fly GUI logic here
+        # Detect change to interface choice, grey out invalid options, allow relevant options.
+        if event in [INTERFACE_LOG_READER, INTERFACE_MEMORY_READER, INTERFACE_SCREEN_READER]:
+            if event == INTERFACE_LOG_READER:  # Switched to log reader
+                for k, v in config_fields["interface_log_reader"].items():
+                    config_window[v].update(disabled=False)
 
-        # Detect change to interface
-        if event in ["INTERFACE_LOG_READER", "INTERFACE_MEMORY_READER", "INTERFACE_SCREEN_READER"]:
-            match event:
-                case "INTERFACE_LOG_READER":  # Switched to log reader
-                    # ENABLE/DISABLE FRAMES HERE
-                    for k, v in config_fields["interface_log_reader"].items():
-                        config_window[v].update(disabled=False)
+                for k, v in config_fields["interface_screen_reader"].items():
+                    config_window[v].update(disabled=True)
+                for k, v in config_fields["interface_memory_reader"].items():
+                    config_window[v].update(disabled=True)
 
-                    for k, v in config_fields["interface_screen_reader"].items():
-                        config_window[v].update(disabled=True)
-                    for k, v in config_fields["interface_memory_reader"].items():
-                        config_window[v].update(disabled=True)
+            if event == INTERFACE_MEMORY_READER:  # Switched to memory reader
+                for k, v in config_fields["interface_memory_reader"].items():
+                    config_window[v].update(disabled=False)
 
-                case "INTERFACE_MEMORY_READER":  # Switched to memory reader
-                    for k, v in config_fields["interface_memory_reader"].items():
-                        config_window[v].update(disabled=False)
+                for k, v in config_fields["interface_screen_reader"].items():
+                    config_window[v].update(disabled=True)
+                for k, v in config_fields["interface_log_reader"].items():
+                    config_window[v].update(disabled=True)
 
-                    for k, v in config_fields["interface_screen_reader"].items():
-                        config_window[v].update(disabled=True)
-                    for k, v in config_fields["interface_log_reader"].items():
-                        config_window[v].update(disabled=True)
 
-                case "INTERFACE_SCREEN_READER":  # Switched to screen reader
-                    for k, v in config_fields["interface_screen_reader"].items():
-                        config_window[v].update(disabled=False)
+            if event == INTERFACE_SCREEN_READER:  # Switched to screen reader
+                for k, v in config_fields["interface_screen_reader"].items():
+                    config_window[v].update(disabled=False)
 
-                    for k, v in config_fields["interface_memory_reader"].items():
-                        config_window[v].update(disabled=True)
-                    for k, v in config_fields["interface_log_reader"].items():
-                        config_window[v].update(disabled=True)
+                for k, v in config_fields["interface_memory_reader"].items():
+                    config_window[v].update(disabled=True)
+                for k, v in config_fields["interface_log_reader"].items():
+                    config_window[v].update(disabled=True)
 
+        # Allow Chaster options based on toggle.
+        if event == "CHASTER_ENABLED":
+            # Avoid updating state of Chaster toggle itself. Work-around/fixme.
+            temp_dict = copy.deepcopy(config_fields["chaster"])
+            del temp_dict["Chaster Enabled"]
+
+            if values["CHASTER_ENABLED"]:
+                for k, v in temp_dict.items():
+                    config_window[v].update(disabled=False)
+            else:
+                for k, v in temp_dict.items():
+                    config_window[v].update(disabled=True)
+
+        #
 
         if event == GUI_CONFIG_SAVE:
             for category in config_fields.keys():

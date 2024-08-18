@@ -347,9 +347,9 @@ def open_config_modal():
         match v:
             case "ENABLED_INTERFACES":
                 field = [sg.Column(layout=[
-                                            [sg.Radio(INTERFACE_LOG_READER, 'interfaces', key=INTERFACE_LOG_READER,
+                                            [sg.Radio(INTERFACE_LOG_READER + " " + "(Skyrim, Fallout 4, Mount & Blade, Night of Revenge)", 'interfaces', key=INTERFACE_LOG_READER,
                                                      default=INTERFACE_LOG_READER in settings.ENABLED_INTERFACES, enable_events=True)],
-                                            [sg.Radio(INTERFACE_SCREEN_READER, 'interfaces', key=INTERFACE_SCREEN_READER,
+                                            [sg.Radio(INTERFACE_SCREEN_READER + " " + "(Elden Ring)", 'interfaces', key=INTERFACE_SCREEN_READER,
                                                      default=INTERFACE_SCREEN_READER in settings.ENABLED_INTERFACES, enable_events=True)],
                                             [sg.Radio(INTERFACE_MEMORY_READER, 'interfaces', key=INTERFACE_MEMORY_READER,
                                                      default=INTERFACE_MEMORY_READER in settings.ENABLED_INTERFACES, enable_events=True)]
@@ -394,12 +394,12 @@ def open_config_modal():
         match v:
 
             case "IS_WINDOWS":
-                field = [sg.Checkbox(k, key=v, default=settings.IS_WINDOWS, tooltip="Leave this on if you're running on Windows, otherwise the script will have issues traversing the filesystem. Default: enabled.")]
+                field = [sg.Checkbox(k, key=v, default=settings.IS_WINDOWS, tooltip="Leave this on if you're running on Windows, otherwise the script will have issues traversing the filesystem. Default: Enabled.")]
 
             case "WARN_ON_STACK_DUMP":
-                field = [sg.Checkbox(k, key=v, default=settings.WARN_ON_STACK_DUMP),
-                                sg.Radio("speaker","WARN_ON_STACK_DUMP_SOUND", key="WARN_ON_STACK_DUMP_SOUND", default=settings.WARN_ON_STACK_DUMP_SOUND),
-                                sg.Radio("buzzer","WARN_ON_STACK_DUMP_SOUND", key="WARN_ON_STACK_DUMP_SOUND", default=not settings.WARN_ON_STACK_DUMP_SOUND)
+                field = [sg.Checkbox(k, key=v, default=settings.WARN_ON_STACK_DUMP, tooltip="This will let you know in-game if the script has crashed unexpectedly. Choose between an auditive cue or a distinct vibration pattern through your toys."),
+                                sg.Radio("Play a sound","WARN_ON_STACK_DUMP_SOUND", key="WARN_ON_STACK_DUMP_SOUND", default=settings.WARN_ON_STACK_DUMP_SOUND),
+                                sg.Radio("Vibe my toys","WARN_ON_STACK_DUMP_SOUND", key="WARN_ON_STACK_DUMP_SOUND", default=not settings.WARN_ON_STACK_DUMP_SOUND)
                          ]
 
             case "WARN_ON_STACK_DUMP_SOUND":
@@ -419,7 +419,7 @@ def open_config_modal():
             case "LOG_PATH":
                 field = [
                             sg.Column(layout=[
-                            [sg.Text('Current log file Path: {}'.format(settings.LOG_PATH))],
+                            [sg.Text('Current log file: {}'.format(settings.LOG_PATH), tooltip="This lets you specify the log file required to interface with games including Skyrim, FO4 and M&B Bannerlords 2. The default value is ../Documents/My Games/Fallout4/Logs/Script/Papyrus.0.log")],
                             [sg.FileBrowse('Select new log file', key=v)]])
                         ]
 
@@ -561,17 +561,15 @@ def open_config_modal():
                           [sg.Frame(title="Interface", expand_x=True, vertical_alignment="top", layout=interface_frame)],
                           [sg.Frame(title="Log reader settings", expand_x=True, layout=log_reader_frame)],
                           [sg.Frame(title="Screen reader settings", expand_x=True, layout=screen_reader_frame)],
+
                           [sg.VPush()],
-                          # [sg.Frame(title="Interface", layout=interface_frame)],
-                          # [sg.Frame(title="Log reader settings", layout=log_reader_frame)],
-                          # [sg.Frame(title="Screen reader settings", layout=screen_reader_frame)],
-                          # [sg.HorizontalSeparator()],
+
                           [sg.Frame(title="Bethesda game settings", expand_x=True, layout=bethesda_frame)],
-                          # [sg.VPush()],
-                          # [sg.HorizontalSeparator()],
+
                           [sg.Frame(title="General settings", expand_x=True, layout=general_frame)],
+
                           [sg.VPush()],
-                          # [sg.HorizontalSeparator()],
+
                           [sg.Frame(title="Chaster settings", expand_x=True, layout=chaster_frame)]
 
 

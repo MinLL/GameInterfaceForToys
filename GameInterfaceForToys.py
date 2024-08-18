@@ -570,7 +570,7 @@ def open_config_modal():
 
     config_layout.append([sg.HorizontalSeparator()])
 
-    config_layout.append([sg.Button(GUI_CONFIG_SAVE, expand_x=True), sg.Push(), sg.Button(GUI_CONFIG_EXIT, expand_x=True)])
+    config_layout.append([sg.Button(GUI_CONFIG_SAVE, expand_x=True), sg.Button("Reset all settings", expand_x=True), sg.Button(GUI_CONFIG_EXIT, expand_x=True)])
 
     config_window = sg.Window('GIFT Configuration', [
         [sg.Column(config_layout, scrollable=False, expand_y=True, expand_x=True)]
@@ -584,6 +584,13 @@ def open_config_modal():
 
         if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:
             info('Exited configuration menu without saving.')
+            break
+
+        # Reset settings confirmation modal notified this window that the user reset all settings.
+        if event == GUI_CONFIG_RESET_SETTINGS:
+            config_window.close()
+            info("Exited configuration menu and reset all settings.")
+            # open_config_modal()  # reopen settings window
             break
 
         ### This section handles instant GUI updates ###
@@ -648,6 +655,32 @@ def open_config_modal():
                 for _, v in config_fields[settings_frame].items():
                     config_window[v].update(disabled=not values[toy_id])
 
+        # Let user reset all settings to default values with a modal popup
+        if event == "Reset all settings":
+            reset_confirmation_modal = sg.Window(title="Confirmation", modal=True, layout=[
+                [sg.Text("Really reset all settings?\nThis resets everything in settings.yaml to their default values.\nNote: This does NOT reset event-toy mappings made on the Event Map Configuration window (toy-event-map.yaml).")],
+                [sg.Button("Yes, reset all settings.", enable_events=True, expand_x=True, key=GUI_CONFIG_RESET_SETTINGS)],
+                [sg.Button("Cancel", enable_events=True, expand_x=True, key=GUI_CONFIG_EXIT)]
+            ])
+
+            while True:
+                event, values = reset_confirmation_modal.read()
+
+                # Reset all settings, refresh settings.yaml with default values from settings.py, close settings window.
+                if event == GUI_CONFIG_RESET_SETTINGS:
+                    print("reset")
+                    importlib.reload(settings)  # Reload settings module
+                    save_config()  # Repopulate settings.yaml with default values from settings.py
+
+                    config_window.write_event_value(GUI_CONFIG_RESET_SETTINGS, dict())  # Tell parent window that we reset all settings
+                    reset_confirmation_modal.close()  # Close confirmation modal
+                    break
+
+                if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:
+                    reset_confirmation_modal.close()
+                    break
+
+
         ###
 
         if event == GUI_CONFIG_SAVE:
@@ -697,7 +730,6 @@ def save_config():
     info('Saving Config...')
     with io.open('settings.yaml', 'w', encoding='utf8') as outfile:
         data = {}
-        # breakpoint()
         for v in config_fields.values():
             for k, x in v.items():
                 data[x] = getattr(settings, x)
@@ -752,5 +784,5 @@ if __name__ == "__main__":
             success("Goodbye!")
             break
 
-    
+
 

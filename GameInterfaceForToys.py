@@ -338,9 +338,9 @@ def open_toy_event_modal(ssi):
 
 def open_config_modal():
 
-    # Work-around: Temporarily switch to default OS theme to make disabled text fields (always off-gray irrespective
-    # of theme) look less jarring.
-    # Fixme: Default colour for disabled fields needs to be configured globally, but PSG doesn't support this yet.
+    # fixme: Temporarily switch to default OS theme to make disabled text fields (always off-gray irrespective
+    #  of theme) look less jarring. Default colour for disabled fields needs to be configured globally, but PSG
+    #  doesn't support this yet.
     sg.theme("GrayGrayGray")
 
     # # Create individual clusters of related settings by iterating over grouped key/value pairs in config_fields.
@@ -590,8 +590,7 @@ def open_config_modal():
         if event == GUI_CONFIG_RESET_SETTINGS:
             config_window.close()
             info("Exited configuration menu and reset all settings.")
-            # open_config_modal()  # reopen settings window
-            break
+            raise ReloadException()  # Reset/refresh the main window, e.g. if Chaster was enabled and now no longer is.
 
         ### This section handles instant GUI updates ###
 

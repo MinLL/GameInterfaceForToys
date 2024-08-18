@@ -40,7 +40,7 @@ config_fields = {
     # Log reader interface settings
     "interface_log_reader": {
         'Log Path': 'LOG_PATH',
-        'Character  (Skyrim, Fallout 4)': 'CHARACTER_NAME',
+        'In-game character name (Skyrim, Fallout 4)': 'CHARACTER_NAME',
         'Devious Devices Vibration Multiplier (Skyrim, Fallout 4)': 'DD_VIB_MULT',
         'Print Log Lines': 'PRINT_LOG_LINES'
     },

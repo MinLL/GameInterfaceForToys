@@ -418,8 +418,9 @@ def open_config_modal():
         match v:
             case "LOG_PATH":
                 field = [
-                            sg.FileBrowse('Select Log File', key=v),
-                            sg.Text('Old Log File Path: {}'.format(settings.LOG_PATH))
+                            sg.Column(layout=[
+                            [sg.Text('Current log file Path: {}'.format(settings.LOG_PATH))],
+                            [sg.FileBrowse('Select new log file', key=v)]])
                         ]
 
             case "PRINT_LOG_LINES":
@@ -555,31 +556,48 @@ def open_config_modal():
 
     config_layout.append(
         [
-            sg.Column(layout=
+            sg.Column(vertical_alignment="top", expand_x=True, expand_y=True, layout=
                       [
-                          [sg.Frame(title="Interface", layout=interface_frame, expand_y=True)],
-                          [sg.Frame(title="Log reader settings", layout=log_reader_frame, expand_y=True)],
-                          [sg.Frame(title="Screen reader settings", layout=screen_reader_frame, expand_y=True)],
+                          [sg.Frame(title="Interface", expand_x=True, expand_y=True, vertical_alignment="top", layout=interface_frame),
+                           sg.Column(expand_x=True, expand_y=True, layout=[[sg.Frame(title="Log reader settings", expand_x=True, layout=log_reader_frame)], [sg.Frame(title="Screen reader settings", expand_x=True, layout=screen_reader_frame)]])],
+                          # [sg.Frame(title="Interface", layout=interface_frame)],
+                          # [sg.Frame(title="Log reader settings", layout=log_reader_frame)],
+                          # [sg.Frame(title="Screen reader settings", layout=screen_reader_frame)],
+                          # [sg.VPush()],
                           [sg.HorizontalSeparator()],
-                          [sg.Frame(title="Chaster settings", layout=chaster_frame, expand_y=True)],
-                          [sg.Frame(title="Bethesda game settings", layout=bethesda_frame, expand_y=True)],
-                          [sg.Frame(title="General settings", layout=general_frame, expand_y=True)]
+                          [sg.Frame(title="Bethesda game settings", layout=bethesda_frame)],
+                          # [sg.VPush()],
+                          [sg.HorizontalSeparator()],
+                          [sg.Frame(title="General settings", layout=general_frame)],
+                          # [sg.VPush()],
+                          [sg.HorizontalSeparator()],
+                          [sg.Frame(title="Chaster settings", layout=chaster_frame)]
+
 
                       ]
             ),
 
             sg.VerticalSeparator(),
+            # sg.VPush(),
 
-            sg.Column(layout=
+            sg.Column(vertical_alignment="top", expand_x=True, expand_y=True, layout=
                       [
-                          [sg.Frame(title="Toys", layout=toys_frame, expand_y=True)],
-                          [sg.Frame(title="Buttplug.io settings", layout=buttplugio_frame, expand_y=True)],
-                          [sg.Frame(title="DG-Lab Coyote settings", layout=coyote_frame, expand_y=True)],
-                          [sg.Frame(title="Lovense settings", layout=lovense_frame, expand_y=True)],
-                          [sg.Frame(title="XToys settings", layout=xtoys_frame, expand_y=True)],
-                          [sg.Frame(title="Maustec settings", layout=maustec_frame, expand_y=True)]
+                          [sg.Frame(title="Toys", layout=toys_frame)],
+                          [sg.Frame(title="Buttplug.io settings", layout=buttplugio_frame)],
+                          [sg.Frame(title="DG-Lab Coyote settings", layout=coyote_frame)],
+                          [sg.Frame(title="Lovense settings", layout=lovense_frame)],
+                          [sg.Frame(title="XToys settings", layout=xtoys_frame)],
+                          [sg.Frame(title="Maustec settings", layout=maustec_frame)],
                       ]
-            )
+            ),
+
+            # sg.VPush(),
+            #
+            # sg.Column(vertical_alignment="top", expand_x=True, expand_y=True, layout=
+            # [
+            #     [sg.Frame(title="Chaster settings", layout=chaster_frame)]
+            # ]
+            # ),
 
         ]
     )
@@ -599,6 +617,7 @@ def open_config_modal():
     # config_layout.append([sg.Frame(title="XToys settings", layout=xtoys_frame)])
     # config_layout.append([sg.Frame(title="Maustec settings", layout=maustec_frame)])
 
+    config_layout.append([sg.HorizontalSeparator()])
 
     config_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT)])
 

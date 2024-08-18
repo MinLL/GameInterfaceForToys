@@ -27,7 +27,7 @@ Upon launching the GIFT executable, the script actively watches for changes to t
 - Launch GIFT. You should see a screen like such:
 ![image](https://user-images.githubusercontent.com/7561884/210279788-78f1d902-d728-43b0-8e2a-e35b0605c5e2.png)
 - Click the Configuration button (Options may have changed since this guide was written):
-![image](https://user-images.githubusercontent.com/7561884/210279863-cbcef641-abb8-4e3d-b258-a8f044d57fc4.png)
+![image](https://github.com/user-attachments/assets/b7081c69-ceb2-48a4-94c0-108021e6505d)
 
 Configure the options to your liking, and then click "Save". The application will then reload with the new settings.
 

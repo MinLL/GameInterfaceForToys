@@ -348,7 +348,7 @@ def open_config_modal():
         match v:
             case "ENABLED_INTERFACES":
                 field = [sg.Column(layout=[
-                                            [sg.Radio(INTERFACE_LOG_READER + " " + "(Skyrim, Fallout 4, Mount & Blade, Night of Revenge)", 'interfaces', key=INTERFACE_LOG_READER,
+                                            [sg.Radio(INTERFACE_LOG_READER + " " + "(Skyrim, Fallout 4, Mount & Blade: Bannerlords 2, Night of Revenge)", 'interfaces', key=INTERFACE_LOG_READER,
                                                      default=INTERFACE_LOG_READER in settings.ENABLED_INTERFACES, enable_events=True)],
                                             [sg.Radio(INTERFACE_SCREEN_READER + " " + "(Elden Ring)", 'interfaces', key=INTERFACE_SCREEN_READER,
                                                      default=INTERFACE_SCREEN_READER in settings.ENABLED_INTERFACES, enable_events=True)],
@@ -371,13 +371,13 @@ def open_config_modal():
         match v:
             case "TOY_TYPE":
                 field = [sg.Column(layout=[
-                                          [sg.Checkbox(TOY_XBOXCONTROLLER, key=TOY_XBOXCONTROLLER, default=TOY_XBOXCONTROLLER in settings.TOY_TYPE)],
-                                          [sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE)],
-                                          [sg.Checkbox(TOY_XTOYS, key=TOY_XTOYS, default=TOY_XTOYS in settings.TOY_TYPE)],
-                                          [sg.Checkbox(TOY_BUTTPLUG, key=TOY_BUTTPLUG, default=TOY_BUTTPLUG in settings.TOY_TYPE)],
-                                          [sg.Checkbox(TOY_COYOTE, key=TOY_COYOTE, default=TOY_COYOTE in settings.TOY_TYPE)],
-                                          [sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE)],
-                                          [sg.Checkbox(TOY_EDGEOMATIC, key=TOY_EDGEOMATIC, default=TOY_EDGEOMATIC in settings.TOY_TYPE)],
+                                          [sg.Checkbox(TOY_XBOXCONTROLLER, key=TOY_XBOXCONTROLLER, default=TOY_XBOXCONTROLLER in settings.TOY_TYPE, enable_events=True)],
+                                          [sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE, enable_events=True)],
+                                          [sg.Checkbox(TOY_XTOYS, key=TOY_XTOYS, default=TOY_XTOYS in settings.TOY_TYPE, enable_events=True)],
+                                          [sg.Checkbox(TOY_BUTTPLUG, key=TOY_BUTTPLUG, default=TOY_BUTTPLUG in settings.TOY_TYPE, enable_events=True)],
+                                          [sg.Checkbox(TOY_COYOTE, key=TOY_COYOTE, default=TOY_COYOTE in settings.TOY_TYPE, enable_events=True)],
+                                          [sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE, enable_events=True)],
+                                          [sg.Checkbox(TOY_EDGEOMATIC, key=TOY_EDGEOMATIC, default=TOY_EDGEOMATIC in settings.TOY_TYPE, enable_events=True)],
                                           ]
                                     )
                         ]
@@ -487,10 +487,10 @@ def open_config_modal():
     for k, v in config_fields["lovense"].items():
         match v:
             case "LOVENSE_USE_NEW_API":
-                field = [sg.Checkbox(k, key=v, default=settings.LOVENSE_USE_NEW_API)]
+                field = [sg.Checkbox(k, key=v, default=settings.LOVENSE_USE_NEW_API, disabled=not TOY_LOVENSE in settings.TOY_TYPE)]
 
             case _:
-                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v, disabled=not TOY_LOVENSE in settings.TOY_TYPE)]
 
         lovense_frame.append(field)
 
@@ -626,6 +626,16 @@ def open_config_modal():
         # Update shown Papyrus log path immediately when a new file has been chosen.
         if event == "LOG_PATH":
             config_window["-LOG_PATH_TEXT-"].update('Current log file: {}'.format(values["LOG_PATH"]))
+
+        # (Dis-)allow toy settings based in their individual toggle
+        if event in [TOY_LOVENSE, TOY_BUTTPLUG, TOY_COYOTE, TOY_KIZUNA, TOY_EDGEOMATIC, TOY_XBOXCONTROLLER, TOY_XTOYS]:
+            print(f"TOY EVENT DETECTED {event}")
+
+            # todo:
+            #
+            # Also todo: This could totally be reduced to a for loop iterating over each toy's frames.
+
+
 
 
 

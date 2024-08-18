@@ -8,7 +8,7 @@ from common.constants import *
 # Important variables to configure for all users:
 # LOG_PATH = '../Documents/My Games/Skyrim VR/Logs/Script/Papyrus.0.log' # Full path to the Papyrus log that the script should parse
 LOG_PATH = '../Documents/My Games/Fallout4/Logs/Script/Papyrus.0.log' # Full path to the Papyrus log that the script should parse
-CHARACTER_NAME = "Min"  # The name of your character. 
+CHARACTER_NAME = "Prisoner"  # The name of your character.
 
 # Toy configuration
 TOY_TYPE = []

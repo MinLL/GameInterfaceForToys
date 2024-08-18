@@ -57,51 +57,51 @@ config_fields = {
 
     # Buttplug.io settings
     "buttplugio": {
-        'Buttplug.io Strength Max': 'BUTTPLUG_STRENGTH_MAX',
-        'Buttplug.io Server Address': 'BUTTPLUG_SERVER_ADDRESS'
+        'Strength Max': 'BUTTPLUG_STRENGTH_MAX',
+        'Server Address': 'BUTTPLUG_SERVER_ADDRESS'
     },
 
     # Chaster settings
     "chaster": {
         'Chaster Enabled': 'CHASTER_ENABLED',
-        'Chaster Token': 'CHASTER_TOKEN',
-        'Chaster Refresh Token': 'CHASTER_REFRESH_TOKEN',
-        'Chaster Lock Name': 'LOCK_NAME',
-        'Chaster Defeat Minimum Time to Add': 'CHASTER_DEFEAT_MIN',
-        'Chaster Defeat Maximum Time to Add': 'CHASTER_DEFEAT_MAX',
-        'Chaster Punish Event Minimum Time To Add': 'CHASTER_PUNISH_MIN',
-        'Chaster Punish Event Maximum Time To Add': 'CHASTER_PUNISH_MAX'
+        'Token': 'CHASTER_TOKEN',
+        'Refresh Token': 'CHASTER_REFRESH_TOKEN',
+        'Lock Name': 'LOCK_NAME',
+        'Defeat Minimum Time to Add': 'CHASTER_DEFEAT_MIN',
+        'Defeat Maximum Time to Add': 'CHASTER_DEFEAT_MAX',
+        'Punish Event Minimum Time To Add': 'CHASTER_PUNISH_MIN',
+        'Punish Event Maximum Time To Add': 'CHASTER_PUNISH_MAX'
     },
 
     # Coyote settings (deprecated)
     "coyote": {
-        'Coyote E-Stim UID': 'COYOTE_UID',
-        'Coyote E-Stim Multiplier': 'COYOTE_MULTIPLIER',
-        'Coyote E-Stim Default Channel': 'COYOTE_DEFAULT_CHANNEL',
-        'Coyote Sex Multiplier': 'COYOTE_SEX_MULT',
-        'Coyote Plug Multiplier': 'COYOTE_PLUG_MULT',
-        'Coyote On-Hit Multiplier': 'COYOTE_ON_HIT_MULT',
-        'Coyote Minimum Power (0-768)': 'COYOTE_MIN_POWER',
-        'Coyote Maximum Power (0-768)': 'COYOTE_MAX_POWER'
+        'UID': 'COYOTE_UID',
+        'Multiplier': 'COYOTE_MULTIPLIER',
+        'Default Channel': 'COYOTE_DEFAULT_CHANNEL',
+        'Sex Multiplier': 'COYOTE_SEX_MULT',
+        'Plug Multiplier': 'COYOTE_PLUG_MULT',
+        'On-Hit Multiplier': 'COYOTE_ON_HIT_MULT',
+        'Minimum Power (0-768)': 'COYOTE_MIN_POWER',
+        'Maximum Power (0-768)': 'COYOTE_MAX_POWER'
     },
 
     # Lovense settings
     "lovense": {
-        'Lovense Host': 'LOVENSE_HOST',
-        'Lovense Strength Max': 'LOVENSE_STRENGTH_SCALE',
-        'Lovense Use New API': 'LOVENSE_USE_NEW_API'
+        'Host': 'LOVENSE_HOST',
+        'Strength Max': 'LOVENSE_STRENGTH_SCALE',
+        'Use New API': 'LOVENSE_USE_NEW_API'
     },
 
     # XToys settings
     "xtoys": {
-        'XToys Webhook ID': 'XTOYS_WEBHOOK_ID',
-        'XToys Shock Min Strength %': 'XTOYS_SHOCK_MIN',
-        'XToys Shock Max Strength %': 'XTOYS_SHOCK_MAX'
+        'Webhook ID': 'XTOYS_WEBHOOK_ID',
+        'Shock Min Strength %': 'XTOYS_SHOCK_MIN',
+        'Shock Max Strength %': 'XTOYS_SHOCK_MAX'
     },
 
     # Edge-o-Matic settings
     "maustec": {
-        "Maustec host": "MAUSTEC_HOST"
+        "Host": "MAUSTEC_HOST"
     },
 
     # General settings
@@ -614,7 +614,6 @@ def open_config_modal():
                 for k, v in config_fields["interface_log_reader"].items():
                     config_window[v].update(disabled=True)
 
-
             if event == INTERFACE_SCREEN_READER:  # Switched to screen reader
                 for k, v in config_fields["interface_screen_reader"].items():
                     config_window[v].update(disabled=False)
@@ -678,7 +677,6 @@ def open_config_modal():
                 if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:
                     reset_confirmation_modal.close()
                     break
-
 
         ###
 

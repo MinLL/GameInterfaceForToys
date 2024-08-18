@@ -343,7 +343,7 @@ def open_config_modal():
     # Fixme: Default colour for disabled fields needs to be configured globally, but PSG doesn't support this yet.
     sg.theme("GrayGrayGray")
 
-    # # Create individual clusters of related settings by iterating over grouped key/value pairs from config_fields.
+    # # Create individual clusters of related settings by iterating over grouped key/value pairs in config_fields.
     # Each cluster is finally encapsulated inside a separate sg.Frame().
     # Not very DRY.
 

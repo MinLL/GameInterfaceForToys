@@ -23,44 +23,91 @@ from interfaces.log_reader import LogReaderInterface
 from interfaces.memory_reader import MemoryReaderInterface
 from interfaces.pixel_reader import PixelReaderInterface
 
-
+# Note, values are all PSG KEYS.
+# Note: Entries appear in PSG in the order listed.
 config_fields = {
-    'Enabled Interfaces': 'ENABLED_INTERFACES',
-    'Log Path': 'LOG_PATH',
-    'Is the OS Windows?': 'IS_WINDOWS',
-    'Character Name': 'CHARACTER_NAME',
-    'Toy Type': 'TOY_TYPE',
-    'Devious Devices Vib Multiplier': 'DD_VIB_MULT',
-    'Warn On Stack Dump': 'WARN_ON_STACK_DUMP',
-    'Warn On Stack Dump SOUND': 'WARN_ON_STACK_DUMP_SOUND',
-    'Buttplug.io Strength Max': 'BUTTPLUG_STRENGTH_MAX',
-    'Buttplug.io Server Address': 'BUTTPLUG_SERVER_ADDRESS',
-    'Chaster Enabled': 'CHASTER_ENABLED',
-    'Chaster Token': 'CHASTER_TOKEN',
-    'Chaster Refresh Token': 'CHASTER_REFRESH_TOKEN',
-    'Chaster Lock Name': 'LOCK_NAME',
-    'Chaster Defeat Minimum Time to Add': 'CHASTER_DEFEAT_MIN',
-    'Chaster Defeat Maximum Time to Add': 'CHASTER_DEFEAT_MAX',
-    'Chaster Punish Event Minimum Time To Add': 'CHASTER_PUNISH_MIN',
-    'Chaster Punish Event Maximum Time To Add': 'CHASTER_PUNISH_MAX',
-    'Coyote E-Stim UID': 'COYOTE_UID',
-    'Coyote E-Stim Multiplier': 'COYOTE_MULTIPLIER',
-    'Coyote E-Stim Default Channel': 'COYOTE_DEFAULT_CHANNEL',
-    'Coyote Sex Multiplier': 'COYOTE_SEX_MULT',
-    'Coyote Plug Multiplier': 'COYOTE_PLUG_MULT',
-    'Coyote On-Hit Multiplier': 'COYOTE_ON_HIT_MULT',
-    'Coyote Minimum Power (0-768)': 'COYOTE_MIN_POWER',
-    'Coyote Maximum Power (0-768)': 'COYOTE_MAX_POWER',
-    'Lovense Host': 'LOVENSE_HOST',
-    'Lovense Strength Max': 'LOVENSE_STRENGTH_SCALE',
-    'Lovense Use New API': 'LOVENSE_USE_NEW_API',
-    'Print Log Lines': 'PRINT_LOG_LINES',
-    'Window Update Frequency': 'WINDOW_UPDATE_FREQUENCY',
-    'Target Monitor for Screen Capture': 'OUTPUT_IDX',
-    'XToys Webhook ID': 'XTOYS_WEBHOOK_ID',
-    'XToys Shock Min Strength %': 'XTOYS_SHOCK_MIN',
-    'XToys Shock Max Strength %': 'XTOYS_SHOCK_MAX'
+
+    # Interfaces
+    "interfaces": {
+        'Enabled Interfaces': 'ENABLED_INTERFACES'
+    },
+
+    # Toys
+    "toys": {
+        'Toy Type': 'TOY_TYPE'
+    },
+
+    # Log reader interface
+    "interface_log_reader": {
+        'Log Path': 'LOG_PATH',
+        'Print Log Lines': 'PRINT_LOG_LINES'
+    },
+
+    # Screen reader interface
+    "interface_screen_reader": {
+        'Window Update Frequency': 'WINDOW_UPDATE_FREQUENCY',
+        'Target Monitor for Screen Capture': 'OUTPUT_IDX'
+    },
+
+    # Bethesda games
+    "bethesda": {
+        'Character Name': 'CHARACTER_NAME',
+        'Devious Devices Vib Multiplier': 'DD_VIB_MULT'
+    },
+
+    # Buttplug.io
+    "buttplugio": {
+        'Buttplug.io Strength Max': 'BUTTPLUG_STRENGTH_MAX',
+        'Buttplug.io Server Address': 'BUTTPLUG_SERVER_ADDRESS'
+    },
+
+    # Chaster
+    "chaster": {
+        'Chaster Enabled': 'CHASTER_ENABLED',
+        'Chaster Token': 'CHASTER_TOKEN',
+        'Chaster Refresh Token': 'CHASTER_REFRESH_TOKEN',
+        'Chaster Lock Name': 'LOCK_NAME',
+        'Chaster Defeat Minimum Time to Add': 'CHASTER_DEFEAT_MIN',
+        'Chaster Defeat Maximum Time to Add': 'CHASTER_DEFEAT_MAX',
+        'Chaster Punish Event Minimum Time To Add': 'CHASTER_PUNISH_MIN',
+        'Chaster Punish Event Maximum Time To Add': 'CHASTER_PUNISH_MAX'
+    },
+
+    # Coyote (deprecated)
+    "coyote": {
+        'Coyote E-Stim UID': 'COYOTE_UID',
+        'Coyote E-Stim Multiplier': 'COYOTE_MULTIPLIER',
+        'Coyote E-Stim Default Channel': 'COYOTE_DEFAULT_CHANNEL',
+        'Coyote Sex Multiplier': 'COYOTE_SEX_MULT',
+        'Coyote Plug Multiplier': 'COYOTE_PLUG_MULT',
+        'Coyote On-Hit Multiplier': 'COYOTE_ON_HIT_MULT',
+        'Coyote Minimum Power (0-768)': 'COYOTE_MIN_POWER',
+        'Coyote Maximum Power (0-768)': 'COYOTE_MAX_POWER'
+    },
+
+    # Lovense
+    "lovense": {
+        'Lovense Host': 'LOVENSE_HOST',
+        'Lovense Strength Max': 'LOVENSE_STRENGTH_SCALE',
+        'Lovense Use New API': 'LOVENSE_USE_NEW_API'
+    },
+
+    # XToys
+    "xtoys": {
+        'XToys Webhook ID': 'XTOYS_WEBHOOK_ID',
+        'XToys Shock Min Strength %': 'XTOYS_SHOCK_MIN',
+        'XToys Shock Max Strength %': 'XTOYS_SHOCK_MAX'
+    },
+
+    # General
+    "general": {
+        'Is the OS Windows?': 'IS_WINDOWS',
+        'Warn On Stack Dump': 'WARN_ON_STACK_DUMP',
+        'Warn On Stack Dump SOUND': 'WARN_ON_STACK_DUMP_SOUND'
+    },
+
 }
+
 
 
 async def test_plugs(window, ssi):
@@ -106,7 +153,7 @@ async def main():
             buttonColumn.append([sg.Button(GUI_CHASTER_AUTHENTICATE)])
         layout = [
             [sg.Column(buttonColumn),
-             sg.Column([[sg.Output(size=(120,60), background_color='black', text_color='white', expand_x=True, expand_y=True)]], expand_x=True, expand_y=True)
+             sg.Column([[sg.Output(size=(120, 40), background_color='black', text_color='white', expand_x=True, expand_y=True)]], expand_x=True, expand_y=True)
         ]]
         window = sg.Window('Game Interface For Toys', layout, resizable=True)
         window.read(timeout=1)
@@ -282,83 +329,294 @@ def open_toy_event_modal(ssi):
     return True
 
 def open_config_modal():
-    config_layout = []
-    for k, v in config_fields.items():
-        if v == 'ENABLED_INTERFACES':
-            config_layout.append([sg.Text('Enabled Interfaces:'), sg.Radio(INTERFACE_LOG_READER, 'interfaces', key=INTERFACE_LOG_READER, default=INTERFACE_LOG_READER in settings.ENABLED_INTERFACES),
-                                  sg.Radio(INTERFACE_SCREEN_READER, 'interfaces', key=INTERFACE_SCREEN_READER, default=INTERFACE_SCREEN_READER in settings.ENABLED_INTERFACES),
-                                  sg.Radio(INTERFACE_MEMORY_READER, 'interfaces', key=INTERFACE_MEMORY_READER, default=INTERFACE_MEMORY_READER in settings.ENABLED_INTERFACES),
-                                  ])
-        elif v == 'LOG_PATH':
-            config_layout.append([sg.Text('Path to Log File'), sg.FileBrowse('Select Log File', key=v)])
-            config_layout.append([sg.Text('Old Log File Path: {}'.format(settings.LOG_PATH))])
-        elif v == 'IS_WINDOWS':
-            config_layout.append([sg.Checkbox(k, key=v, default=settings.IS_WINDOWS)])
-        elif v == 'CHASTER_ENABLED':
-            config_layout.append([sg.Checkbox(k, key=v, default=settings.CHASTER_ENABLED)])
-        elif v == 'TOY_TYPE':
-            config_layout.append([sg.Text('Supported Toys:'), sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE),
-                                  sg.Checkbox(TOY_XTOYS, key=TOY_XTOYS, default=TOY_XTOYS in settings.TOY_TYPE),
-                                  sg.Checkbox(TOY_BUTTPLUG, key=TOY_BUTTPLUG, default=TOY_BUTTPLUG in settings.TOY_TYPE),
-                                  sg.Checkbox(TOY_COYOTE, key=TOY_COYOTE, default=TOY_COYOTE in settings.TOY_TYPE),
-                                  sg.Checkbox(TOY_XBOXCONTROLLER, key=TOY_XBOXCONTROLLER, default=TOY_XBOXCONTROLLER in settings.TOY_TYPE),
-                                  sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE),
-                                  sg.Checkbox(TOY_EDGEOMATIC, key=TOY_EDGEOMATIC, default=TOY_EDGEOMATIC in settings.TOY_TYPE)
-                                  ])
-        elif v == 'LOVENSE_USE_NEW_API':
-            config_layout.append([sg.Checkbox(k, key=v, default=settings.LOVENSE_USE_NEW_API)])
-        elif v == 'WARN_ON_STACK_DUMP':
-            config_layout.append([sg.Checkbox(k, key=v, default=settings.WARN_ON_STACK_DUMP),
+
+    # Create individual clusters of related settings by iterating over grouped key/value pairs from config_fields.
+    # Each cluster is finally encapsulated inside a separate sg.Frame().
+    # Not very DRY.
+
+    # Interface settings
+    interface_frame = []
+
+    # Iterate over interface settings, with special handling for fields that require it.
+    for k, v in config_fields["interfaces"].items():
+        match v:
+            case "ENABLED_INTERFACES":
+                field = [sg.Text("Interface:"),
+                         sg.Column(layout=[
+                                            [sg.Radio(INTERFACE_LOG_READER, 'interfaces', key=INTERFACE_LOG_READER,
+                                                     default=INTERFACE_LOG_READER in settings.ENABLED_INTERFACES, enable_events=True)],
+                                            [sg.Radio(INTERFACE_SCREEN_READER, 'interfaces', key=INTERFACE_SCREEN_READER,
+                                                     default=INTERFACE_SCREEN_READER in settings.ENABLED_INTERFACES, enable_events=True)],
+                                            [sg.Radio(INTERFACE_MEMORY_READER, 'interfaces', key=INTERFACE_MEMORY_READER,
+                                                     default=INTERFACE_MEMORY_READER in settings.ENABLED_INTERFACES, enable_events=True)]
+                                            ]
+                                  )
+                         ]
+
+            case _:
+                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+
+        interface_frame.append(field)
+
+    # Toy settings
+    toys_frame = []
+
+    # Iterate over toy settings, with special handling for fields that require it.
+    for k, v in config_fields["toys"].items():
+        match v:
+            case "TOY_TYPE":
+                field = [sg.Text('Enabled toys:'),
+                         sg.Column(layout=[
+                                          [sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE)],
+                                          [sg.Checkbox(TOY_XTOYS, key=TOY_XTOYS, default=TOY_XTOYS in settings.TOY_TYPE)],
+                                          [sg.Checkbox(TOY_BUTTPLUG, key=TOY_BUTTPLUG, default=TOY_BUTTPLUG in settings.TOY_TYPE)],
+                                          [sg.Checkbox(TOY_COYOTE, key=TOY_COYOTE, default=TOY_COYOTE in settings.TOY_TYPE)],
+                                          [sg.Checkbox(TOY_XBOXCONTROLLER, key=TOY_XBOXCONTROLLER, default=TOY_XBOXCONTROLLER in settings.TOY_TYPE)],
+                                          [sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE)],
+                                          [sg.Checkbox(TOY_EDGEOMATIC, key=TOY_EDGEOMATIC, default=TOY_EDGEOMATIC in settings.TOY_TYPE)],
+                                          ]
+                                    )
+                        ]
+
+            case _:
+                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+
+        toys_frame.append(field)
+
+    # General settings
+    general_frame = []
+
+    # Iterate over general settings, with special handling for fields that require it.
+    for k, v in config_fields["general"].items():
+        match v:
+
+            case "IS_WINDOWS":
+                field = [sg.Checkbox(k, key=v, default=settings.IS_WINDOWS, tooltip="Leave this on if you're running on Windows, otherwise the script will have issues traversing the filesystem. Default: enabled.")]
+
+            case "WARN_ON_STACK_DUMP":
+                field = [sg.Checkbox(k, key=v, default=settings.WARN_ON_STACK_DUMP),
                                 sg.Radio("speaker","WARN_ON_STACK_DUMP_SOUND", key="WARN_ON_STACK_DUMP_SOUND", default=settings.WARN_ON_STACK_DUMP_SOUND),
-                                sg.Radio("buzzer","WARN_ON_STACK_DUMP_SOUND", key="WARN_ON_STACK_DUMP_SOUND", default=not settings.WARN_ON_STACK_DUMP_SOUND)])
-        elif v == 'WARN_ON_STACK_DUMP_SOUND':
-            pass
-        elif v == 'PRINT_LOG_LINES':
-            config_layout.append([sg.Checkbox(k, key=v, default=settings.PRINT_LOG_LINES)])
-        else:
-            config_layout.append([sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)])
+                                sg.Radio("buzzer","WARN_ON_STACK_DUMP_SOUND", key="WARN_ON_STACK_DUMP_SOUND", default=not settings.WARN_ON_STACK_DUMP_SOUND)
+                         ]
+
+            case "WARN_ON_STACK_DUMP_SOUND":
+                field = []
+
+            case _:
+                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+
+        general_frame.append(field)
+
+    # Log reader settings
+    log_reader_frame = []
+
+    # Iterate over log reader settings, with special handling for fields that require it.
+    for k, v in config_fields["interface_log_reader"].items():
+        match v:
+            case "LOG_PATH":
+                field = [
+                            sg.FileBrowse('Select Log File', key=v),
+                            sg.Text('Old Log File Path: {}'.format(settings.LOG_PATH))
+                        ]
+
+            case "PRINT_LOG_LINES":
+                field = [sg.Checkbox(k, key=v, default=settings.PRINT_LOG_LINES)]
+
+            case _:
+                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+
+        log_reader_frame.append(field)
+
+    # Log reader settings
+    screen_reader_frame = []
+
+    # Iterate over screen reader settings. No special case handling necessary.
+    for k, v in config_fields["interface_screen_reader"].items():
+        match v:
+            case _:
+                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+
+        screen_reader_frame.append(field)
+
+    # Bethesda game related settings
+    bethesda_frame = []
+
+    # Iterate over bethesda game related settings. No special case handling necessary.
+    for k, v in config_fields["bethesda"].items():
+        match v:
+            case _:
+                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+
+        bethesda_frame.append(field)
+
+    # Buttplug-io related settings
+    buttplugio_frame = []
+
+    # Iterate over buttplug.io related settings. No special case handling necessary.
+    for k, v in config_fields["buttplugio"].items():
+        match v:
+            case _:
+                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+
+        buttplugio_frame.append(field)
+
+    # Chaster related settings
+    chaster_frame = []
+
+    # Iterate over Chaster related settings, with special handling for fields that require it.
+    # fixme: This should be under toys/integrations, not a separate checkbox.
+    for k, v in config_fields["chaster"].items():
+        match v:
+            case "CHASTER_ENABLED":
+                field = [sg.Checkbox(k, key=v, default=settings.CHASTER_ENABLED)]
+
+            case _:
+                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+
+        chaster_frame.append(field)
+
+    # DG-Lab Coyote related settings
+    coyote_frame = []
+
+    # Iterate over DG-Lab Coyote related settings. No special case handling necessary.
+    for k, v in config_fields["coyote"].items():
+        match v:
+            case _:
+                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+
+        coyote_frame.append(field)
+
+    # Lovense related settings
+    lovense_frame = []
+
+    # Iterate over Lovense related settings, with special handling for fields that require it.
+    # fixme: This should be under toys/integrations, not a separate checkbox.
+    for k, v in config_fields["lovense"].items():
+        match v:
+            case "LOVENSE_USE_NEW_API":
+                field = [sg.Checkbox(k, key=v, default=settings.LOVENSE_USE_NEW_API)]
+
+            case _:
+                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+
+        lovense_frame.append(field)
+
+    # XToys related settings
+    xtoys_frame = []
+
+    # Iterate over XToys related settings, with special handling for fields that require it.
+    # fixme: This should be under toys/integrations, not a separate checkbox.
+    for k, v in config_fields["xtoys"].items():
+        match v:
+
+            case _:
+                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+
+        xtoys_frame.append(field)
+
+
+    config_layout = []
+
+    # config_layout.append(
+    #     [
+    #         sg.Column(expand_x=True, vertical_alignment="top", layout=[[sg.Frame(title="Interface settings", layout=interface_frame, expand_x=True, expand_y=True)]]),
+    #         sg.Column(expand_x=True, vertical_alignment="top", layout=[[sg.Frame(title="Toy settings", layout=toys_frame, expand_x=True, expand_y=True)]])
+    #     ]
+    # )
+
+    config_layout.append([sg.Frame(title="Interface settings", layout=interface_frame)])
+    config_layout.append([sg.Frame(title="Toy settings", layout=toys_frame)])
+    config_layout.append([sg.Frame(title="Log reader settings", layout=log_reader_frame)])
+    config_layout.append([sg.Frame(title="General settings", layout=general_frame)])
+    # config_layout.append([sg.Frame(title="General settings", layout=general_frame, expand_x=True)])
+    config_layout.append([sg.Frame(title="Screen reader settings", layout=screen_reader_frame)])
+    config_layout.append([sg.Frame(title="Bethesda game settings", layout=bethesda_frame)])
+    config_layout.append([sg.Frame(title="Buttplug.io settings", layout=buttplugio_frame)])
+    config_layout.append([sg.Frame(title="Chaster settings", layout=chaster_frame)])
+    config_layout.append([sg.Frame(title="DG-Lab Coyote settings", layout=coyote_frame)])
+    config_layout.append([sg.Frame(title="Lovense settings", layout=lovense_frame)])
+    config_layout.append([sg.Frame(title="XToys settings", layout=xtoys_frame)])
+
+
     config_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT)])
+
     config_window = sg.Window('GIFT Configuration', [[sg.Column(config_layout, scrollable=True, expand_y=True, expand_x=True)]], modal=True, resizable=True)
     while True:
         event, values = config_window.read()
         if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:
             info('Exited configuration menu without saving.')
             break
+
+        # On the fly GUI logic here
+
+        # Detect change to interface
+        if event in ["INTERFACE_LOG_READER", "INTERFACE_MEMORY_READER", "INTERFACE_SCREEN_READER"]:
+            match event:
+                case "INTERFACE_LOG_READER":  # Switched to log reader
+                    # ENABLE/DISABLE FRAMES HERE
+                    for k, v in config_fields["interface_log_reader"].items():
+                        config_window[v].update(disabled=False)
+
+                    for k, v in config_fields["interface_screen_reader"].items():
+                        config_window[v].update(disabled=True)
+                    for k, v in config_fields["interface_memory_reader"].items():
+                        config_window[v].update(disabled=True)
+
+                case "INTERFACE_MEMORY_READER":  # Switched to memory reader
+                    for k, v in config_fields["interface_memory_reader"].items():
+                        config_window[v].update(disabled=False)
+
+                    for k, v in config_fields["interface_screen_reader"].items():
+                        config_window[v].update(disabled=True)
+                    for k, v in config_fields["interface_log_reader"].items():
+                        config_window[v].update(disabled=True)
+
+                case "INTERFACE_SCREEN_READER":  # Switched to screen reader
+                    for k, v in config_fields["interface_screen_reader"].items():
+                        config_window[v].update(disabled=False)
+
+                    for k, v in config_fields["interface_memory_reader"].items():
+                        config_window[v].update(disabled=True)
+                    for k, v in config_fields["interface_log_reader"].items():
+                        config_window[v].update(disabled=True)
+
+
         if event == GUI_CONFIG_SAVE:
-            for x in config_fields.values():
-                if x == 'LOG_PATH':
-                    if len(values['LOG_PATH']) > 0:
-                        settings.LOG_PATH = values['LOG_PATH']
+            for category in config_fields.keys():
+                for x in config_fields[category].values():
+                    if x == 'LOG_PATH':
+                        if len(values['LOG_PATH']) > 0:
+                            settings.LOG_PATH = values['LOG_PATH']
+                        else:
+                            info('Log path did not change.')
+                    elif x == 'TOY_TYPE':
+                        toys = []
+                        if values[TOY_LOVENSE] == True:
+                            toys += [TOY_LOVENSE]
+                        if values[TOY_XBOXCONTROLLER] == True:
+                            toys += [TOY_XBOXCONTROLLER]
+                        if values[TOY_BUTTPLUG] == True:
+                            toys += [TOY_BUTTPLUG]
+                        if values[TOY_COYOTE] == True:
+                            toys += [TOY_COYOTE]
+                        if values[TOY_KIZUNA] == True:
+                            toys += [TOY_KIZUNA]
+                        if values[TOY_EDGEOMATIC] == True:
+                            toys += [TOY_EDGEOMATIC]
+                        if values[TOY_XTOYS] == True:
+                            toys += [TOY_XTOYS]
+                        settings.TOY_TYPE = toys
+                    elif x == 'ENABLED_INTERFACES':
+                        interfaces = []
+                        if values[INTERFACE_LOG_READER] == True:
+                            interfaces += [INTERFACE_LOG_READER]
+                        elif values[INTERFACE_SCREEN_READER] == True:
+                            interfaces += [INTERFACE_SCREEN_READER]
+                        elif values[INTERFACE_MEMORY_READER] == True:
+                            interfaces += [INTERFACE_MEMORY_READER]
+                        settings.ENABLED_INTERFACES = interfaces
                     else:
-                        info('Log path did not change.')
-                elif x == 'TOY_TYPE':
-                    toys = []
-                    if values[TOY_LOVENSE] == True:
-                        toys += [TOY_LOVENSE]
-                    if values[TOY_XBOXCONTROLLER] == True:
-                        toys += [TOY_XBOXCONTROLLER]
-                    if values[TOY_BUTTPLUG] == True:
-                        toys += [TOY_BUTTPLUG]
-                    if values[TOY_COYOTE] == True:
-                        toys += [TOY_COYOTE]
-                    if values[TOY_KIZUNA] == True:
-                        toys += [TOY_KIZUNA]
-                    if values[TOY_EDGEOMATIC] == True:
-                        toys += [TOY_EDGEOMATIC]
-                    if values[TOY_XTOYS] == True:
-                        toys += [TOY_XTOYS]
-                    settings.TOY_TYPE = toys
-                elif x == 'ENABLED_INTERFACES':
-                    interfaces = []
-                    if values[INTERFACE_LOG_READER] == True:
-                        interfaces += [INTERFACE_LOG_READER]
-                    elif values[INTERFACE_SCREEN_READER] == True:
-                        interfaces += [INTERFACE_SCREEN_READER]
-                    elif values[INTERFACE_MEMORY_READER] == True:
-                        interfaces += [INTERFACE_MEMORY_READER]
-                    settings.ENABLED_INTERFACES = interfaces
-                else:
-                    setattr(settings, x, values[x])
+                        setattr(settings, x, values[x])
             save_config()
             load_config()
             config_window.close()
@@ -370,8 +628,10 @@ def save_config():
     info('Saving Config...')
     with io.open('settings.yaml', 'w', encoding='utf8') as outfile:
         data = {}
-        for x in config_fields.values():
-            data[x] = getattr(settings, x)
+        # breakpoint()
+        for v in config_fields.values():
+            for k, v in v.items():
+                data[v] = getattr(settings, v)
         yaml.dump(data, outfile, default_flow_style=False, allow_unicode=True)
         success('Done.')
 
@@ -393,8 +653,394 @@ def load_config():
     except FileNotFoundError:
         fail("Could not load configuration file - using defaults.")
         save_config()
+#
+#
+# #####################
+#
+# def make_startup_window():
+#     # Define the window's contents
+#     layout = [[sg.Image(filename="media/coyote_egg.png", subsample=4)], [
+#         sg.Button('Connect and play with DG-Lab Coyote', size=(40, 5), enable_events=True, bind_return_key=True,
+#                   tooltip="Start local websockets server and connect with device from your machine."),
+#         # sg.VerticalSeparator(),
+#         sg.Button("Try out program\nwithout device", size=(20, 5),
+#                   tooltip="Explore the program without connecting to a device."), sg.Button('Quit', size=(20, 5))]]
+#
+#     # Create the window
+#     window = sg.Window('DG-Lab Coyote Control Application - Start', layout, element_justification="centered")
+#     return window
+#
+#
+# ## On-boarding flow
+# def create_text_message(input_text="Hello world", font=None, color=None, bg_color=None):
+#     return sg.Text(text=input_text, font=font,  # background_color="#43414e", text_color="#FFFFFF",
+#                    text_color=color if color else None, background_color=bg_color if bg_color else None, expand_x=False,
+#                    expand_y=True, pad=(0, 0))
+#
+#
+# def ctm(input_text="Hello world", font="", color=None, bg_color=None):
+#     return create_text_message(input_text=input_text, font=font, color=color, bg_color=bg_color)
+#
+#
+# def make_flow_window_one():
+#     text_messages = [ctm("Welcome to PyCoyote (working title)!", font="bold", color=flow_text_color, bg_color=flow_background_color),
+#                      # ctm("* Talk natively over Bluetooth with the DG-Lab Coyote from"),
+#                      # ctm("  your Windows, MacOS or Linux PC."),
+#                      # ctm("* Try out stimulating default patterns, or"),
+#                      # ctm("  setup custom patterns by hand or from imported audio files."),
+#                      # ctm("* Automate increases and decreases in intensity, and more!"),
+#                      ctm("", color=flow_text_color, bg_color=flow_background_color),  # <br>
+#                      ctm("First, turn on your DG-Lab Coyote and click continue.", color=flow_text_color, bg_color=flow_background_color), ctm("", color=flow_text_color, bg_color=flow_background_color), ctm("", color=flow_text_color, bg_color=flow_background_color)]
+#
+#     # "\n\nE-stim safely.\nThe developers disavow any liability\nstemming"
+#     #     " from the use of this software.\n\nNEVER E-STIM ABOVE THE CHEST.\nEtc.", "Turn on your Coyote",
+#     #     "Connect to your Coyote via the bluetooth server. If you've already done so, skip to the next step.",
+#     #     "Equip your electrodes."
+#     #     "Done!"
+#
+#     # Create empty column layout list
+#     column_layout = []
+#
+#     # Add the text lines individually as Text (labels)
+#     for text in text_messages:
+#         column_layout.append([text])
+#
+#     # Add buttons
+#     column_layout.append([  # sg.Push(background_color="#43414e"),
+#         sg.Button('Continue', bind_return_key=True, size=(None, 5), expand_x=True, expand_y=True),
+#         # sg.Button('Cancel', size=(None, 2), expand_x=False)
+#     ])
+#
+#     #
+#     # # Add tick box to disable on-boarding for next time
+#     # # todo: Add at the end!
+#     # column_layout.append([
+#     #     sg.CBox(text="Don't show guide next time.", text_color="#FFFFFF", checkbox_color="#43414e", background_color="#43414e")
+#     # ])
+#
+#     # set column element size
+#     width, height = 400, 550
+#
+#     # Set padding for column element
+#     # pad_left, pad_right = 50, 20
+#     # pad_top, pad_bottom = 150, 50
+#
+#     # pad_left, pad_right = 50, 20
+#     # pad_top, pad_bottom = int(height/2), 50
+#
+#     pad_left, pad_right = 20, 20
+#     pad_top, pad_bottom = 50, 20
+#
+#     column = sg.Column(layout=column_layout, pad=((pad_left, pad_right), (pad_top, pad_bottom)),
+#                        vertical_alignment="bottom", expand_x=True, background_color=flow_background_color)
+#
+#     layout = [[sg.Image(filename="media/coyote_3.png", size=(width, height), subsample=4),  # background_color
+#                column]]
+#
+#     # Create the window
+#     window = sg.Window("DG-Lab Coyote Control Application - Flow 1", layout,  # background_color="#43414e",
+#                        margins=(0, 0), element_padding=(0, 0), background_color=flow_background_color,
+#                        no_titlebar=False)  # no_titlebar=True, size=(800, 550), margins=(50, 50)
+#
+#     return window
+#
+#
+# def make_flow_window_two():
+#     text_messages = [ctm("Start the DG-Lab Coyote intermediary server", font="bold", color=flow_text_color, bg_color=flow_background_color),
+#                      # ctm("", font="bold", color=flow_text_color, bg_color=flow_background_color),
+#                      ctm("This program connects to the DG-Lab Coyote via an intermediary server program.\n\nMore specifically, the coyote communicates with the server via Bluetooth, and the\nserver communicates with user GUI (this program) via HTTP/Websocket.\n\nThe server needs to run on a computer with Bluetooth 4.2+ capability.\n\nIf this computer has Bluetooth capability and you intend to connect to the coyote\ndirectly from it, press the 'Start server locally (default)' button below and then click\n'continue'. This is the default use-case for most people.", color=flow_text_color, bg_color=flow_background_color),
+#                      ctm("", color=flow_text_color, bg_color=flow_background_color),
+#                      ctm("If you are a power user and already running the server program on a different device,\nclick 'continue' instead. Be prepared to enter the relevant IP address and port.", color=flow_text_color, bg_color=flow_background_color),
+#                      # ctm("", color=flow_text_color, bg_color=flow_background_color),
+#                      # ctm("", color=flow_text_color, bg_color=flow_background_color),
+#                      # ctm("If you have already started the server separately", color=flow_text_color, bg_color=flow_background_color),
+#                      # ctm("(on another device, for example), press skip this step.", color=flow_text_color, bg_color=flow_background_color),
+#                      ctm("", color=flow_text_color, bg_color=flow_background_color),
+#                      ctm("", color=flow_text_color, bg_color=flow_background_color)]
+#
+#     # "\n\nE-stim safely.\nThe developers disavow any liability\nstemming"
+#     #     " from the use of this software.\n\nNEVER E-STIM ABOVE THE CHEST.\nEtc.", "Turn on your Coyote",
+#     #     "Connect to your Coyote via the bluetooth server. If you've already done so, skip to the next step.",
+#     #     "Equip your electrodes."
+#     #     "Done!"
+#
+#     # Create empty column layout list
+#     column_layout = []
+#
+#     # Add the text lines individually as Text (labels)
+#     for text in text_messages:
+#         column_layout.append([text])
+#
+#     # Add buttons
+#     column_layout.append([  # sg.Push(background_color="#43414e"),
+#         sg.Button('Start server locally (default)', bind_return_key=True, size=(None, 5), expand_x=True, expand_y=True),
+#         sg.Button('(fixme:) Continue', bind_return_key=False, size=(None, 5), expand_x=True, expand_y=True),
+#         # sg.Button('Cancel', size=(None, 2), expand_x=False)
+#     ])
+#
+#     #
+#     # # Add tick box to disable on-boarding for next time
+#     # # todo: Add at the end!
+#     # column_layout.append([
+#     #     sg.CBox(text="Don't show guide next time.", text_color="#FFFFFF", checkbox_color="#43414e", background_color="#43414e")
+#     # ])
+#
+#     # set column element size
+#     width, height = 400, 550
+#
+#     # Set padding for column element
+#     # pad_left, pad_right = 50, 20
+#     # pad_top, pad_bottom = 150, 50
+#
+#     # pad_left, pad_right = 50, 20
+#     # pad_top, pad_bottom = int(height/2), 50
+#
+#     pad_left, pad_right = 20, 20
+#     pad_top, pad_bottom = 50, 20
+#
+#     column = sg.Column(layout=column_layout, pad=((pad_left, pad_right), (pad_top, pad_bottom)),
+#                        vertical_alignment="bottom", expand_x=True, background_color=flow_background_color)
+#
+#     layout = [[sg.Image(filename="media/coyote_3.png", size=(width, height), subsample=4),
+#                column]]  # background_color="#62697B"
+#
+#     # Create the window
+#     window = sg.Window("DG-Lab Coyote Control Application - Flow 2", layout, margins=(0, 0), element_padding=(0, 0),
+#                        background_color=flow_background_color,
+#                        no_titlebar=False)  # no_titlebar=True, size=(800, 550), margins=(50, 50)
+#
+#     return window
+#
+#
+# def make_flow_window_three():
+#     text_messages = [ctm("Electrodes", font="bold", color=flow_text_color, bg_color=flow_background_color), ctm("Put on your e-stim electrodes and connect the cable to the device.", color=flow_text_color, bg_color=flow_background_color),
+#                      ctm("(Don't worry, this program won't zap you without your express permission.)", color=flow_text_color, bg_color=flow_background_color), ctm("", color=flow_text_color, bg_color=flow_background_color),
+#                      ctm("Click continue to continue.", color=flow_text_color, bg_color=flow_background_color), ctm("", color=flow_text_color, bg_color=flow_background_color), ctm("", color=flow_text_color, bg_color=flow_background_color)]
+#
+#     # "\n\nE-stim safely.\nThe developers disavow any liability\nstemming"
+#     #     " from the use of this software.\n\nNEVER E-STIM ABOVE THE CHEST.\nEtc.", "Turn on your Coyote",
+#     #     "Connect to your Coyote via the bluetooth server. If you've already done so, skip to the next step.",
+#     #     "Equip your electrodes."
+#     #     "Done!"
+#
+#     # Create empty column layout list
+#     column_layout = []
+#
+#     # Add the text lines individually as Text (labels)
+#     for text in text_messages:
+#         column_layout.append([text])
+#
+#     # Add buttons
+#     column_layout.append([  # sg.Push(background_color="#43414e"),
+#         sg.Button('Continue', bind_return_key=True, size=(None, 5), expand_x=True, expand_y=True),
+#         # sg.Button('Skip', bind_return_key=False, size=(None, 5), expand_x=True, expand_y=True),
+#         # sg.Button('Cancel', size=(None, 2), expand_x=False)
+#     ])
+#
+#     #
+#     # # Add tick box to disable on-boarding for next time
+#     # # todo: Add at the end!
+#     # column_layout.append([
+#     #     sg.CBox(text="Don't show guide next time.", text_color="#FFFFFF", checkbox_color="#43414e", background_color="#43414e")
+#     # ])
+#
+#     # set column element size
+#     width, height = 400, 550
+#
+#     # Set padding for column element
+#     # pad_left, pad_right = 50, 20
+#     # pad_top, pad_bottom = 150, 50
+#
+#     # pad_left, pad_right = 50, 20
+#     # pad_top, pad_bottom = int(height/2), 50
+#
+#     pad_left, pad_right = 20, 20
+#     pad_top, pad_bottom = 50, 20
+#
+#     column = sg.Column(layout=column_layout, pad=((pad_left, pad_right), (pad_top, pad_bottom)),
+#                        vertical_alignment="bottom", expand_x=True, background_color=flow_background_color)
+#
+#     layout = [[sg.Image(filename="media/eggplant.png", subsample=3, size=(width, height)),
+#                column]]  # background_color="#62697B"
+#
+#     # Create the window
+#     window = sg.Window("DG-Lab Coyote Control Application - Flow 3", layout, margins=(0, 0), element_padding=(0, 0),
+#                        background_color=flow_background_color,
+#                        no_titlebar=False)  # no_titlebar=True, size=(800, 550), margins=(50, 50)
+#
+#     return window
+#
+#
+# def make_connect_window():
+#     # Define the window's contents
+#     layout = [
+#
+#         [sg.Image(filename="media/000232-bluetooth-logo.png", subsample=16, expand_x=True),
+#          # sg.Text("Connection graphic arrows placeholder", expand_x=True),
+#          sg.Image(filename="media/coyote_3.png", subsample=4, expand_x=True, key="-COYOTE_IMG-")],
+#
+#         # [
+#         #     # todo: use sg.Output() instead
+#         #     sg.Multiline(autoscroll=True, auto_refresh=True, expand_x=True,
+#         #                  size=(None, 3), no_scrollbar=True, focus=False, disabled=True, background_color="tan")
+#         # ],
+#
+#         [sg.HorizontalSeparator()],
+#
+#         [sg.Text("Turn on your Coyote and click Connect."), sg.Image(sg.EMOJI_BASE64_HAPPY_THUMBS_UP)],
+#
+#         [sg.Button("Connect automatically", size=(40, 2), bind_return_key=True, key="-CONNECT_BUTTON-"),
+#          sg.Button("Connect manually\nvia UUID", size=(20, 2), bind_return_key=True, key="-CONNECT_MAN_BUTTON-"),
+#          # todo: This really shouldn't be a separate button.
+#          sg.Button("Continue", disabled=True, size=(20, 2), key="-CONNECT_CONTINUE_BUTTON-"),
+#          sg.VerticalSeparator(pad=(20, 0)), sg.Button("Back", size=(20, 2))],
+#
+#     ]
+#
+#     window = sg.Window("DG-Lab Coyote Control Application - Connection Wizard", layout=layout,
+#                        element_justification="left")
+#     return window
+#
+#
+# def make_adv_settings_window():
+#     layout = [[sg.Text("Hey this is the advanced setup section. TODO.")], [sg.Button("Back", bind_return_key=True)]]
+#
+#     window = sg.Window("DG-Lab Coyote Control Application - Advanced Setup", layout=layout, size=(800, 600))
+#
+#     return window
+#
+#
+# def make_main_window():
+#     # layout = [[sg.Text("Hello there lol")],
+#     #           [sg.Button("Back", bind_return_key=True)],
+#     #           [sg.Button("Quit")]]
+#
+#     layout = [[sg.Slider(), sg.Slider()],
+#
+#               [sg.Button("STOP", size=(None, 5))],
+#
+#               [sg.Button("Load audio file (WAV)")],
+#
+#               [sg.Canvas(size=(200, 200))],
+#
+#               [sg.Listbox(values=["placeholder", "placeholder_2"])],
+#
+#               [sg.Button("Quit", size=(20, 2))]
+#
+#               ]
+#
+#     window = sg.Window("DG-Lab Coyote Control Application - Main", layout, size=(800, 600))
+#     return window
+#
+#
+#
+# def onboard_main():
+#     # Create startup window
+#     window = make_startup_window()
+#
+#     # Display and interact with the Window using an Event Loop
+#     # Main loop
+#     # User switches windows by creating new window instances and closing the old ones.
+#     while True:
+#         event, values = window.read()  # timeout=1000
+#         print(event, values)
+#
+#         # Global
+#         # See if user wants to quit or window was closed. This triggers for all "Quit"-named buttons in the program.
+#         if event == sg.WINDOW_CLOSED or event == 'Quit':  # "Quit" button alias just used directly here as command, lol.
+#             # Breaking will end the program.
+#             break
+#
+#         # Startup window
+#         if window.Title == "DG-Lab Coyote Control Application - Start":
+#             if event == "Connect and play with DG-Lab Coyote":
+#                 window.close()
+#                 # window = make_connect_window()
+#                 window = make_flow_window_one()
+#             if event == "Try out program\nwithout device":
+#                 window.close()
+#                 window = make_adv_settings_window()
+#
+#         if window.Title == "DG-Lab Coyote Control Application - Flow 1":
+#             if event == "Continue":
+#                 window.close()
+#                 window = make_flow_window_two()
+#
+#         if window.Title == "DG-Lab Coyote Control Application - Flow 2":
+#             if event == "(fixme:) Continue":
+#                 window.close()
+#                 window = make_flow_window_three()
+#             if event == "Start server locally (default)":
+#                 print("subprocess call to separate server executable here, please!")
+#
+#                 executable = ["python", "../server_gui/server_gui.py"]
+#
+#                 arguments = []
+#
+#                 # Execute the server cli
+#                 pid = subprocess.Popen(executable + arguments, bufsize=1, env=os.environ.copy(),
+#                                        shell=True, cwd="../server_gui/").pid  # for some reason, shell=False yields a modulenotfound error when running the script, probably because the virtual environment isn't being set correctly. Weird.
+#
+#
+#                 # Give process time to start.
+#                 # time.sleep(5)
+#                 # Continue to next step
+#                 # window.close()
+#                 # window = make_flow_window_three()
+#
+#
+#         if window.Title == "DG-Lab Coyote Control Application - Flow 3":
+#             if event == "Continue":
+#                 window.close()
+#                 window = make_main_window()
+#
+#         # Main window  (After successful connection)
+#         if window.Title == "DG-Lab Coyote Control Application - Main":
+#             if event == "Back":
+#                 window.close()
+#                 window = make_startup_window()
+#
+#         # Advanced Setup window
+#         if window.Title == "DG-Lab Coyote Control Application - Advanced Setup":
+#             if event == "Back":
+#                 window.close()
+#                 window = make_startup_window()
+#
+#         # Connection wizard
+#         if window.Title == "DG-Lab Coyote Control Application - Connection Wizard":
+#             if event == "Back":
+#                 window.close()
+#                 window = make_startup_window()
+#             if event == "-CONNECT_BUTTON-":
+#                 window["-COYOTE_IMG-"].update(filename="media/coyote_3_white_2.png", subsample=4)
+#                 # Set button to disabled after pressing once.
+#                 window["-CONNECT_BUTTON-"].update(disabled=True)
+#                 window["-CONNECT_MAN_BUTTON-"].update(disabled=True)
+#
+#                 window["-CONNECT_CONTINUE_BUTTON-"].update(disabled=False)
+#
+#             if event == "-CONNECT_CONTINUE_BUTTON-":
+#                 window.close()
+#                 window = make_main_window()
+#
+#     # Finish up by removing from the screen
+#     window.close()
+#
+#
+#
+#
+# #####################
+
+
 
 if __name__ == "__main__":
+
+    # flow_text_color = "#FFF"
+    # flow_background_color = "#43414e"
+    #
+    # onboard_main()
+    # raise Exception()
+
     load_config()
     loop = asyncio.get_event_loop()
     while True:

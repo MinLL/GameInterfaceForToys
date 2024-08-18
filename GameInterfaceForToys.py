@@ -45,7 +45,6 @@ config_fields = {
 
     # Screen reader interface
     "interface_screen_reader": {
-        'Window Update Frequency': 'WINDOW_UPDATE_FREQUENCY',
         'Target Monitor for Screen Capture': 'OUTPUT_IDX'
     },
 
@@ -99,9 +98,15 @@ config_fields = {
         'XToys Shock Max Strength %': 'XTOYS_SHOCK_MAX'
     },
 
+    # Edge-o-Matic
+    "maustec": {
+        "Maustec host": "MAUSTEC_HOST"
+    },
+
     # General
     "general": {
         'Is the OS Windows?': 'IS_WINDOWS',
+        'Window Update Frequency': 'WINDOW_UPDATE_FREQUENCY',
         'Warn On Stack Dump': 'WARN_ON_STACK_DUMP',
         'Warn On Stack Dump SOUND': 'WARN_ON_STACK_DUMP_SOUND'
     },
@@ -341,8 +346,7 @@ def open_config_modal():
     for k, v in config_fields["interfaces"].items():
         match v:
             case "ENABLED_INTERFACES":
-                field = [sg.Text("Interface:"),
-                         sg.Column(layout=[
+                field = [sg.Column(layout=[
                                             [sg.Radio(INTERFACE_LOG_READER, 'interfaces', key=INTERFACE_LOG_READER,
                                                      default=INTERFACE_LOG_READER in settings.ENABLED_INTERFACES, enable_events=True)],
                                             [sg.Radio(INTERFACE_SCREEN_READER, 'interfaces', key=INTERFACE_SCREEN_READER,
@@ -354,7 +358,7 @@ def open_config_modal():
                          ]
 
             case _:
-                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
 
         interface_frame.append(field)
 
@@ -365,8 +369,7 @@ def open_config_modal():
     for k, v in config_fields["toys"].items():
         match v:
             case "TOY_TYPE":
-                field = [sg.Text('Enabled toys:'),
-                         sg.Column(layout=[
+                field = [sg.Column(layout=[
                                           [sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE)],
                                           [sg.Checkbox(TOY_XTOYS, key=TOY_XTOYS, default=TOY_XTOYS in settings.TOY_TYPE)],
                                           [sg.Checkbox(TOY_BUTTPLUG, key=TOY_BUTTPLUG, default=TOY_BUTTPLUG in settings.TOY_TYPE)],
@@ -379,7 +382,7 @@ def open_config_modal():
                         ]
 
             case _:
-                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
 
         toys_frame.append(field)
 
@@ -403,7 +406,7 @@ def open_config_modal():
                 field = []
 
             case _:
-                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
 
         general_frame.append(field)
 
@@ -423,7 +426,7 @@ def open_config_modal():
                 field = [sg.Checkbox(k, key=v, default=settings.PRINT_LOG_LINES)]
 
             case _:
-                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
 
         log_reader_frame.append(field)
 
@@ -434,7 +437,7 @@ def open_config_modal():
     for k, v in config_fields["interface_screen_reader"].items():
         match v:
             case _:
-                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
 
         screen_reader_frame.append(field)
 
@@ -445,7 +448,7 @@ def open_config_modal():
     for k, v in config_fields["bethesda"].items():
         match v:
             case _:
-                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
 
         bethesda_frame.append(field)
 
@@ -456,7 +459,7 @@ def open_config_modal():
     for k, v in config_fields["buttplugio"].items():
         match v:
             case _:
-                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
 
         buttplugio_frame.append(field)
 
@@ -471,7 +474,7 @@ def open_config_modal():
                 field = [sg.Checkbox(k, key=v, default=settings.CHASTER_ENABLED)]
 
             case _:
-                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
 
         chaster_frame.append(field)
 
@@ -482,7 +485,7 @@ def open_config_modal():
     for k, v in config_fields["coyote"].items():
         match v:
             case _:
-                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
 
         coyote_frame.append(field)
 
@@ -497,7 +500,7 @@ def open_config_modal():
                 field = [sg.Checkbox(k, key=v, default=settings.LOVENSE_USE_NEW_API)]
 
             case _:
-                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
 
         lovense_frame.append(field)
 
@@ -510,9 +513,35 @@ def open_config_modal():
         match v:
 
             case _:
-                field = [sg.Text(k), sg.Input(getattr(settings, v), size=(60, 1), key=v)]
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
 
         xtoys_frame.append(field)
+
+
+    # XToys related settings
+    xtoys_frame = []
+
+    # Iterate over XToys related settings, with special handling for fields that require it.
+    # fixme: This should be under toys/integrations, not a separate checkbox.
+    for k, v in config_fields["xtoys"].items():
+        match v:
+
+            case _:
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
+
+        xtoys_frame.append(field)
+
+
+    # # Maustec related settings
+    maustec_frame = []
+
+    # Iterate over Maustec related settings related settings. No special case handling necessary.
+    for k, v in config_fields["maustec"].items():
+        match v:
+            case _:
+                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
+
+        maustec_frame.append(field)
 
 
     config_layout = []
@@ -524,23 +553,56 @@ def open_config_modal():
     #     ]
     # )
 
-    config_layout.append([sg.Frame(title="Interface settings", layout=interface_frame)])
-    config_layout.append([sg.Frame(title="Toy settings", layout=toys_frame)])
-    config_layout.append([sg.Frame(title="Log reader settings", layout=log_reader_frame)])
-    config_layout.append([sg.Frame(title="General settings", layout=general_frame)])
-    # config_layout.append([sg.Frame(title="General settings", layout=general_frame, expand_x=True)])
-    config_layout.append([sg.Frame(title="Screen reader settings", layout=screen_reader_frame)])
-    config_layout.append([sg.Frame(title="Bethesda game settings", layout=bethesda_frame)])
-    config_layout.append([sg.Frame(title="Buttplug.io settings", layout=buttplugio_frame)])
-    config_layout.append([sg.Frame(title="Chaster settings", layout=chaster_frame)])
-    config_layout.append([sg.Frame(title="DG-Lab Coyote settings", layout=coyote_frame)])
-    config_layout.append([sg.Frame(title="Lovense settings", layout=lovense_frame)])
-    config_layout.append([sg.Frame(title="XToys settings", layout=xtoys_frame)])
+    config_layout.append(
+        [
+            sg.Column(layout=
+                      [
+                          [sg.Frame(title="Interface", layout=interface_frame, expand_y=True)],
+                          [sg.Frame(title="Log reader settings", layout=log_reader_frame, expand_y=True)],
+                          [sg.Frame(title="Screen reader settings", layout=screen_reader_frame, expand_y=True)],
+                          [sg.HorizontalSeparator()],
+                          [sg.Frame(title="Chaster settings", layout=chaster_frame, expand_y=True)],
+                          [sg.Frame(title="Bethesda game settings", layout=bethesda_frame, expand_y=True)],
+                          [sg.Frame(title="General settings", layout=general_frame, expand_y=True)]
+
+                      ]
+            ),
+
+            sg.VerticalSeparator(),
+
+            sg.Column(layout=
+                      [
+                          [sg.Frame(title="Toys", layout=toys_frame, expand_y=True)],
+                          [sg.Frame(title="Buttplug.io settings", layout=buttplugio_frame, expand_y=True)],
+                          [sg.Frame(title="DG-Lab Coyote settings", layout=coyote_frame, expand_y=True)],
+                          [sg.Frame(title="Lovense settings", layout=lovense_frame, expand_y=True)],
+                          [sg.Frame(title="XToys settings", layout=xtoys_frame, expand_y=True)],
+                          [sg.Frame(title="Maustec settings", layout=maustec_frame, expand_y=True)]
+                      ]
+            )
+
+        ]
+    )
+
+
+    # config_layout.append([sg.Frame(title="Interface", layout=interface_frame)])
+    # config_layout.append([sg.Frame(title="Toys", layout=toys_frame)])
+    # config_layout.append([sg.Frame(title="Log reader settings", layout=log_reader_frame)])
+    # config_layout.append([sg.Frame(title="General settings", layout=general_frame)])
+    # # config_layout.append([sg.Frame(title="General settings", layout=general_frame, expand_x=True)])
+    # config_layout.append([sg.Frame(title="Screen reader settings", layout=screen_reader_frame)])
+    # config_layout.append([sg.Frame(title="Bethesda game settings", layout=bethesda_frame)])
+    # config_layout.append([sg.Frame(title="Buttplug.io settings", layout=buttplugio_frame)])
+    # config_layout.append([sg.Frame(title="Chaster settings", layout=chaster_frame)])
+    # config_layout.append([sg.Frame(title="DG-Lab Coyote settings", layout=coyote_frame)])
+    # config_layout.append([sg.Frame(title="Lovense settings", layout=lovense_frame)])
+    # config_layout.append([sg.Frame(title="XToys settings", layout=xtoys_frame)])
+    # config_layout.append([sg.Frame(title="Maustec settings", layout=maustec_frame)])
 
 
     config_layout.append([sg.Button(GUI_CONFIG_SAVE), sg.Button(GUI_CONFIG_EXIT)])
 
-    config_window = sg.Window('GIFT Configuration', [[sg.Column(config_layout, scrollable=True, expand_y=True, expand_x=True)]], modal=True, resizable=True)
+    config_window = sg.Window('GIFT Configuration', [[sg.Column(config_layout, scrollable=False, expand_y=True, expand_x=True)]], modal=True, resizable=True)
     while True:
         event, values = config_window.read()
         if event == GUI_CONFIG_EXIT or event == sg.WIN_CLOSED:
@@ -630,8 +692,8 @@ def save_config():
         data = {}
         # breakpoint()
         for v in config_fields.values():
-            for k, v in v.items():
-                data[v] = getattr(settings, v)
+            for k, x in v.items():
+                data[x] = getattr(settings, x)
         yaml.dump(data, outfile, default_flow_style=False, allow_unicode=True)
         success('Done.')
 

@@ -371,11 +371,11 @@ def open_config_modal():
         match v:
             case "TOY_TYPE":
                 field = [sg.Column(layout=[
+                                          [sg.Checkbox(TOY_XBOXCONTROLLER, key=TOY_XBOXCONTROLLER, default=TOY_XBOXCONTROLLER in settings.TOY_TYPE)],
                                           [sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE)],
                                           [sg.Checkbox(TOY_XTOYS, key=TOY_XTOYS, default=TOY_XTOYS in settings.TOY_TYPE)],
                                           [sg.Checkbox(TOY_BUTTPLUG, key=TOY_BUTTPLUG, default=TOY_BUTTPLUG in settings.TOY_TYPE)],
                                           [sg.Checkbox(TOY_COYOTE, key=TOY_COYOTE, default=TOY_COYOTE in settings.TOY_TYPE)],
-                                          [sg.Checkbox(TOY_XBOXCONTROLLER, key=TOY_XBOXCONTROLLER, default=TOY_XBOXCONTROLLER in settings.TOY_TYPE)],
                                           [sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE)],
                                           [sg.Checkbox(TOY_EDGEOMATIC, key=TOY_EDGEOMATIC, default=TOY_EDGEOMATIC in settings.TOY_TYPE)],
                                           ]
@@ -420,8 +420,8 @@ def open_config_modal():
             case "LOG_PATH":
                 field = [
                             sg.Column(layout=[
-                            [sg.Text('Current log file: {}'.format(settings.LOG_PATH), tooltip="This lets you specify the log file required to interface with games including Skyrim, FO4 and M&B Bannerlords 2. The default value is ../Documents/My Games/Fallout4/Logs/Script/Papyrus.0.log")],
-                            [sg.FileBrowse('Select new log file', key=v, disabled=not INTERFACE_LOG_READER in settings.ENABLED_INTERFACES)]])
+                            [sg.Text(text='Current log file: {}'.format(settings.LOG_PATH), tooltip="This lets you specify the log file required to interface with games including Skyrim, FO4 and M&B Bannerlords 2. The default value is ../Documents/My Games/Fallout4/Logs/Script/Papyrus.0.log", key="-LOG_PATH_TEXT-")],
+                            [sg.FileBrowse('Select another log file', key=v, disabled=not INTERFACE_LOG_READER in settings.ENABLED_INTERFACES, enable_events=True)]])
                         ]
 
             case "PRINT_LOG_LINES":
@@ -484,7 +484,6 @@ def open_config_modal():
     lovense_frame = []
 
     # Iterate over Lovense related settings, with special handling for fields that require it.
-    # fixme: This should be under toys/integrations, not a separate checkbox.
     for k, v in config_fields["lovense"].items():
         match v:
             case "LOVENSE_USE_NEW_API":
@@ -499,7 +498,6 @@ def open_config_modal():
     xtoys_frame = []
 
     # Iterate over XToys related settings, with special handling for fields that require it.
-    # fixme: This should be under toys/integrations, not a separate checkbox.
     for k, v in config_fields["xtoys"].items():
         match v:
 
@@ -507,21 +505,6 @@ def open_config_modal():
                 field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
 
         xtoys_frame.append(field)
-
-
-    # XToys related settings
-    xtoys_frame = []
-
-    # Iterate over XToys related settings, with special handling for fields that require it.
-    # fixme: This should be under toys/integrations, not a separate checkbox.
-    for k, v in config_fields["xtoys"].items():
-        match v:
-
-            case _:
-                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v)]
-
-        xtoys_frame.append(field)
-
 
     # # Maustec related settings
     maustec_frame = []
@@ -534,23 +517,19 @@ def open_config_modal():
 
         maustec_frame.append(field)
 
-
     config_layout = []
-
-    # config_layout.append(
-    #     [
-    #         sg.Column(expand_x=True, vertical_alignment="top", layout=[[sg.Frame(title="Interface settings", layout=interface_frame, expand_x=True, expand_y=True)]]),
-    #         sg.Column(expand_x=True, vertical_alignment="top", layout=[[sg.Frame(title="Toy settings", layout=toys_frame, expand_x=True, expand_y=True)]])
-    #     ]
-    # )
 
     config_layout.append(
         [
             sg.Column(vertical_alignment="top", expand_x=True, expand_y=True, layout=
                       [
-                          [sg.Frame(title="Game interface ('input')", expand_x=True, vertical_alignment="top", layout=interface_frame)],
+                          [sg.Frame(title="Game interface ('Input')", expand_x=True, vertical_alignment="top", layout=interface_frame)],
                           [sg.Frame(title="Log reader settings", expand_x=True, layout=log_reader_frame)],
                           [sg.Frame(title="Screen reader settings", expand_x=True, layout=screen_reader_frame)],
+
+                          [sg.VPush()],
+
+                          [sg.HorizontalSeparator()],
 
                           [sg.VPush()],
 
@@ -558,7 +537,13 @@ def open_config_modal():
 
                           [sg.VPush()],
 
-                          [sg.Frame(title="General settings", expand_x=True, layout=general_frame)]
+                          [sg.HorizontalSeparator()],
+
+                          [sg.VPush()],
+
+                          [sg.Frame(title="General settings", expand_x=True, layout=general_frame)],
+
+                          [sg.VPush()]
 
                       ]
             ),
@@ -569,11 +554,11 @@ def open_config_modal():
 
             sg.Column(vertical_alignment="top", expand_x=True, expand_y=True, layout=
                       [
-                          [sg.Frame(title="Toy integration ('output')", expand_x=True, layout=toys_frame)],
-                          [sg.Frame(title="Buttplug.io settings", expand_x=True, layout=buttplugio_frame)],
-                          [sg.Frame(title="DG-Lab Coyote settings", expand_x=True, layout=coyote_frame)],
+                          [sg.Frame(title="Toy integration ('Output')", expand_x=True, layout=toys_frame)],
                           [sg.Frame(title="Lovense settings", expand_x=True, layout=lovense_frame)],
+                          [sg.Frame(title="Buttplug.io settings", expand_x=True, layout=buttplugio_frame)],
                           [sg.Frame(title="XToys settings", expand_x=True, layout=xtoys_frame)],
+                          [sg.Frame(title="DG-Lab Coyote settings", expand_x=True, layout=coyote_frame)],
                           [sg.Frame(title="Maustec settings", expand_x=True, layout=maustec_frame)],
                       ]
             ),
@@ -581,6 +566,7 @@ def open_config_modal():
     )
 
     config_layout.append([sg.HorizontalSeparator()])
+
     config_layout.append([sg.Button(GUI_CONFIG_SAVE, expand_x=True), sg.Push(), sg.Button(GUI_CONFIG_EXIT, expand_x=True)])
 
     config_window = sg.Window('GIFT Configuration', [[sg.Column(config_layout, scrollable=False, expand_y=True, expand_x=True)]], modal=True, resizable=True)
@@ -624,7 +610,7 @@ def open_config_modal():
                 for k, v in config_fields["interface_log_reader"].items():
                     config_window[v].update(disabled=True)
 
-        # Allow Chaster options based on toggle.
+        # (Dis-)allow Chaster options based on toggle.
         if event == "CHASTER_ENABLED":
             # Avoid updating state of Chaster toggle itself. Work-around/fixme.
             temp_dict = copy.deepcopy(config_fields["chaster"])
@@ -637,7 +623,13 @@ def open_config_modal():
                 for k, v in temp_dict.items():
                     config_window[v].update(disabled=True)
 
-        #
+        # Update shown Papyrus log path immediately when a new file has been chosen.
+        if event == "LOG_PATH":
+            config_window["-LOG_PATH_TEXT-"].update('Current log file: {}'.format(values["LOG_PATH"]))
+
+
+
+
 
         if event == GUI_CONFIG_SAVE:
             for category in config_fields.keys():

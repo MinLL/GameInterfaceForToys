@@ -710,8 +710,10 @@ def load_config():
         with io.open('settings.yaml', 'r', encoding='utf8') as stream:
             info('Loading Config...')
             data = yaml.safe_load(stream)
-            for x in config_fields.values():
-                safe_load_config(x)
+
+            for category in config_fields.keys():
+                for x in config_fields[category].values():
+                    safe_load_config(x)
             success('Done.')
     except FileNotFoundError:
         fail("Could not load configuration file - using defaults.")

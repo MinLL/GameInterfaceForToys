@@ -1,0 +1,15 @@
+pyyaml
+bleak
+requests
+FreeSimpleGui
+buttplug
+pyserial
+git+https://github.com/pybluez/pybluez.git#egg=pybluez
+flask
+requests-oauthlib
+opencv-contrib-python
+dxcam
+readwritememory
+pywin32
+pillow
+httpx

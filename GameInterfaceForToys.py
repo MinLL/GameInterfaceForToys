@@ -7,10 +7,12 @@ import time
 import types
 import sys
 import importlib
+
 import yaml
 import traceback
 import math
 import copy
+import platform
 
 from common.constants import *
 from common.util import *
@@ -19,9 +21,11 @@ from toys.base import FEATURE_VIBRATOR, FEATURE_ESTIM
 from events.eventloader import EventLoader
 import toys.chastity.chaster.chaster
 import FreeSimpleGUI as sg
+
 from interfaces.log_reader import LogReaderInterface
-from interfaces.memory_reader import MemoryReaderInterface
-from interfaces.pixel_reader import PixelReaderInterface
+if platform.system() == "Windows":  # Only import interfaces that are actually supported on this platform.
+    from interfaces.memory_reader import MemoryReaderInterface
+    from interfaces.pixel_reader import PixelReaderInterface
 
 # Note, values are all PSG KEYS.
 # Note: Entries appear in PSG in the order listed.
@@ -664,7 +668,7 @@ def open_config_modal():
 
                 # Reset all settings, refresh settings.yaml with default values from settings.py, close settings window.
                 if event == GUI_CONFIG_RESET_SETTINGS:
-                    print("reset")
+                    info("reset")
                     importlib.reload(settings)  # Reload settings module
                     save_config()  # Repopulate settings.yaml with default values from settings.py
 
@@ -759,13 +763,18 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     while True:
         for interface in settings.ENABLED_INTERFACES:
-            if interface == INTERFACE_LOG_READER:
-                ssi = LogReaderInterface(toy_type=settings.TOY_TYPE)
-            elif interface == INTERFACE_SCREEN_READER:
-                ssi = PixelReaderInterface(toy_type=settings.TOY_TYPE)
-            elif interface == INTERFACE_MEMORY_READER:
-                ssi = MemoryReaderInterface(toy_type=settings.TOY_TYPE)
-
+            if platform.system() == "Windows":
+                if interface == INTERFACE_SCREEN_READER:
+                    ssi = PixelReaderInterface(toy_type=settings.TOY_TYPE)
+                elif interface == INTERFACE_MEMORY_READER:
+                    ssi = MemoryReaderInterface(toy_type=settings.TOY_TYPE)
+                elif interface == INTERFACE_LOG_READER:
+                    ssi = LogReaderInterface(toy_type=settings.TOY_TYPE)
+            else:
+                if interface == INTERFACE_LOG_READER:
+                    ssi = LogReaderInterface(toy_type=settings.TOY_TYPE)
+                else:
+                    raise NotImplementedError(f"Interface {interface} is currently not supported on {platform.system()}. For now, please delete your settings.yaml and restart the program.")
         try:
             loop.run_until_complete(main())
         except ReloadException as e:
@@ -778,6 +787,5 @@ if __name__ == "__main__":
             loop.run_until_complete(run_task(ssi.shutdown()))
             success("Goodbye!")
             break
-
 
 

@@ -10,6 +10,6 @@ requests-oauthlib
 opencv-contrib-python
 dxcam
 readwritememory
-pillow
 pywin32
+pillow
 httpx

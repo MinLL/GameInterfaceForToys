@@ -466,6 +466,7 @@ def open_config_modal():
 
     # Iterate over Chaster related settings, with special handling for fields that require it.
     # fixme: This should probably be listed under toys/integrations, not a separate section.
+    # todo: Add "Authenticate with Chaster" here.
     for k, v in config_fields["chaster"].items():
         match v:
             case "CHASTER_ENABLED":
@@ -656,9 +657,11 @@ def open_config_modal():
         # Let user reset all settings to default values with a modal popup
         if event == "Reset all settings":
             reset_confirmation_modal = sg.Window(title="Confirmation", modal=True, layout=[
-                [sg.Text("Really reset all settings?\nThis resets everything in settings.yaml to their default values.\nNote: This does NOT reset event-toy mappings made on the Event Map Configuration window (toy-event-map.yaml).")],
-                [sg.Button("Yes, reset all settings.", enable_events=True, expand_x=True, key=GUI_CONFIG_RESET_SETTINGS)],
-                [sg.Button("Cancel", enable_events=True, expand_x=True, key=GUI_CONFIG_EXIT)]
+                [sg.Text("Really reset all settings?\nThis resets everything in settings.yaml to their default values.\n"
+                         "Note: This does NOT reset event-toy mappings made on the Event Map Configuration window (toy-event-map.yaml).")],
+
+                [sg.Button("Yes, reset all settings.", enable_events=True, expand_x=True, key=GUI_CONFIG_RESET_SETTINGS),
+                 sg.Button("Cancel", enable_events=True, expand_x=True, key=GUI_CONFIG_EXIT)]
             ])
 
             while True:

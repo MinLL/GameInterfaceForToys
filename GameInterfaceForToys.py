@@ -106,7 +106,6 @@ config_fields = {
 
     # General settings
     "general": {
-        'Is the OS Windows?': 'IS_WINDOWS',
         'Warn On Stack Dump': 'WARN_ON_STACK_DUMP',
         'Warn On Stack Dump SOUND': 'WARN_ON_STACK_DUMP_SOUND',
         'UI Window Update Frequency': 'WINDOW_UPDATE_FREQUENCY'
@@ -400,10 +399,6 @@ def open_config_modal():
     # Iterate over general settings, with special handling for fields that require it.
     for k, v in config_fields["general"].items():
         match v:
-
-            case "IS_WINDOWS":
-                field = [sg.Checkbox(k, key=v, default=settings.IS_WINDOWS, tooltip="Leave this on if you're running on Windows, otherwise the script will have issues traversing the filesystem. Default: Enabled.")]
-
             case "WARN_ON_STACK_DUMP":
                 field = [sg.Checkbox(k, key=v, default=settings.WARN_ON_STACK_DUMP, tooltip="This will let you know in-game if the script has crashed unexpectedly. Choose between an auditive cue or a distinct vibration pattern through your toys."),
                                 sg.Radio("Play a sound","WARN_ON_STACK_DUMP_SOUND", key="WARN_ON_STACK_DUMP_SOUND", default=settings.WARN_ON_STACK_DUMP_SOUND),

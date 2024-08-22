@@ -358,7 +358,7 @@ def open_config_modal():
         match v:
             case "ENABLED_INTERFACES":
                 field = [sg.Column(layout=[
-                                            [sg.Radio(INTERFACE_LOG_READER + " " + "(Skyrim, Fallout 4, Mount & Blade: Bannerlords 2, Night of Revenge)", 'interfaces', key=INTERFACE_LOG_READER,
+                                            [sg.Radio(INTERFACE_LOG_READER + " " + "(Skyrim, Fallout 4, Mount & Blade 2: Bannerlord, Night of Revenge)", 'interfaces', key=INTERFACE_LOG_READER,
                                                      default=INTERFACE_LOG_READER in settings.ENABLED_INTERFACES, enable_events=True)],
                                             [sg.Radio(INTERFACE_SCREEN_READER + " " + "(Elden Ring)", 'interfaces', key=INTERFACE_SCREEN_READER,
                                                      default=INTERFACE_SCREEN_READER in settings.ENABLED_INTERFACES, enable_events=True)],
@@ -426,7 +426,7 @@ def open_config_modal():
             case "LOG_PATH":
                 field = [
                             sg.Column(layout=[
-                            [sg.Text(text='Current log file: {}'.format(settings.LOG_PATH), tooltip="This lets you specify the log file required to interface with games including Skyrim, FO4 and M&B Bannerlords 2. The default value is ../Documents/My Games/Fallout4/Logs/Script/Papyrus.0.log", key="-LOG_PATH_TEXT-")],
+                            [sg.Text(text='Current log file: {}'.format(settings.LOG_PATH), tooltip="This lets you specify the log file required to interface with games including Skyrim, FO4 and M&B 2: Bannerlord.", key="-LOG_PATH_TEXT-")],
                             [sg.FileBrowse('Select another log file', key=v, disabled=not INTERFACE_LOG_READER in settings.ENABLED_INTERFACES, enable_events=True)]])
                         ]
 

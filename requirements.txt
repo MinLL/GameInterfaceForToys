@@ -1,3 +1,4 @@
+# Standard dependencies
 pyyaml
 bleak
 requests
@@ -8,8 +9,23 @@ git+https://github.com/pybluez/pybluez.git#egg=pybluez
 flask
 requests-oauthlib
 opencv-contrib-python
-dxcam
-readwritememory
-pywin32
 pillow
 httpx
+
+
+# # Windows-specific dependencies
+# Screen reading support
+dxcam; sys_platform == 'win32'
+
+# Memory reading support
+readwritememory; sys_platform == 'win32'
+
+# ??
+pywin32; sys_platform == 'win32'
+
+
+# # Linux-specific dependencies
+
+# Xbox controller rumble support
+pygame; sys_platform == 'linux'
+

@@ -8,7 +8,7 @@ from common.constants import *
 # Important variables to configure for all users:
 # LOG_PATH = '../Documents/My Games/Skyrim VR/Logs/Script/Papyrus.0.log' # Full path to the Papyrus log that the script should parse
 LOG_PATH = '../Documents/My Games/Fallout4/Logs/Script/Papyrus.0.log' # Full path to the Papyrus log that the script should parse
-CHARACTER_NAME = "Min"  # The name of your character. 
+CHARACTER_NAME = "Prisoner"  # The name of your character.
 
 # Toy configuration
 TOY_TYPE = []
@@ -48,7 +48,6 @@ LOVENSE_STRENGTH_SCALE = 100
 LOVENSE_USE_NEW_API = True
 
 MAUSTEC_HOST = "ws://192.168.0.230:80"
-IS_WINDOWS = True
 PRINT_LOG_LINES = True
 WINDOW_UPDATE_FREQUENCY = 0.01 # 10ms
 

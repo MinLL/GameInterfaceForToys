@@ -1,0 +1,49 @@
+name: Build release
+
+on:
+  push:
+    tags:  # Tags need to be annotated with git tag 1.x.x -a; push tags with git push origin 1.x.x, or use follow tags = true in git config file.
+    - '*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.x
+
+    - name: Install dependencies
+      run: |
+        pip install pyinstaller -U
+        pip install -r requirements.txt
+
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller --onefile --windowed GameInterfaceForToys.py
+
+    - name: Include configuration data
+      run: |
+        Copy "data\" "dist\data\" -Recurse
+        Copy "games\" "dist\games\" -Recurse
+
+    - name: Zip the files
+      uses: TheDoctor0/zip-release@0.7.6
+      with:
+        path: "./dist/*"
+        type: "zip"
+        filename: "GIFT-${{github.ref_name}}:.zip"
+
+    - name: Upload Release
+      uses: ncipollo/release-action@v1.14.0
+      with:
+        artifacts: "GIFT-${{github.ref_name}}:.zip"
+        token: ${{ secrets.RELEASE_TOKEN }}
+        generateReleaseNotes: true
+        prerelease: true  # Remember to set release status manually
+

@@ -27,7 +27,8 @@ GUI_CONFIG_SAVE = 'Save'
 GUI_CONFIG_EXIT = 'Cancel'
 GUI_CONFIG_ENABLE_ALL = 'Enable All'
 GUI_CONFIG_DISABLE_ALL = 'Disable All'
-GUI_CONFIG_DEFAULTS = 'Set Defaults'
+GUI_CONFIG_DEFAULTS = 'Set Defaults'  # Reset toy event mapping
+GUI_CONFIG_RESET_SETTINGS = "Reset Settings"  # Reset interface & toy configuration
 
 EVENTS_PATH = "data/events"
 EVENTS_YAML = EVENTS_PATH + "/events.yaml"

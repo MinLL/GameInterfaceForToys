@@ -1,5 +1,6 @@
 from pathlib import Path
 import yaml
+import platform
 from common.util import *
 from common.constants import EVENTS_YAML, EVENTS_PATH
 import events.functions
@@ -63,7 +64,7 @@ class EventLoader:
         self.interface = interface
         self.event_files = {}
         self.events = []
-        if settings.IS_WINDOWS:
+        if platform.system() == "Windows":
             events_yaml_path = EVENTS_YAML.replace("/", "\\")
         else:
             events_yaml_path = EVENTS_YAML
@@ -84,7 +85,7 @@ class EventLoader:
                     continue
                 for event_file in v:
                     path = "{}/games/{}/{}".format(EVENTS_PATH, k, event_file)
-                    if settings.IS_WINDOWS:
+                    if platform.system() == "Windows":
                         path = path.replace("/", "\\")
                     self._load_events(path)
 

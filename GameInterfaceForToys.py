@@ -77,18 +77,6 @@ config_fields = {
         'Punish Event Maximum Time To Add': 'CHASTER_PUNISH_MAX'
     },
 
-    # Coyote settings (deprecated)
-    "coyote": {
-        'UID': 'COYOTE_UID',
-        'Multiplier': 'COYOTE_MULTIPLIER',
-        'Default Channel': 'COYOTE_DEFAULT_CHANNEL',
-        'Sex Multiplier': 'COYOTE_SEX_MULT',
-        'Plug Multiplier': 'COYOTE_PLUG_MULT',
-        'On-Hit Multiplier': 'COYOTE_ON_HIT_MULT',
-        'Minimum Power (0-768)': 'COYOTE_MIN_POWER',
-        'Maximum Power (0-768)': 'COYOTE_MAX_POWER'
-    },
-
     # Lovense settings
     "lovense": {
         'Host': 'LOVENSE_HOST',
@@ -385,7 +373,6 @@ def open_config_modal():
                                           [sg.Checkbox(TOY_LOVENSE, key=TOY_LOVENSE, default=TOY_LOVENSE in settings.TOY_TYPE, enable_events=True)],
                                           [sg.Checkbox(TOY_XTOYS, key=TOY_XTOYS, default=TOY_XTOYS in settings.TOY_TYPE, enable_events=True)],
                                           [sg.Checkbox(TOY_BUTTPLUG, key=TOY_BUTTPLUG, default=TOY_BUTTPLUG in settings.TOY_TYPE, enable_events=True)],
-                                          [sg.Checkbox(TOY_COYOTE, key=TOY_COYOTE, default=TOY_COYOTE in settings.TOY_TYPE, enable_events=True)],
                                           [sg.Checkbox(TOY_KIZUNA, key=TOY_KIZUNA, default=TOY_KIZUNA in settings.TOY_TYPE, enable_events=True)],
                                           [sg.Checkbox(TOY_EDGEOMATIC, key=TOY_EDGEOMATIC, default=TOY_EDGEOMATIC in settings.TOY_TYPE, enable_events=True)],
                                           ]
@@ -476,17 +463,6 @@ def open_config_modal():
 
         chaster_frame.append(field)
 
-    # DG-Lab Coyote related settings
-    coyote_frame = []
-
-    # Iterate over DG-Lab Coyote related settings. No special case handling necessary.
-    for k, v in config_fields["coyote"].items():
-        match v:
-            case _:
-                field = [sg.Text(k), sg.Push(), sg.Input(getattr(settings, v), key=v, disabled=not TOY_COYOTE in settings.TOY_TYPE)]
-
-        coyote_frame.append(field)
-
     # Lovense related settings
     lovense_frame = []
 
@@ -561,7 +537,6 @@ def open_config_modal():
                           [sg.Frame(title="Lovense settings", expand_x=True, layout=lovense_frame)],
                           [sg.Frame(title="Buttplug.io settings", expand_x=True, layout=buttplugio_frame)],
                           [sg.Frame(title="XToys settings", expand_x=True, layout=xtoys_frame)],
-                          [sg.Frame(title="DG-Lab Coyote settings", expand_x=True, layout=coyote_frame)],
                           [sg.Frame(title="Maustec settings", expand_x=True, layout=maustec_frame)],
                       ]
             ),
@@ -641,12 +616,12 @@ def open_config_modal():
             config_window["-LOG_PATH_TEXT-"].update('Current log file: {}'.format(values["LOG_PATH"]))
 
         # (Dis-)allow toy settings based in their individual toggle
-        if event in [TOY_LOVENSE, TOY_BUTTPLUG, TOY_COYOTE, TOY_KIZUNA, TOY_EDGEOMATIC, TOY_XBOXCONTROLLER, TOY_XTOYS]:
+        if event in [TOY_LOVENSE, TOY_BUTTPLUG, TOY_KIZUNA, TOY_EDGEOMATIC, TOY_XBOXCONTROLLER, TOY_XTOYS]:
 
             # We don't need to handle each toy config section individually, just iterate through a zip list mapping config categories to toy IDs.
             toy_settings_mapping = zip(
-                ["buttplugio", "lovense", "xtoys", "coyote", "maustec"],
-                [TOY_BUTTPLUG, TOY_LOVENSE, TOY_XTOYS, TOY_COYOTE, TOY_EDGEOMATIC]
+                ["buttplugio", "lovense", "xtoys", "maustec"],
+                [TOY_BUTTPLUG, TOY_LOVENSE, TOY_XTOYS, TOY_EDGEOMATIC]
             )
 
             for settings_frame, toy_id in toy_settings_mapping:
@@ -698,8 +673,6 @@ def open_config_modal():
                             toys += [TOY_XBOXCONTROLLER]
                         if values[TOY_BUTTPLUG] == True:
                             toys += [TOY_BUTTPLUG]
-                        if values[TOY_COYOTE] == True:
-                            toys += [TOY_COYOTE]
                         if values[TOY_KIZUNA] == True:
                             toys += [TOY_KIZUNA]
                         if values[TOY_EDGEOMATIC] == True:

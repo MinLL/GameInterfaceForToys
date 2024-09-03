@@ -1,9 +1,11 @@
 name: Build release
 
-on:
+on: 
+  workflow_dispatch:
   push:
     tags:  # Tags need to be annotated with git tag 1.x.x -a; push tags with git push origin 1.x.x, or use follow tags = true in git config file.
     - '*'
+  
 
 jobs:
   build:

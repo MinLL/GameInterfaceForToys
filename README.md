@@ -27,7 +27,7 @@ Upon launching the GIFT executable, the script actively watches for changes to t
 - Launch GIFT. You should see a screen like such:
 ![image](https://user-images.githubusercontent.com/7561884/210279788-78f1d902-d728-43b0-8e2a-e35b0605c5e2.png)
 - Click the Configuration button (Options may have changed since this guide was written):
-![image](https://github.com/user-attachments/assets/b7081c69-ceb2-48a4-94c0-108021e6505d)
+![image](![image](https://github.com/user-attachments/assets/af90dec8-68a8-4331-934a-4e84b729641f))
 
 Configure the options to your liking, and then click "Save". The application will then reload with the new settings.
 
@@ -57,19 +57,6 @@ If using the XToys interface, you must load this script, and connect your toys: 
 The script will provide a webhook ID - Enter this into the "XToys Webhook ID" field in settings. GIFT will now utilize XToys.
 
 This interface offers the best compatibility with toys, but has a bit higher latency than the other interfaces.
-
-### DG-Lab Coyote (E-Stim)
-First, play responsibly! Never use E-Stim above the waist, and do not use if you have a pacemaker or other medical condition. By using this feature you take full responsibility for any injury or mishap resulting from the use of this software.
-
-To enable the Coyote, select it under supported toys. Click "Save". The script will then scan, attempting to find a DG-Lab. If it finds one, it will then connect to it.
-There are a few configuration options available:
-- Coyote E-Stim UID: This should contain the UID of your device. Incase the app cannot automatically find this, you will need to enter it manually. You can find this by pairing your device, and examining its properties.
-- Coyote E-Stim Multiplier: All events in gift are rated from 0-100 in intensity, where 0 is off, and 100 is full intensity. The maximum strength that GIFT allows the DG-Lab to output is 768. The default value for this multiplier is 7.68, meaning that at 100 intensity, the Coyote will be at full strength.
-- Coyote E-Stim Default Channel: The channel that is used for the E-Stim session (Only one currently supported).
-- Coyote Sex Multiplier: The multiplier by which the strength should be changed for sex scenes. By default, reduces the strength to 20%.
-- Coyote Plug Multiplier: The multiplier by which the strength should be changed for plug events. By default, reduces the strength to 10%.
-- Coyote On-Hit Multiplier: The multiplier by which the strength should be changed for on-hit events. By default, these are at full strength.
-
 
 ### Chaster
 Currently, Chaster integration requires that you obtain developer access on chaster. Access is easy to obtain though, just follow the instructions on the developer page. Once you've obtained this, you will need to generate a token, and enter it into the "Chaster Dev Token" field. This will authorize GIFT to manipulate locks that you have access to.

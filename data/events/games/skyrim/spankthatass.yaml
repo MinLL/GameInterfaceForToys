@@ -1,0 +1,10 @@
+- Spank That Ass:
+    regex: ".+_STA_: Spanky: CounteR: .*"
+    function: generic_random_shock
+    toy_class: estim
+    params:
+        pattern: device_shock
+        min_duration: 1
+        max_duration: 1
+        min_strength: 65
+        max_strength: 95

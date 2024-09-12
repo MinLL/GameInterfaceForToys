@@ -1,0 +1,45 @@
+- MinAI Pinch Nipples:
+    regex: ".+minai.+ActionResponse.+-pinchnipples-"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 2
+        max_duration: 2
+        strength: 30
+
+- MinAI grope:
+    regex: ".+minai.+ActionResponse.+-grope-"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 2
+        max_duration: 2
+        strength: 75
+
+
+- MinAI Hug:
+    regex: ".+minai.+ActionResponse.+-hug-"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 2
+        max_duration: 2
+        strength: 20
+
+- MinAI Kiss:
+    regex: ".+minai.+ActionResponse.+-kiss-"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 2
+        max_duration: 2
+        strength: 10
+
+- MinAI Spank:
+    regex: ".+minai.+ActionResponse.+-spank"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 2
+        max_duration: 2
+        strength: 50

@@ -15,3 +15,5 @@ games:
     - captiveevents.yaml
 - nightofrevenge:
     - nightofrevenge.yaml
+- conanexiles:
+    - conanexiles.yaml

@@ -1,6 +1,6 @@
 - DD Vibrate:
-    regex: .+OnVibrateStart\(.([0-9]+).+
-    function: vibrate
+    regex: .+OnVibrateStart\(([0-9]+).+
+    function: vibrate_until_stop
     toy_class: vibrator
 - DD Stop Vibrate:
     regex: ".*\\[SkyrimToyInterface\\]: OnVibrateStop().*"

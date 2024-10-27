@@ -1,14 +1,14 @@
 - UD VibrateBreasts:
     regex: .+UD_OnVibrateB\(([0-9]+).+
-    function: vibrate_until_stop
+    function: ud_vibrate_until_stop
     toy_class: vibrator    
 - UD VibrateAnal:
     regex: .+UD_OnVibrateA\(([0-9]+).+
-    function: vibrate_until_stop
+    function: ud_vibrate_until_stop
     toy_class: vibrator    
 - UD VibrateVaginal:
     regex: .+UD_OnVibrateV\(([0-9]+).+
-    function: vibrate_until_stop
+    function: ud_vibrate_until_stop
     toy_class: vibrator            
 - UD Stop VibrateBreasts:
     regex: .+UD_OnStopVibrateB.+

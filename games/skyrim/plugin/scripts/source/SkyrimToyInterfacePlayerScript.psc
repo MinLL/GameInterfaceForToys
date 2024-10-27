@@ -103,7 +103,7 @@ Event OnUDEvent_VibDeviceEffectStart(String asSource, Form akFActor, Form akFID,
         Log("UD_OnVibrateA("+aiCurrentStrength+")")
     endIf
 EndEvent
-Event UDEvent_VibDeviceEffectUpdate(String asSource, Form akFActor, Form akFID, Form akFRD, Int aiEroZones, Int aiBaseStrength, Int aiCurrentStrength, Bool abIsPaused)
+Event OnUDEvent_VibDeviceEffectUpdate(String asSource, Form akFActor, Form akFID, Form akFRD, Int aiEroZones, Int aiBaseStrength, Int aiCurrentStrength, Bool abIsPaused)
     ;Actor on which was vibrator updated
     Actor akActor   = akFActor as Actor
 

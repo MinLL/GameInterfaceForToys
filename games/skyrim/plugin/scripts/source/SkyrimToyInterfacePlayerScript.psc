@@ -20,6 +20,9 @@ function RegisterEvents()
 	if(SKSE.GetPluginVersion("Acheron") > -1)
 		AcheronHook.RegisterAcheronEvents(self)
 	endif
+    RegisterForModEvent("UDEvent_VibDeviceEffectStart","OnUDEvent_VibDeviceEffectStart");
+    RegisterForModEvent("UDEvent_VibDeviceEffectUpdate","OnUDEvent_VibDeviceEffectUpdate");
+    RegisterForModEvent("UDEvent_VibDeviceEffectEnd","OnUDEvent_VibDeviceEffectEnd");
     RegisterForAnimationEvent(PlayerActor, "FootLeft")
     RegisterForAnimationEvent(PlayerActor, "FootRight")
     RegisterForAnimationEvent(PlayerActor, "tailSprint")
@@ -78,22 +81,102 @@ Event OnSexlabAnimationStart(int threadID, bool HasPlayer)
 EndEvent
 
 
+Event OnUDEvent_VibDeviceEffectStart(String asSource, Form akFActor, Form akFID, Form akFRD, Int aiEroZones, Int aiBaseStrength, Int aiCurrentStrength)
+    ;Actor on which was vibrator turned on
+    Actor akActor   = akFActor as Actor
+
+    ;Inventory device of locked device
+    Armor akID      = akFID as Armor
+
+    ;Render device of locked device
+    Armor akRD      = akFRD as Armor
+    if (akActor != PlayerActor) 
+        return
+    endIf
+    if (Math.LogicalAnd(aiEroZones,0x7)!=0)
+        Log("UD_OnVibrateV("+aiCurrentStrength+")")
+    endIf
+    if (Math.LogicalAnd(aiEroZones,0x40)!=0)
+        Log("UD_OnVibrateB("+aiCurrentStrength+")")
+    endIf
+    if (Math.LogicalAnd(aiEroZones,0x180)!=0)
+        Log("UD_OnVibrateA("+aiCurrentStrength+")")
+    endIf
+EndEvent
+Event OnUDEvent_VibDeviceEffectUpdate(String asSource, Form akFActor, Form akFID, Form akFRD, Int aiEroZones, Int aiBaseStrength, Int aiCurrentStrength, Bool abIsPaused)
+    ;Actor on which was vibrator updated
+    Actor akActor   = akFActor as Actor
+
+    ;Inventory device of locked device
+    Armor akID      = akFID as Armor
+
+    ;Render device of locked device
+    Armor akRD      = akFRD as Armor
+    if (akActor != PlayerActor) 
+        return
+    endIf  
+    if (Math.LogicalAnd(aiEroZones,0x7)!=0)
+        Log("UD_OnVibrateV("+aiCurrentStrength+")")
+    endIf
+    if (Math.LogicalAnd(aiEroZones,0x40)!=0)
+        Log("UD_OnVibrateB("+aiCurrentStrength+")")
+    endIf
+    if (Math.LogicalAnd(aiEroZones,0x180)!=0)
+        Log("UD_OnVibrateA("+aiCurrentStrength+")")
+    endIf
+EndEvent
+Event OnUDEvent_VibDeviceEffectEnd(String asSource, Form akFActor, Form akFID, Form akFRD, Int aiEroZones, Int aiBaseStrength)
+    ;Actor on which was vibrator turned off
+    Actor akActor   = akFActor as Actor
+
+    ;Inventory device of locked device
+    Armor akID      = akFID as Armor
+
+    ;Render device of locked device
+    Armor akRD      = akFRD as Armor
+    if (akActor != PlayerActor) 
+        return
+    endIf
+    
+    if (Math.LogicalAnd(aiEroZones,0x7)!=0)
+        Log("UD_OnStopVibrateV("+0+")")
+    endIf
+    if (Math.LogicalAnd(aiEroZones,0x40)!=0)
+        Log("UD_OnStopVibrateB("+0+")")
+    endIf
+    if (Math.LogicalAnd(aiEroZones,0x180)!=0)
+        Log("UD_OnStopVibrateA("+0+")")
+    endIf
+EndEvent
+
 Event OnVibrateStart(string eventName, string strArg, float numArg, Form sender)
-    Log("OnVibrateStart()")
+    if (strArg != PlayerActor.GetActorBase().getName())
+       return
+    endIf
+    Log("OnVibrateStart("+numArg+")")
 EndEvent
 
 
 Event OnVibrateStop(string eventName, string strArg, float numArg, Form sender)
+    if (strArg != PlayerActor.GetActorBase().getName())
+       return
+    endIf
     Log("OnVibrateStop()")
 EndEvent
 
 
 Event OnDeviceActorOrgasm(string eventName, string strArg, float numArg, Form sender)
+    if (strArg != PlayerActor.GetActorBase().getName())
+       return
+    endIf
     Log("OnDeviceActorOrgasm()")
 EndEvent
 
 
 Event OnDeviceEdgedActor(string eventName, string strArg, float numArg, Form sender)
+    if (strArg != PlayerActor.GetActorBase().getName())
+       return
+    endIf
     Log("OnDeviceEdgedActor()")
 EndEvent
 

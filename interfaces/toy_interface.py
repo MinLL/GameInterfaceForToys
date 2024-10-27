@@ -93,6 +93,9 @@ class ToyInterface(object):
             return
         return self._do_action(interface, {"plus": False, "duration": duration, "strength": strength, "pattern": pattern, "toys": toys, "action": "vibrate"})
 
+    def vibrate_until_stop(self,strength,pattern="",event=None,vibrate_only=False):
+        self.vibrate(500,strength,pattern,event,vibrate_only)
+
     def vibrate_plus(self, duration, strength, pattern="", event=None, vibrate_only=False):
         strength = math.ceil(strength)
         info("Toy Vibrate+ - start(duration={}, strength={}, pattern={})".format(duration, strength, pattern))

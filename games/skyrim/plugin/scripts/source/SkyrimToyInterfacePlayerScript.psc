@@ -79,21 +79,33 @@ EndEvent
 
 
 Event OnVibrateStart(string eventName, string strArg, float numArg, Form sender)
-    Log("OnVibrateStart()")
+    if (strArg != PlayerActor.GetActorBase().getName())
+       return
+    endIf
+    Log("OnVibrateStart("+numArg+")")
 EndEvent
 
 
 Event OnVibrateStop(string eventName, string strArg, float numArg, Form sender)
+    if (strArg != PlayerActor.GetActorBase().getName())
+       return
+    endIf
     Log("OnVibrateStop()")
 EndEvent
 
 
 Event OnDeviceActorOrgasm(string eventName, string strArg, float numArg, Form sender)
+    if (strArg != PlayerActor.GetActorBase().getName())
+       return
+    endIf
     Log("OnDeviceActorOrgasm()")
 EndEvent
 
 
 Event OnDeviceEdgedActor(string eventName, string strArg, float numArg, Form sender)
+    if (strArg != PlayerActor.GetActorBase().getName())
+       return
+    endIf
     Log("OnDeviceEdgedActor()")
 EndEvent
 

@@ -192,10 +192,10 @@ class LogReaderInterface(Interface):
         strength = int(match.group(1))
         return self.dd_vibrate(duration, strength, event=event)
 
-    def vibrate_until_stop(self, match, event):
+    def ud_vibrate_until_stop(self, match, event):
         self.dd_vibrating = True
         strength = int(match.group(1))
-        return self.dd_vibrate(500, strength, event=event)
+        return self.dd_vibrate(500, strength/20, event=event)
 
     def dd_anim(self, match, event):
         # Don't override existing dd vibrations

@@ -1,5 +1,5 @@
 - DD Vibrate:
-    regex: .+OnVibrateStart(.([0-9]+).+
+    regex: .+OnVibrateStart\(.([0-9]+).+
     function: vibrate
     toy_class: vibrator
 - DD Stop Vibrate:

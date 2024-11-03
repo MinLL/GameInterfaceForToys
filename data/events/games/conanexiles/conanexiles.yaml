@@ -1,0 +1,52 @@
+- Conan Vibrate Generic:
+    regex: .*\[ConanInterfaceForToys\] VibrateGeneric.*
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        duration: 10
+        strength: 40
+        pattern: vibrator_1
+- Conan Vibrate:
+    regex: .*\[ConanInterfaceForToys\] Vibrate ([0-9]+) for ([0-9]+).*
+    function: vibrate
+    toy_class: vibrator
+- Conan Orgasm:
+    regex: .*\[ConanInterfaceForToys\] Orgasm.*
+    function: player_orgasmed
+    toy_class: vibrator
+- Conan Edge:
+    regex: .*\[ConanInterfaceForToys\] Edge.*
+    function: player_edged
+    toy_class: vibrator
+- Conan Vibrate Stop:
+    regex: .*\[ConanInterfaceForToys\] VibrateStop.*
+    function: stop_vibrate
+    toy_class: vibrator
+- Conan Sex Start:
+    regex: .*\[ConanInterfaceForToys\] SexStart.*
+    function: sex_start
+    group: default
+    toy_class: vibrator
+- Conan Sex Stage Progress:
+    regex: .*\[ConanInterfaceForToys\] SexStageProgress.*
+    function: sex_stage_start
+    toy_class: vibrator
+- Conan Sex Set Animation:
+    regex: .*\[ConanInterfaceForToys\] SexSetAnimation\((.+), (.+), (.+), (.+), (.+), (.+)\).*
+    function: sex_animation_set
+    toy_class: vibrator
+- Conan Sex End:
+    regex: .*\[ConanInterfaceForToys\] SexEnd.*
+    function: sex_end
+    group: default
+    toy_class: vibrator
+- Conan Shock Generic:
+    regex: .*\[ConanInterfaceForToys\] ShockGeneric.*
+    function: generic_random_shock
+    toy_class: estim
+    params:
+        pattern: device_shock
+        min_duration: 1
+        max_duration: 3
+        min_strength: 65
+        max_strength: 85

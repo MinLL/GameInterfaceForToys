@@ -53,8 +53,10 @@ class XToysInterface(Toy):
 
     async def shock(self, duration, strength, pattern="", toys=[]):
         # Scale strength appropriately
-        strength = max(int(settings.XTOYS_SHOCK_MIN), strength)
-        strength = min(int(settings.XTOYS_SHOCK_MAX), strength)
+        OldRange = (100 - 0)  
+        NewRange = (int(settings.XTOYS_SHOCK_MAX) - int(settings.XTOYS_SHOCK_MIN))
+        strength = (((strength - 0) * NewRange) / OldRange) + int(settings.XTOYS_SHOCK_MIN)
+
         if len(toys) == 0:
             action = 'shock_a'
             return await self._invoke_webhook(settings.XTOYS_WEBHOOK_ID, action, {"time": duration, "intensity": strength, "pattern": pattern})

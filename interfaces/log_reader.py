@@ -357,6 +357,8 @@ class LogReaderInterface(Interface):
                     line = fd.readline()
                     if not line:
                         break
+                    if "warning: Property" in line:
+                        continue
                     line = line.strip('\n')
                     if settings.PRINT_LOG_LINES:
                         print(line)

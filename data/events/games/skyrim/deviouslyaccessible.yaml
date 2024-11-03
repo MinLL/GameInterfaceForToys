@@ -1,0 +1,196 @@
+- Deviously Accessible - dwp_birthingsound:
+    regex: ".+DeviouslyAccessible.+dwp_birthingsound.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 30
+        max_duration: 30
+        strength: 100
+
+- Deviously Accessible - dwp_lustpantFX:
+    regex: ".+DeviouslyAccessible.+dwp_lustpantFX.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 3
+        max_duration: 5
+        strength: 70
+
+- Deviously Accessible - dwp_orgasmshortFX:
+    regex: ".+DeviouslyAccessible.+dwp_orgasmshortFX.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 10
+        max_duration: 10
+        strength: 100
+
+- Deviously Accessible - dwp_paincryFX:
+    regex: ".+DeviouslyAccessible.+dwp_paincryFX.*"
+    function: generic_random_shock
+    toy_class: estim
+    params:
+        min_duration: 4
+        max_duration: 5
+        min_strength: 50
+        max_strength: 75
+
+- Deviously Accessible - dwp_SexLabOrgasmFX:
+    regex: ".+DeviouslyAccessible.+dwp_SexLabOrgasmFX.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 15
+        max_duration: 15
+        strength: 100
+
+- Deviously Accessible - dwp_SexLabSuckingDescriptorFX:
+    regex: ".+DeviouslyAccessible.+dwp_SexLabSuckingDescriptorFX.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 5
+        strength: 20
+
+- Deviously Accessible - dwp_SexLabVoiceFemale03Hotcum:
+    regex: ".+DeviouslyAccessible.+dwp_SexLabVoiceFemale03Hotcum.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 5
+        strength: 20
+
+- Deviously Accessible - dwp_SexLabVoiceFemale03Hotnocum:
+    regex: ".+DeviouslyAccessible.+dwp_SexLabVoiceFemale03Hotnocum.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 5
+        strength: 20
+
+- Deviously Accessible - dwp_sexsquishFX:
+    regex: ".+DeviouslyAccessible.+dwp_sexsquishFX.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 20
+        max_duration: 20
+        strength: 65
+
+- Deviously Accessible - dwp_sexsquishFX2:
+    regex: ".+DeviouslyAccessible.+dwp_sexsquishFX2.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 5
+        strength: 65
+
+- Deviously Accessible - dwp_vibrateonce_standardFX:
+    regex: ".+DeviouslyAccessible.+dwp_vibrateonce_standardFX.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 1
+        max_duration: 2
+        min_strength: 60
+        max_strength: 80
+
+- Deviously Accessible - dwp_zadGaggedMale01Medium_swallow2FX:
+    regex: ".+DeviouslyAccessible.+dwp_zadGaggedMale01Medium_swallow2FX.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 5
+        strength: 30
+
+- Deviously Accessible - dwp_zadGaggedMale01Medium_swallowFX:
+    regex: ".+DeviouslyAccessible.+dwp_zadGaggedMale01Medium_swallowFX.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 5
+        strength: 30
+
+- Deviously Accessible - dwp_zadGaggedorgsmFX:
+    regex: ".+DeviouslyAccessible.+dwp_zadGaggedorgsmFX.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 15
+        max_duration: 15
+        strength: 100
+
+- Deviously Accessible - SexLabVoiceFemale01Medium:
+    regex: ".+DeviouslyAccessible.+SexLabVoiceFemale01Medium.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 5
+        strength: 30
+
+- Deviously Accessible - SexLabVoiceFemale03Medium:
+    regex: ".+DeviouslyAccessible.+SexLabVoiceFemale03Medium.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 5
+        strength: 30
+
+- Deviously Accessible - SexLabVoiceFemale03Mild:
+    regex: ".+DeviouslyAccessible.+SexLabVoiceFemale03Mild.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 5
+        strength: 30
+
+- Deviously Accessible - zadGaggedFemale01Hot:
+    regex: ".+DeviouslyAccessible.+zadGaggedFemale01Hot.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 5
+        strength: 30
+
+- Deviously Accessible - zadGaggedFemale01Mild:
+    regex: ".+DeviouslyAccessible.+zadGaggedFemale01Mild.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 5
+        strength: 30
+
+- Deviously Accessible - zadShortMoan:
+    regex: ".+DeviouslyAccessible.+zadShortMoan.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 3
+        max_duration: 3
+        min_strength: 20
+        max_strength: 40
+
+- Deviously Accessible - zadShortPant:
+    regex: ".+DeviouslyAccessible.+zadShortPant.*"
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 5
+        min_strength: 20
+        max_strength: 40
+
+
+
+

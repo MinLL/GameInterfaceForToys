@@ -46,7 +46,7 @@
 
 
 - MinAI Pinch Nipples:
-    regex: ".+ExtCmdPinchNipples.+"
+    regex: ".+CommandDispatcher.+ExtCmdPinchNipples.+"
     function: generic_random_vibrate
     toy_class: vibrator
     params:
@@ -55,7 +55,7 @@
         strength: 30
 
 - MinAI grope:
-    regex: ".+ExtCmdGrope.+"
+    regex: ".+CommandDispatcher.+ExtCmdGrope.+"
     function: generic_random_vibrate
     toy_class: vibrator
     params:
@@ -65,7 +65,7 @@
 
 
 - MinAI Hug:
-    regex: ".+ExtCmdHug.+"
+    regex: ".+CommandDispatcher.+ExtCmdHug.+"
     function: generic_random_vibrate
     toy_class: vibrator
     params:
@@ -74,7 +74,7 @@
         strength: 20
 
 - MinAI Kiss:
-    regex: ".+ExtCmdKiss.+"
+    regex: ".+CommandDispatcher.+ExtCmdKiss.+"
     function: generic_random_vibrate
     toy_class: vibrator
     params:

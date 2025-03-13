@@ -1,4 +1,6 @@
 games:
+- starfield:
+    - grayfunctions.yaml
 - skyrim:
     - sexlab.yaml
     - chaster.yaml
@@ -8,7 +10,6 @@ games:
     - nakeddefeat.yaml
     - spankthatass.yaml
     - minai.yaml
-    - deviouslyaccessible.yaml
 - fallout4:
     - aaf.yaml
     - deviousdevices.yaml
@@ -16,5 +17,3 @@ games:
     - captiveevents.yaml
 - nightofrevenge:
     - nightofrevenge.yaml
-- conanexiles:
-    - conanexiles.yaml

@@ -1,0 +1,73 @@
+- VibrateOrgasm:
+    regex: .+GIFTOrgasm*
+    function: player_orgasmed
+    toy_class: vibrator
+- VibrateEdge:
+    regex: .+GIFTEdge*
+    function: player_edged
+    toy_class: vibrator
+- VibrateRandom:
+    regex: .+GIFTRandomVibrate*
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 5
+        max_duration: 10
+        strength: 50
+- VibrateHard:
+    regex: .+GIFTHardVibrate*
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 20
+        max_duration: 25
+        strength: 100        
+- VibratePulse:
+    regex: .+GIFTVibratePulse*
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 1
+        max_duration: 2
+        strength: 80        
+- VibrateShort:
+    regex: .+GIFTVibrateShort*
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 3
+        max_duration: 4
+        strength: 25    
+- VibrateAnimationLow:
+    regex: .+GIFTAnimLowVibrate*
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 19
+        max_duration: 20
+        strength: 40
+- VibrateAnimationMed:
+    regex: .+GIFTAnimMedVibrate*
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 19
+        max_duration: 20
+        strength: 70  
+- VibrateAnimationHigh:
+    regex: .+GIFTAnimHighVibrate*
+    function: generic_random_vibrate
+    toy_class: vibrator
+    params:
+        min_duration: 19
+        max_duration: 20
+        strength: 100                                 
+- VibrateStart:
+    regex: .+GIFTVibrateStart*
+    function: sex_start_simple
+    group: default
+    toy_class: vibrator
+- VibrateStop:
+    regex: .+GIFTVibrateStop*
+    function: sex_end
+    toy_class: vibrator
